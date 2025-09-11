@@ -1,6 +1,117 @@
-const Quotation = () => {
+import { Printer } from "lucide-react"
+
+const Quotation = ({ quotationData, customer }) => {
+  const handlePrint = async () => {
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank')
+    const quotationElement = document.getElementById('quotation-content')
+    
+    if (printWindow && quotationElement) {
+      // Convert image to base64 to ensure it loads in PDF
+      const convertImageToBase64 = (imgUrl) => {
+        return new Promise((resolve) => {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            canvas.width = img.width
+            canvas.height = img.height
+            ctx.drawImage(img, 0, 0)
+            resolve(canvas.toDataURL('image/png'))
+          }
+          img.onerror = () => resolve(imgUrl) // Fallback to original URL
+          img.src = imgUrl
+        })
+      }
+
+      const logoUrl = 'https://res.cloudinary.com/drpbrn2ax/image/upload/v1757416761/logo2_kpbkwm-removebg-preview_jteu6d.png'
+      const base64Logo = await convertImageToBase64(logoUrl)
+      
+      // Clone the content and replace the image src
+      const clonedContent = quotationElement.cloneNode(true)
+      const logoImg = clonedContent.querySelector('img')
+      if (logoImg) {
+        logoImg.src = base64Logo
+      }
+      
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Quotation - ${quotationData?.quotationNumber || 'ANO/25-26/458'}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { 
+                margin: 0; 
+                padding: 20px; 
+                font-family: Arial, sans-serif; 
+                font-size: 14px;
+                line-height: 1.4;
+                color: #000;
+              }
+              .border-2 { border: 2px solid #000; }
+              .border { border: 1px solid #000; }
+              .border-black { border-color: #000; }
+              .border-gray-300 { border-color: #d1d5db; }
+              .mb-4 { margin-bottom: 1rem; }
+              .mb-2 { margin-bottom: 0.5rem; }
+              .mb-8 { margin-bottom: 2rem; }
+              .p-2 { padding: 0.5rem; }
+              .p-3 { padding: 0.75rem; }
+              .p-6 { padding: 1.5rem; }
+              .pt-1 { padding-top: 0.25rem; }
+              .text-xl { font-size: 1.25rem; }
+              .text-xs { font-size: 0.75rem; }
+              .text-sm { font-size: 0.875rem; }
+              .font-bold { font-weight: bold; }
+              .font-semibold { font-weight: 600; }
+              .text-center { text-align: center; }
+              .text-right { text-align: right; }
+              .text-left { text-align: left; }
+              .flex { display: flex; }
+              .justify-between { justify-content: space-between; }
+              .items-center { align-items: center; }
+              .grid { display: grid; }
+              .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+              .grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+              .gap-2 { gap: 0.5rem; }
+              .gap-4 { gap: 1rem; }
+              .bg-gray-50 { background-color: #f9fafb; }
+              .bg-gray-100 { background-color: #f3f4f6; }
+              .space-y-1 > * + * { margin-top: 0.25rem; }
+              .space-y-2 > * + * { margin-top: 0.5rem; }
+              .w-full { width: 100%; }
+              .h-12 { height: 3rem; }
+              .w-auto { width: auto; }
+              .rounded { border-radius: 0.25rem; }
+              table { border-collapse: collapse; width: 100%; }
+              th, td { border: 1px solid #d1d5db; padding: 0.5rem; text-align: left; }
+              th { background-color: #f3f4f6; font-weight: bold; }
+              .border-t { border-top: 1px solid #000; }
+              .no-print { display: none !important; }
+              img { max-width: 100%; height: auto; }
+              @media print {
+                body { margin: 0; padding: 10px; }
+                .no-print { display: none !important; }
+                * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+              }
+            </style>
+          </head>
+          <body>
+            ${clonedContent.innerHTML}
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+      printWindow.focus()
+      printWindow.print()
+      printWindow.close()
+    }
+  }
     return (
-      <div className="max-w-4xl mx-auto bg-white p-6 font-sans text-sm">
+      <div className="max-w-4xl mx-auto bg-white font-sans text-sm">        
+        {/* Quotation Content */}
+        <div id="quotation-content" className="p-6">
         {/* Header */}
         <div className="border-2 border-black mb-4">
           {/* Removed header background color and updated company name and tagline */}
@@ -60,11 +171,11 @@ const Quotation = () => {
             </div>
           </div>
           <div className="grid grid-cols-5 gap-2 p-2 text-xs">
-            <div>Final Quotation</div>
-            <div>ANO/25-26/458</div>
-            <div>08/09/2025</div>
-            <div>145</div>
-            <div>2 DAYS</div>
+            <div>{quotationData?.quotationDetail || 'Final Quotation'}</div>
+            <div>{quotationData?.quotationNumber || 'ANO/25-26/458'}</div>
+            <div>{quotationData?.quotationDate || '08/09/2025'}</div>
+            <div>{`CUST${Date.now().toString().slice(-4)}` || '145'}</div>
+            <div>{quotationData?.validUpto || '2 DAYS'}</div>
           </div>
         </div>
   
@@ -74,17 +185,17 @@ const Quotation = () => {
             <div>
               <h3 className="font-bold mb-2">BILL TO:</h3>
               <p>
-                <strong>Das Industrial Controls</strong>
+                <strong>{quotationData?.billTo?.business || customer?.business || 'Das Industrial Controls'}</strong>
               </p>
-              <p>Panvel, Maharashtra, India</p>
+              <p>{quotationData?.billTo?.address || customer?.address || 'Panvel, Maharashtra, India'}</p>
               <p>
-                <strong>PHONE:</strong> 7039542259
-              </p>
-              <p>
-                <strong>GSTIN:</strong> 27DVTPS2973B1Z0
+                <strong>PHONE:</strong> {quotationData?.billTo?.phone || customer?.phone || '7039542259'}
               </p>
               <p>
-                <strong>State:</strong> Maharashtra (27)
+                <strong>GSTIN:</strong> {quotationData?.billTo?.gstNo || customer?.gstNo || '27DVTPS2973B1Z0'}
+              </p>
+              <p>
+                <strong>State:</strong> {quotationData?.billTo?.state || customer?.state || 'Maharashtra'}
               </p>
             </div>
             <div>
@@ -116,38 +227,51 @@ const Quotation = () => {
                 {/* Changed Rate to Unit */}
                 <th className="border border-gray-300 p-2 text-left">Unit</th>
                 <th className="border border-gray-300 p-2 text-left">Taxable Value</th>
-                <th className="border border-gray-300 p-2 text-left">CGST</th>
-                <th className="border border-gray-300 p-2 text-left">SGST</th>
+                <th className="border border-gray-300 p-2 text-left">Total GST</th>
                 <th className="border border-gray-300 p-2 text-left">Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="border border-gray-300 p-2">1</td>
-                <td className="border border-gray-300 p-2">ACSR Dog Conductor</td>
-                <td className="border border-gray-300 p-2">76042910</td>
-                <td className="border border-gray-300 p-2">120,000 MTR</td>
-                <td className="border border-gray-300 p-2">82.00</td>
-                <td className="border border-gray-300 p-2">9,840,000</td>
-                <td className="border border-gray-300 p-2">9% 886,200</td>
-                <td className="border border-gray-300 p-2">9% 886,200</td>
-                <td className="border border-gray-300 p-2">11,612,400</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 p-2">2</td>
-                <td className="border border-gray-300 p-2">AAAC Panther 232 SQMM</td>
-                <td className="border border-gray-300 p-2">85446090</td>
-                <td className="border border-gray-300 p-2">120,000 MTR</td>
-                <td className="border border-gray-300 p-2">205.00</td>
-                <td className="border border-gray-300 p-2">24,600,000</td>
-                <td className="border border-gray-300 p-2">9% 2,214,000</td>
-                <td className="border border-gray-300 p-2">9% 2,214,000</td>
-                <td className="border border-gray-300 p-2">29,028,000</td>
-              </tr>
+              {quotationData?.items?.length > 0 ? (
+                quotationData.items.map((item, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-300 p-2">{index + 1}</td>
+                    <td className="border border-gray-300 p-2">{item.description}</td>
+                    <td className="border border-gray-300 p-2">85446090</td>
+                    <td className="border border-gray-300 p-2">{item.quantity} {item.unit}</td>
+                    <td className="border border-gray-300 p-2">{item.rate.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2">{item.amount.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2">18% {(item.amount * 0.18).toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2">{(item.amount * 1.18).toFixed(2)}</td>
+                  </tr>
+                ))
+              ) : (
+                <>
+                  <tr>
+                    <td className="border border-gray-300 p-2">1</td>
+                    <td className="border border-gray-300 p-2">ACSR Dog Conductor</td>
+                    <td className="border border-gray-300 p-2">76042910</td>
+                    <td className="border border-gray-300 p-2">120,000 MTR</td>
+                    <td className="border border-gray-300 p-2">82.00</td>
+                    <td className="border border-gray-300 p-2">9,840,000</td>
+                    <td className="border border-gray-300 p-2">18% 1,772,400</td>
+                    <td className="border border-gray-300 p-2">11,612,400</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-2">2</td>
+                    <td className="border border-gray-300 p-2">AAAC Panther 232 SQMM</td>
+                    <td className="border border-gray-300 p-2">85446090</td>
+                    <td className="border border-gray-300 p-2">120,000 MTR</td>
+                    <td className="border border-gray-300 p-2">205.00</td>
+                    <td className="border border-gray-300 p-2">24,600,000</td>
+                    <td className="border border-gray-300 p-2">18% 4,428,000</td>
+                    <td className="border border-gray-300 p-2">29,028,000</td>
+                  </tr>
+                </>
+              )}
               {/* Empty rows for spacing */}
               {[...Array(8)].map((_, i) => (
                 <tr key={i} className="h-8">
-                  <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
@@ -162,10 +286,9 @@ const Quotation = () => {
                 <td className="border border-gray-300 p-2" colSpan="5">
                   Total
                 </td>
-                <td className="border border-gray-300 p-2">34,440,000</td>
-                <td className="border border-gray-300 p-2">3,100,200</td>
-                <td className="border border-gray-300 p-2">3,100,200</td>
-                <td className="border border-gray-300 p-2">40,640,400</td>
+                <td className="border border-gray-300 p-2">{quotationData?.subtotal?.toFixed(2) || '34,440,000'}</td>
+                <td className="border border-gray-300 p-2">{quotationData?.taxAmount?.toFixed(2) || '6,200,400'}</td>
+                <td className="border border-gray-300 p-2">{quotationData?.total?.toFixed(2) || '40,640,400'}</td>
               </tr>
             </tbody>
           </table>
@@ -194,19 +317,15 @@ const Quotation = () => {
             <div className="text-xs space-y-1">
               <div className="flex justify-between">
                 <span>Taxable Amount</span>
-                <span>34,440,000</span>
+                <span>{quotationData?.subtotal?.toFixed(2) || '34,440,000'}</span>
               </div>
               <div className="flex justify-between">
-                <span>Add: CGST</span>
-                <span>3,100,200</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Add: SGST</span>
-                <span>3,100,200</span>
+                <span>Add: Total GST (18%)</span>
+                <span>{quotationData?.taxAmount?.toFixed(2) || '6,200,400'}</span>
               </div>
               <div className="flex justify-between font-bold border-t pt-1">
                 <span>Total Amount After Tax</span>
-                <span>₹ 40,640,400</span>
+                <span>₹ {quotationData?.total?.toFixed(2) || '40,640,400'}</span>
               </div>
               <div className="text-center mt-2">
                 <span className="text-xs">(Rupees Four Crore Six Lakh Forty Thousand Four Hundred Only)</span>
@@ -264,6 +383,18 @@ const Quotation = () => {
           </p>
           <p className="mb-8">This is computer generated invoice no signature required.</p>
           <p className="font-bold">Authorized Signatory</p>
+        </div>
+        </div>
+        
+        {/* Print Button - Bottom Left */}
+        <div className="flex justify-start mt-4 no-print">
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Printer className="h-4 w-4" />
+            Print PDF
+          </button>
         </div>
       </div>
     )
