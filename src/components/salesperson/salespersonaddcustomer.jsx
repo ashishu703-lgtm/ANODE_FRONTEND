@@ -44,19 +44,19 @@ function Button({ children, onClick, type = "button", variant = "default", size 
   )
 }
 
-export default function AddCustomerForm({ onClose, onSave }) {
+export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
   const [formData, setFormData] = useState({
-    customerName: "",
-    mobileNumber: "",
-    whatsappNumber: "",
-    email: "",
-    businessType: "",
-    gstNumber: "",
-    address: "",
-    state: "",
-    productType: "",
-    connectionStatus: "",
-    finalStatus: "",
+    customerName: editingCustomer?.name || "",
+    mobileNumber: editingCustomer?.phone || "",
+    whatsappNumber: editingCustomer?.whatsapp?.replace('+91', '') || "",
+    email: editingCustomer?.email === "N/A" ? "" : editingCustomer?.email || "",
+    businessType: editingCustomer?.business || "",
+    gstNumber: editingCustomer?.gstNo === "N/A" ? "" : editingCustomer?.gstNo || "",
+    address: editingCustomer?.address || "",
+    state: editingCustomer?.state || "",
+    productType: editingCustomer?.productType || "",
+    connectionStatus: editingCustomer?.connected?.status || "",
+    finalStatus: editingCustomer?.finalInfo?.remark || "",
   })
 
   const handleInputChange = (field, value) => {
@@ -100,8 +100,12 @@ export default function AddCustomerForm({ onClose, onSave }) {
               <User className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-xl font-semibold">Add New Customer</CardTitle>
-              <p className="text-sm text-gray-600">Fill in the customer details below</p>
+              <CardTitle className="text-xl font-semibold">
+                {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                {editingCustomer ? 'Update the customer details below' : 'Fill in the customer details below'}
+              </p>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>

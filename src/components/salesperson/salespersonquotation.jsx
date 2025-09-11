@@ -83,7 +83,11 @@ const Quotation = ({ quotationData, customer }) => {
               .w-full { width: 100%; }
               .h-12 { height: 3rem; }
               .w-auto { width: auto; }
+              .w-24 { width: 6rem; }
               .rounded { border-radius: 0.25rem; }
+              .flex-col { flex-direction: column; }
+              .bg-blue-600 { background-color: #2563eb; }
+              .text-white { color: white; }
               table { border-collapse: collapse; width: 100%; }
               th, td { border: 1px solid #d1d5db; padding: 0.5rem; text-align: left; }
               th { background-color: #f3f4f6; font-weight: bold; }

@@ -28,6 +28,7 @@ export default function CustomerListContent() {
   const [lastQuotationData, setLastQuotationData] = React.useState(null)
   const [isRefreshing, setIsRefreshing] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [editingCustomer, setEditingCustomer] = React.useState(null)
   const [customers, setCustomers] = React.useState([
     {
       id: 1,
@@ -212,7 +213,8 @@ export default function CustomerListContent() {
   ])
 
   const handleEdit = (customer) => {
-    console.log("Edit customer", customer)
+    setEditingCustomer(customer)
+    setShowAddCustomer(true)
   }
 
   const handleView = (customer) => {
@@ -493,8 +495,21 @@ export default function CustomerListContent() {
       })
     }
 
+    // Use a more reliable logo URL or fallback to a simple text logo
     const logoUrl = 'https://res.cloudinary.com/drpbrn2ax/image/upload/v1757416761/logo2_kpbkwm-removebg-preview_jteu6d.png'
-    const base64Logo = await convertImageToBase64(logoUrl)
+    let base64Logo = await convertImageToBase64(logoUrl)
+    
+    // If conversion fails, use a fallback base64 logo or create a text-based logo
+    if (!base64Logo || base64Logo === logoUrl) {
+      // Create a simple text-based logo as fallback
+      base64Logo = 'data:image/svg+xml;base64,' + btoa(`
+        <svg width="120" height="48" xmlns="http://www.w3.org/2000/svg">
+          <rect width="120" height="48" fill="#1e40af" rx="4"/>
+          <text x="60" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">ANODE</text>
+          <text x="60" y="35" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="white">ELECTRIC</text>
+        </svg>
+      `)
+    }
     
     const logoImg = tempDiv.querySelector('img')
     if (logoImg) {
@@ -552,7 +567,11 @@ export default function CustomerListContent() {
               .w-full { width: 100%; }
               .h-12 { height: 3rem; }
               .w-auto { width: auto; }
+              .w-24 { width: 6rem; }
               .rounded { border-radius: 0.25rem; }
+              .flex-col { flex-direction: column; }
+              .bg-blue-600 { background-color: #2563eb; }
+              .text-white { color: white; }
               table { border-collapse: collapse; width: 100%; }
               th, td { border: 1px solid #d1d5db; padding: 0.5rem; text-align: left; }
               th { background-color: #f3f4f6; font-weight: bold; }
@@ -580,41 +599,77 @@ export default function CustomerListContent() {
   }
 
   const handleAddCustomer = () => {
+    setEditingCustomer(null) // Clear editing customer when adding new
     setShowAddCustomer(true)
   }
 
   const handleSaveCustomer = (newCustomerData) => {
-    const newCustomer = {
-      id: customers.length + 1,
-      name: newCustomerData.customerName,
-      phone: newCustomerData.mobileNumber,
-      email: newCustomerData.email || "N/A",
-      business: newCustomerData.businessType,
-      location: "Location", // You can enhance this based on state
-      gstNo: newCustomerData.gstNumber || "N/A",
-      address: newCustomerData.address,
-      state: newCustomerData.state,
-      enquiryBy: "Manual Entry",
-      productType: newCustomerData.productType,
-      connected: { 
-        status: newCustomerData.connectionStatus, 
-        remark: "New customer added", 
-        datetime: new Date().toLocaleString() 
-      },
-      finalStatus: "New",
-      finalInfo: { 
-        status: newCustomerData.finalStatus === "Closed" ? "closed" : "next_meeting", 
-        datetime: "", 
-        remark: newCustomerData.finalStatus 
-      },
-      latestQuotationUrl: "#",
-      quotationsSent: 0,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: newCustomerData.whatsappNumber ? `+91${newCustomerData.whatsappNumber}` : null,
+    if (editingCustomer) {
+      // Update existing customer
+      const updatedCustomer = {
+        ...editingCustomer,
+        name: newCustomerData.customerName,
+        phone: newCustomerData.mobileNumber,
+        email: newCustomerData.email || "N/A",
+        business: newCustomerData.businessType,
+        location: newCustomerData.state, // Use state as location
+        gstNo: newCustomerData.gstNumber || "N/A",
+        address: newCustomerData.address,
+        state: newCustomerData.state,
+        productType: newCustomerData.productType,
+        connected: { 
+          ...editingCustomer.connected,
+          status: newCustomerData.connectionStatus,
+          remark: "Customer information updated", 
+          datetime: new Date().toLocaleString() 
+        },
+        finalInfo: { 
+          ...editingCustomer.finalInfo,
+          status: newCustomerData.finalStatus === "Closed" ? "closed" : "next_meeting", 
+          remark: newCustomerData.finalStatus 
+        },
+        whatsapp: newCustomerData.whatsappNumber ? `+91${newCustomerData.whatsappNumber}` : editingCustomer.whatsapp,
+      }
+      
+      setCustomers(prev => prev.map(customer => 
+        customer.id === editingCustomer.id ? updatedCustomer : customer
+      ))
+    } else {
+      // Add new customer
+      const newCustomer = {
+        id: customers.length + 1,
+        name: newCustomerData.customerName,
+        phone: newCustomerData.mobileNumber,
+        email: newCustomerData.email || "N/A",
+        business: newCustomerData.businessType,
+        location: newCustomerData.state, // Use state as location
+        gstNo: newCustomerData.gstNumber || "N/A",
+        address: newCustomerData.address,
+        state: newCustomerData.state,
+        enquiryBy: "Manual Entry",
+        productType: newCustomerData.productType,
+        connected: { 
+          status: newCustomerData.connectionStatus, 
+          remark: "New customer added", 
+          datetime: new Date().toLocaleString() 
+        },
+        finalStatus: "New",
+        finalInfo: { 
+          status: newCustomerData.finalStatus === "Closed" ? "closed" : "next_meeting", 
+          datetime: "", 
+          remark: newCustomerData.finalStatus 
+        },
+        latestQuotationUrl: "#",
+        quotationsSent: 0,
+        followUpLink: "https://calendar.google.com/",
+        whatsapp: newCustomerData.whatsappNumber ? `+91${newCustomerData.whatsappNumber}` : null,
+      }
+      
+      setCustomers(prev => [...prev, newCustomer])
     }
     
-    setCustomers(prev => [...prev, newCustomer])
     setShowAddCustomer(false)
+    setEditingCustomer(null)
   }
 
   const handleRefresh = async () => {
@@ -1026,8 +1081,12 @@ export default function CustomerListContent() {
       
       {showAddCustomer && (
         <AddCustomerForm 
-          onClose={() => setShowAddCustomer(false)}
+          onClose={() => {
+            setShowAddCustomer(false)
+            setEditingCustomer(null)
+          }}
           onSave={handleSaveCustomer}
+          editingCustomer={editingCustomer}
         />
       )}
       
