@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, UserPlus, Download, Edit, LogOut, Trash2, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, UserPlus, Upload, Edit, LogOut, Trash2, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal } from 'lucide-react';
 
 const UserManagementTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,9 +76,25 @@ const UserManagementTable = () => {
     user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.target.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    role: 'DEPARTMENT USER',
+    department: 'SALES DEPARTMENT',
+    target: 'Not specified'
+  });
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const handleEdit = (userId) => {
-    console.log('Edit user:', userId);
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    setEditingUser({ ...user });
+    setShowEditModal(true);
   };
 
   const handleLogout = (userId) => {
@@ -90,12 +106,55 @@ const UserManagementTable = () => {
     setUsers(users.filter(user => user.id !== userId));
   };
 
-  const handleExport = () => {
-    console.log('Export data');
+  const fileInputRef = useRef(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const rows = text.split(/\r?\n/).filter(Boolean);
+      if (rows.length === 0) return;
+      const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
+      const getIndex = (name) => headers.indexOf(name);
+      const idx = {
+        username: getIndex('username'),
+        email: getIndex('email'),
+        role: getIndex('role'),
+        department: getIndex('department'),
+        target: getIndex('target'),
+        createdAt: getIndex('createdat')
+      };
+      const nextIdStart = (users.at(-1)?.id ?? 0) + 1;
+      const parsed = rows.slice(1).map((line, i) => {
+        const cols = line.split(',');
+        const createdAtVal = idx.createdAt >= 0 ? cols[idx.createdAt]?.trim() : new Date().toDateString();
+        return {
+          id: nextIdStart + i,
+          username: idx.username >= 0 ? cols[idx.username]?.trim() : '',
+          email: idx.email >= 0 ? cols[idx.email]?.trim() : '',
+          role: (idx.role >= 0 ? cols[idx.role]?.trim() : 'DEPARTMENT USER') || 'DEPARTMENT USER',
+          department: (idx.department >= 0 ? cols[idx.department]?.trim() : 'SALES DEPARTMENT') || 'SALES DEPARTMENT',
+          target: (idx.target >= 0 ? cols[idx.target]?.trim() : 'Not specified') || 'Not specified',
+          createdAt: createdAtVal || new Date().toDateString()
+        };
+      }).filter(u => u.username || u.email);
+      if (parsed.length > 0) {
+        setUsers(prev => [...parsed, ...prev]);
+      }
+    } catch (err) {
+      console.error('Import failed:', err);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const handleAddUser = () => {
-    console.log('Add new user');
+    setShowAddModal(true);
   };
 
   const getDepartmentBadgeColor = (department) => {
@@ -135,12 +194,19 @@ const UserManagementTable = () => {
               Add User
             </button>
             <button
-              onClick={handleExport}
+              onClick={handleImportClick}
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <Download className="w-4 h-4" />
-              Export
+              <Upload className="w-4 h-4" />
+              Import
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
         </div>
 
@@ -151,43 +217,43 @@ const UserManagementTable = () => {
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <Hash className="w-4 h-4 text-purple-500" />
-                    #
+                    <Hash className="w-4 h-4 text-purple-600" />
+                    <span className="text-purple-700">#</span>
                   </div>
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <User className="w-4 h-4 text-blue-500" />
+                    <User className="w-4 h-4 text-blue-600" />
                     Username
                   </div>
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <Mail className="w-4 h-4 text-green-500" />
+                    <Mail className="w-4 h-4 text-emerald-600" />
                     Email
                   </div>
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <Shield className="w-4 h-4 text-orange-500" />
+                    <Shield className="w-4 h-4 text-orange-600" />
                     Role
                   </div>
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <Building className="w-4 h-4 text-purple-500" />
+                    <Building className="w-4 h-4 text-indigo-600" />
                     Department Type
                   </div>
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <Target className="w-4 h-4 text-cyan-500" />
+                    <Target className="w-4 h-4 text-cyan-600" />
                     Target
                   </div>
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
-                    <Calendar className="w-4 h-4 text-teal-500" />
+                    <Calendar className="w-4 h-4 text-teal-600" />
                     Created At
                   </div>
                 </th>
@@ -261,6 +327,109 @@ const UserManagementTable = () => {
           </table>
         </div>
 
+        {/* Add User Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h3 className="text-base font-semibold text-gray-900">Add User</h3>
+                <button
+                  className="p-2 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowAddModal(false)}
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setSaving(true);
+                  const nextId = (users.at(-1)?.id ?? 0) + 1;
+                  const record = { id: nextId, createdAt: new Date().toDateString(), ...newUser };
+                  setUsers((prev) => [record, ...prev]);
+                  setSaving(false);
+                  setShowAddModal(false);
+                  setNewUser({ username: '', email: '', role: 'DEPARTMENT USER', department: 'SALES DEPARTMENT', target: 'Not specified' });
+                }}
+              >
+                <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Username</label>
+                    <input
+                      type="text"
+                      required
+                      value={newUser.username}
+                      onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. John Doe"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="name@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Role</label>
+                    <select
+                      value={newUser.role}
+                      onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option>DEPARTMENT USER</option>
+                      <option>DEPARTMENT HEAD</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Department</label>
+                    <select
+                      value={newUser.department}
+                      onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option>SALES DEPARTMENT</option>
+                      <option>TELESALES DEPARTMENT</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs text-gray-600 mb-1">Target</label>
+                    <input
+                      type="text"
+                      value={newUser.target}
+                      onChange={(e) => setNewUser({ ...newUser, target: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. 50 customers/month"
+                    />
+                  </div>
+                </div>
+                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    onClick={() => setShowAddModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         {/* No results message */}
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
@@ -269,6 +438,106 @@ const UserManagementTable = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
             <p className="text-gray-500">Try adjusting your search criteria</p>
+          </div>
+        )}
+
+        {/* Edit User Modal */}
+        {showEditModal && editingUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h3 className="text-base font-semibold text-gray-900">Edit User</h3>
+                <button
+                  className="p-2 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowEditModal(false)}
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setSavingEdit(true);
+                  setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
+                  setSavingEdit(false);
+                  setShowEditModal(false);
+                }}
+              >
+                <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Username</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingUser.username}
+                      onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. John Doe"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={editingUser.email}
+                      onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="name@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Role</label>
+                    <select
+                      value={editingUser.role}
+                      onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option>DEPARTMENT USER</option>
+                      <option>DEPARTMENT HEAD</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Department</label>
+                    <select
+                      value={editingUser.department}
+                      onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option>SALES DEPARTMENT</option>
+                      <option>TELESALES DEPARTMENT</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs text-gray-600 mb-1">Target</label>
+                    <input
+                      type="text"
+                      value={editingUser.target}
+                      onChange={(e) => setEditingUser({ ...editingUser, target: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. 50 customers/month"
+                    />
+                  </div>
+                </div>
+                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingEdit}
+                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+                  >
+                    {savingEdit ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
