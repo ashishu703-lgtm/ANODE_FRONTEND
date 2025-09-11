@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Search, Trash2, Filter, Upload, RefreshCw, Eye, MoreVertical, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Trash2, Filter, Upload, RefreshCw, Eye, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash } from 'lucide-react';
 
 const AllLeads = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLeads, setSelectedLeads] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewLead, setPreviewLead] = useState(null);
 
   // Sample data
   const leads = [
     {
       id: 1,
+      customerId: 'CUST-0001',
       customer: 'na 9769334242',
       email: 'tejaldrive@gmail.com',
       business: 'na',
@@ -23,6 +26,7 @@ const AllLeads = () => {
     },
     {
       id: 2,
+      customerId: 'CUST-0002',
       customer: 'na 9769868287',
       email: 'Shilpawadkar29@gmail.com',
       business: 'na',
@@ -37,6 +41,7 @@ const AllLeads = () => {
     },
     {
       id: 3,
+      customerId: 'CUST-0003',
       customer: 'na 9840457999',
       email: 'rahul.44@gmail.com',
       business: 'na',
@@ -51,6 +56,7 @@ const AllLeads = () => {
     },
     {
       id: 4,
+      customerId: 'CUST-0004',
       customer: 'na 9876543210',
       email: 'bluestarindustriespvtltd@gmail.com',
       business: 'na',
@@ -65,6 +71,7 @@ const AllLeads = () => {
     },
     {
       id: 5,
+      customerId: 'CUST-0005',
       customer: 'na 9123456789',
       email: 'testuser@gmail.com',
       business: 'na',
@@ -93,6 +100,11 @@ const AllLeads = () => {
     } else {
       setSelectedLeads([...selectedLeads, leadId]);
     }
+  };
+
+  const openPreview = (lead) => {
+    setPreviewLead(lead);
+    setShowPreview(true);
   };
 
   const getStatusBadge = (status, type) => {
@@ -166,19 +178,19 @@ const AllLeads = () => {
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
             <button className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center space-x-2">
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4 text-red-600" />
               <span>Delete</span>
             </button>
             <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
-              <Filter className="w-4 h-4" />
+              <Filter className="w-4 h-4 text-indigo-600" />
               <span>Filters</span>
             </button>
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-              <Upload className="w-4 h-4" />
+              <Upload className="w-4 h-4 text-white" />
               <span>Import Leads</span>
             </button>
             <button className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4 text-gray-600" />
             </button>
           </div>
         </div>
@@ -200,67 +212,73 @@ const AllLeads = () => {
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4" />
+                    <Hash className="w-4 h-4 text-purple-600" />
+                    <span>Customer ID</span>
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4 text-blue-600" />
                     <span>Customer</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Mail className="w-4 h-4" />
+                    <Mail className="w-4 h-4 text-emerald-600" />
                     <span>Email</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Building className="w-4 h-4" />
+                    <Building className="w-4 h-4 text-indigo-600" />
                     <span>Business</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Shield className="w-4 h-4" />
+                    <Shield className="w-4 h-4 text-orange-600" />
                     <span>Lead Type</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Tag className="w-4 h-4" />
+                    <Tag className="w-4 h-4 text-pink-600" />
                     <span>Category</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-4 h-4 text-amber-600" />
                     <span>Sales Status</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-4 h-4 text-purple-600" />
                     <span>Created</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4" />
+                    <User className="w-4 h-4 text-sky-600" />
                     <span>Assigned</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <Phone className="w-4 h-4" />
+                    <Phone className="w-4 h-4 text-cyan-600" />
                     <span>Telecaller</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className="w-4 h-4 text-green-600" />
                     <span>Telecaller Status</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
-                    <XCircle className="w-4 h-4" />
+                    <XCircle className="w-4 h-4 text-rose-600" />
                     <span>Payment Status</span>
                   </div>
                 </th>
@@ -280,9 +298,8 @@ const AllLeads = () => {
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-900">
-                    {lead.customer}
-                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-700">{lead.customerId}</td>
+                  <td className="px-4 py-4 text-sm text-gray-900">{lead.customer}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">
                     {lead.email}
                   </td>
@@ -315,11 +332,16 @@ const AllLeads = () => {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                        <Eye className="w-4 h-4" />
+                      <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors" title="View" onClick={() => openPreview(lead)}>
+                        <Eye className="w-4 h-4 text-blue-500" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                        <MoreVertical className="w-4 h-4" />
+                      <button
+                        className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-indigo-600 border border-indigo-200 rounded-full hover:bg-indigo-50 transition-colors"
+                        title="Info"
+                        aria-label="Info"
+                        onClick={() => openPreview(lead)}
+                      >
+                        i
                       </button>
                     </div>
                   </td>
@@ -329,6 +351,82 @@ const AllLeads = () => {
           </table>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && previewLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl border border-gray-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-base font-semibold text-gray-900">Lead Preview</h3>
+              <button
+                className="p-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowPreview(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-gray-500">Customer ID</div>
+                <div className="text-sm text-gray-900">{previewLead.customerId}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Customer</div>
+                <div className="text-sm text-gray-900">{previewLead.customer}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Email</div>
+                <div className="text-sm text-gray-900">{previewLead.email}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Business</div>
+                <div className="text-sm text-gray-900">{previewLead.business}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Lead Type</div>
+                <div className="text-sm text-gray-900">{previewLead.leadType}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Category</div>
+                <div className="text-sm text-gray-900">{previewLead.category}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Sales Status</div>
+                <div className="text-sm text-gray-900">{previewLead.salesStatus}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Created</div>
+                <div className="text-sm text-gray-900">{previewLead.createdAt}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Assigned</div>
+                <div className="text-sm text-gray-900">{previewLead.assigned}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Telecaller</div>
+                <div className="text-sm text-gray-900">{previewLead.telecaller}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Telecaller Status</div>
+                <div className="text-sm text-gray-900">{previewLead.telecallerStatus}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Payment Status</div>
+                <div className="text-sm text-gray-900">{previewLead.paymentStatus}</div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end">
+              <button
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                onClick={() => setShowPreview(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pagination or Empty State */}
       {filteredLeads.length === 0 && (
