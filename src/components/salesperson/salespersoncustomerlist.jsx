@@ -325,12 +325,6 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 text-green-600" />
-                      WhatsApp
-                    </div>
-                  </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
-                    <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-cyan-600" />
                       Email
                     </div>
@@ -357,6 +351,13 @@ export default function CustomerListContent() {
                       <div>
                         <div className="font-medium text-gray-900 text-sm">{customer.name}</div>
                         <div className="text-xs text-gray-500">{customer.phone}</div>
+                        {customer.whatsapp && (
+                          <div className="text-xs text-green-600 mt-1">
+                            <a href={`https://wa.me/${customer.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
+                              <MessageCircle className="h-3 w-3" /> WhatsApp
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700">{customer.email}</td>
@@ -412,15 +413,6 @@ export default function CustomerListContent() {
                       {customer.followUpLink ? (
                         <a href={customer.followUpLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
                           <LinkIcon className="h-3.5 w-3.5" /> Open
-                        </a>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td className="py-4 px-4 text-sm">
-                      {customer.whatsapp ? (
-                        <a href={`https://wa.me/${customer.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer" className="text-green-600 underline inline-flex items-center gap-1">
-                          <MessageCircle className="h-3.5 w-3.5" /> Chat
                         </a>
                       ) : (
                         "-"
