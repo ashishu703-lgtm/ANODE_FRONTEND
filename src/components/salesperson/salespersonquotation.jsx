@@ -156,30 +156,25 @@ const Quotation = ({ quotationData, customer }) => {
           <div className="bg-gray-100 p-2 text-center font-bold">
             <h2>Quotation Details</h2>
           </div>
-          {/* Removed Reverse Charge column and changed Quotation No. to Revised Quotation */}
-          <div className="grid grid-cols-5 gap-2 p-2 text-xs border-b">
-            <div>
-              <strong>Quotation Detail</strong>
-            </div>
-            <div>
-              <strong>Revised Quotation</strong>
-            </div>
+          <div className="grid grid-cols-4 gap-2 p-2 text-xs border-b">
             <div>
               <strong>Quotation Date</strong>
             </div>
             <div>
-              <strong>Customer ID</strong>
+              <strong>Quotation Number</strong>
             </div>
             <div>
               <strong>Valid Upto</strong>
             </div>
+            <div>
+              <strong>Voucher Number</strong>
+            </div>
           </div>
-          <div className="grid grid-cols-5 gap-2 p-2 text-xs">
-            <div>{quotationData?.quotationDetail || 'Final Quotation'}</div>
-            <div>{quotationData?.quotationNumber || 'ANO/25-26/458'}</div>
-            <div>{quotationData?.quotationDate || '08/09/2025'}</div>
-            <div>{`CUST${Date.now().toString().slice(-4)}` || '145'}</div>
-            <div>{quotationData?.validUpto || '2 DAYS'}</div>
+          <div className="grid grid-cols-4 gap-2 p-2 text-xs">
+            <div>{quotationData?.quotationDate || new Date().toLocaleDateString()}</div>
+            <div>{quotationData?.quotationNumber || `ANO/${new Date().getFullYear().toString().slice(-2)}-${(new Date().getFullYear() + 1).toString().slice(-2)}/${Math.floor(1000 + Math.random() * 9000)}`}</div>
+            <div>{quotationData?.validUpto || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</div>
+            <div>{`VOUCH-${Math.floor(1000 + Math.random() * 9000)}`}</div>
           </div>
         </div>
   
@@ -224,52 +219,51 @@ const Quotation = ({ quotationData, customer }) => {
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border border-gray-300 p-2 text-left">Sr. No.</th>
-                <th className="border border-gray-300 p-2 text-left">Name of Product / Service</th>
-                <th className="border border-gray-300 p-2 text-left">HSN / SAC</th>
-                <th className="border border-gray-300 p-2 text-left">Qty</th>
-                {/* Changed Rate to Unit */}
-                <th className="border border-gray-300 p-2 text-left">Unit</th>
-                <th className="border border-gray-300 p-2 text-left">Taxable Value</th>
-                <th className="border border-gray-300 p-2 text-left">Total GST</th>
-                <th className="border border-gray-300 p-2 text-left">Total</th>
+                <th className="border border-gray-300 p-1 text-center w-10">Sr.</th>
+                <th className="border border-gray-300 p-2 text-left w-2/3">Name of Product / Service</th>
+                <th className="border border-gray-300 p-1 text-center w-16">HSN / SAC</th>
+                <th className="border border-gray-300 p-1 text-center w-12">Qty</th>
+                <th className="border border-gray-300 p-1 text-center w-12">Unit</th>
+                <th className="border border-gray-300 p-1 text-right w-20">Taxable Value</th>
+                <th className="border border-gray-300 p-0.5 text-center w-8 text-[10px] whitespace-nowrap">GST%</th>
+                <th className="border border-gray-300 p-1 text-right w-24">Total</th>
               </tr>
             </thead>
             <tbody>
               {quotationData?.items?.length > 0 ? (
                 quotationData.items.map((item, index) => (
                   <tr key={index}>
-                    <td className="border border-gray-300 p-2">{index + 1}</td>
+                    <td className="border border-gray-300 p-1 text-center">{index + 1}</td>
                     <td className="border border-gray-300 p-2">{item.description}</td>
-                    <td className="border border-gray-300 p-2">85446090</td>
-                    <td className="border border-gray-300 p-2">{item.quantity} {item.unit}</td>
-                    <td className="border border-gray-300 p-2">{item.rate.toFixed(2)}</td>
-                    <td className="border border-gray-300 p-2">{item.amount.toFixed(2)}</td>
-                    <td className="border border-gray-300 p-2">18% {(item.amount * 0.18).toFixed(2)}</td>
-                    <td className="border border-gray-300 p-2">{(item.amount * 1.18).toFixed(2)}</td>
+                    <td className="border border-gray-300 p-1 text-center">85446090</td>
+                    <td className="border border-gray-300 p-1 text-center">{item.quantity}</td>
+                    <td className="border border-gray-300 p-1 text-center">{item.unit}</td>
+                    <td className="border border-gray-300 p-1 text-right">{parseFloat(item.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td className="border border-gray-300 p-0 text-center text-xs">18%</td>
+                    <td className="border border-gray-300 p-1 text-right">{parseFloat(item.amount * 1.18).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                   </tr>
                 ))
               ) : (
                 <>
                   <tr>
-                    <td className="border border-gray-300 p-2">1</td>
+                    <td className="border border-gray-300 p-1 text-center">1</td>
                     <td className="border border-gray-300 p-2">ACSR Dog Conductor</td>
-                    <td className="border border-gray-300 p-2">76042910</td>
-                    <td className="border border-gray-300 p-2">120,000 MTR</td>
-                    <td className="border border-gray-300 p-2">82.00</td>
-                    <td className="border border-gray-300 p-2">9,840,000</td>
-                    <td className="border border-gray-300 p-2">18% 1,772,400</td>
-                    <td className="border border-gray-300 p-2">11,612,400</td>
+                    <td className="border border-gray-300 p-1 text-center">76042910</td>
+                    <td className="border border-gray-300 p-1 text-center">120,000</td>
+                    <td className="border border-gray-300 p-1 text-center">MTR</td>
+                    <td className="border border-gray-300 p-1 text-right">9,840,000.00</td>
+                    <td className="border border-gray-300 p-0 text-center text-xs">18%</td>
+                    <td className="border border-gray-300 p-1 text-right">11,612,400.00</td>
                   </tr>
                   <tr>
-                    <td className="border border-gray-300 p-2">2</td>
+                    <td className="border border-gray-300 p-1 text-center">2</td>
                     <td className="border border-gray-300 p-2">AAAC Panther 232 SQMM</td>
-                    <td className="border border-gray-300 p-2">85446090</td>
-                    <td className="border border-gray-300 p-2">120,000 MTR</td>
-                    <td className="border border-gray-300 p-2">205.00</td>
-                    <td className="border border-gray-300 p-2">24,600,000</td>
-                    <td className="border border-gray-300 p-2">18% 4,428,000</td>
-                    <td className="border border-gray-300 p-2">29,028,000</td>
+                    <td className="border border-gray-300 p-1 text-center">85446090</td>
+                    <td className="border border-gray-300 p-1 text-center">120,000</td>
+                    <td className="border border-gray-300 p-1 text-center">MTR</td>
+                    <td className="border border-gray-300 p-1 text-right">24,600,000.00</td>
+                    <td className="border border-gray-300 p-0 text-center text-xs">18%</td>
+                    <td className="border border-gray-300 p-1 text-right">29,028,000.00</td>
                   </tr>
                 </>
               )}

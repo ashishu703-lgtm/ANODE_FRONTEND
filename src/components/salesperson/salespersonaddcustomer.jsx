@@ -57,6 +57,9 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     productType: editingCustomer?.productType || "",
     connectionStatus: editingCustomer?.connected?.status || "",
     finalStatus: editingCustomer?.finalInfo?.remark || "",
+    customerType: editingCustomer?.customerType || "",
+    leadSource: editingCustomer?.enquiryBy || "",
+    date: editingCustomer?.date || new Date().toISOString().split('T')[0],
   })
 
   const handleInputChange = (field, value) => {
@@ -77,6 +80,10 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
   const finalStatusOptions = ["Next Scheduled Meeting", "Closed", "Interested", "Not Interested"]
 
   const productTypeOptions = ["Conductor", "Cable", "AAAC", "Aluminium"]
+
+  const customerTypeOptions = ["Individual", "Business", "Corporate", "Government", "Distributor", "Retailer"]
+
+  const leadSourceOptions = ["Phone", "Marketing", "FB Ads", "Referral", "Google Ads", "Webinar", "Facebook", "Website", "Walk-in"]
 
   const stateOptions = [
     "Madhya Pradesh",
@@ -307,13 +314,70 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
               </div>
             </div>
 
+            {/* Additional Information */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <User className="h-4 w-4 text-purple-500" />
+                  Customer Type *
+                </label>
+                <select
+                  required
+                  value={formData.customerType}
+                  onChange={(e) => handleInputChange("customerType", e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select customer type</option>
+                  {customerTypeOptions.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-orange-500" />
+                  Lead Source *
+                </label>
+                <select
+                  required
+                  value={formData.leadSource}
+                  onChange={(e) => handleInputChange("leadSource", e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select lead source</option>
+                  {leadSourceOptions.map((source) => (
+                    <option key={source} value={source}>
+                      {source}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-indigo-500" />
+                  Date *
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={formData.date}
+                  onChange={(e) => handleInputChange("date", e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
             {/* Form Actions */}
             <div className="flex items-center justify-end gap-3 pt-6 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
-                Add Customer
+                {editingCustomer ? 'Update Customer' : 'Add Customer'}
               </Button>
             </div>
           </form>

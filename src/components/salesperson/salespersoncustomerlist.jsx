@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Import, Filter, Link as LinkIcon, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText } from "lucide-react"
+import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Import, Filter, Link as LinkIcon, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe } from "lucide-react"
 import Quotation from './salespersonquotation.jsx'
 import AddCustomerForm from './salespersonaddcustomer.jsx'
 import CreateQuotationForm from './salespersoncreatequotation.jsx'
@@ -29,6 +29,52 @@ export default function CustomerListContent() {
   const [isRefreshing, setIsRefreshing] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
   const [editingCustomer, setEditingCustomer] = React.useState(null)
+  const [showFilters, setShowFilters] = React.useState(false);
+  // Available options for dropdowns
+  const productTypes = ['Conductor', 'Cable', 'AAAC', 'Aluminium', 'Copper', 'PVC', 'Wire'];
+  const customerTypes = ['Business', 'Corporate', 'Individual', 'Reseller', 'Government'];
+  const leadSources = ['Phone', 'Marketing', 'FB Ads', 'Google Ads', 'Referral', 'Webinar', 'Website', 'Email', 'Other'];
+
+  const [filters, setFilters] = React.useState({
+    customer: '',
+    business: '',
+    gstNo: '',
+    address: '',
+    state: '',
+    productType: '',
+    customerType: '',
+    enquiryBy: '',
+    date: '',
+    connectedStatus: '',
+    finalStatus: ''
+  });
+
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const handleFilterChange = (field, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      customer: '',
+      business: '',
+      gstNo: '',
+      address: '',
+      state: '',
+      productType: '',
+      customerType: '',
+      enquiryBy: '',
+      date: '',
+      connectedStatus: '',
+      finalStatus: ''
+    });
+  };
   const [customers, setCustomers] = React.useState([
     {
       id: 1,
@@ -42,6 +88,8 @@ export default function CustomerListContent() {
       state: "Madhya Pradesh",
       enquiryBy: "Phone",
       productType: "Conductor",
+      customerType: "Business",
+      date: "2025-09-10",
       connected: { status: "Connected", remark: "Spoke with Raj, requested quote", datetime: "2025-09-10 11:15 AM" },
       finalStatus: "Hot",
       finalInfo: { status: "next_meeting", datetime: "2025-09-12 03:30 PM", remark: "Interested" },
@@ -62,6 +110,8 @@ export default function CustomerListContent() {
       state: "Madhya Pradesh",
       enquiryBy: "Marketing",
       productType: "Cable",
+      customerType: "Corporate",
+      date: "2025-09-09",
       connected: { status: "Follow Up", remark: "Call back tomorrow", datetime: "2025-09-09 05:30 PM" },
       finalStatus: "Warm",
       finalInfo: { status: "next_meeting", datetime: "2025-09-11 11:00 AM", remark: "Interested" },
@@ -82,6 +132,8 @@ export default function CustomerListContent() {
       state: "Madhya Pradesh",
       enquiryBy: "FB Ads",
       productType: "AAAC",
+      customerType: "Individual",
+      date: "2025-09-08",
       connected: { status: "Not Connected", remark: "No answer", datetime: "2025-09-08 02:10 PM" },
       finalStatus: "Cold",
       finalInfo: { status: "next_meeting", datetime: "2025-09-13 02:00 PM", remark: "Not Interested" },
@@ -617,6 +669,9 @@ export default function CustomerListContent() {
         address: newCustomerData.address,
         state: newCustomerData.state,
         productType: newCustomerData.productType,
+        customerType: newCustomerData.customerType,
+        enquiryBy: newCustomerData.leadSource,
+        date: newCustomerData.date,
         connected: { 
           ...editingCustomer.connected,
           status: newCustomerData.connectionStatus,
@@ -646,8 +701,10 @@ export default function CustomerListContent() {
         gstNo: newCustomerData.gstNumber || "N/A",
         address: newCustomerData.address,
         state: newCustomerData.state,
-        enquiryBy: "Manual Entry",
+        enquiryBy: newCustomerData.leadSource,
         productType: newCustomerData.productType,
+        customerType: newCustomerData.customerType,
+        date: newCustomerData.date,
         connected: { 
           status: newCustomerData.connectionStatus, 
           remark: "New customer added", 
@@ -710,30 +767,51 @@ export default function CustomerListContent() {
     }
   }
 
-  // Filter customers based on search query
+  // Filter customers based on search query and column filters
   const filteredCustomers = React.useMemo(() => {
-    if (!searchQuery.trim()) {
-      return customers
-    }
-
-    const query = searchQuery.toLowerCase().trim()
+    let result = [...customers];
     
-    return customers.filter(customer => {
-      // Search in multiple fields
-      const searchFields = [
-        customer.name?.toLowerCase() || '',
-        customer.phone?.toLowerCase() || '',
-        customer.email?.toLowerCase() || '',
-        customer.business?.toLowerCase() || '',
-        customer.state?.toLowerCase() || '',
-        customer.gstNo?.toLowerCase() || '',
-        customer.productType?.toLowerCase() || '',
-        customer.address?.toLowerCase() || ''
-      ]
-      
-      return searchFields.some(field => field.includes(query))
-    })
-  }, [customers, searchQuery])
+    // Apply search query filter if exists
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(customer => {
+        const searchFields = [
+          customer.name?.toLowerCase() || '',
+          customer.phone?.toLowerCase() || '',
+          customer.email?.toLowerCase() || '',
+          customer.business?.toLowerCase() || '',
+          customer.state?.toLowerCase() || '',
+          customer.gstNo?.toLowerCase() || '',
+          customer.productType?.toLowerCase() || '',
+          customer.customerType?.toLowerCase() || '',
+          customer.enquiryBy?.toLowerCase() || '',
+          customer.date?.toLowerCase() || '',
+          customer.address?.toLowerCase() || ''
+        ];
+        return searchFields.some(field => field.includes(query));
+      });
+    }
+    
+    // Apply column filters if any active
+    const activeFilters = Object.entries(filters).filter(([_, value]) => value.trim() !== '');
+    
+    if (activeFilters.length > 0) {
+      result = result.filter(customer => {
+        return activeFilters.every(([key, filterValue]) => {
+          const value = filterValue.toString().toLowerCase().trim();
+          if (!value) return true;
+          
+          const customerValue = key === 'customer' ? customer.name || '' :
+                              key === 'connectedStatus' ? customer.connected?.status || '' :
+                              customer[key] || '';
+                              
+          return customerValue.toString().toLowerCase().includes(value);
+        });
+      });
+    }
+    
+    return result;
+  }, [customers, searchQuery, filters])
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value)
@@ -752,22 +830,20 @@ export default function CustomerListContent() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1 max-w-lg relative">
-            <div className="flex bg-white rounded-lg shadow-lg border-2 border-sky-400 overflow-hidden">
-              <input
-                type="text"
-                placeholder="Search by name, phone, business, state, GST, product type..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="flex-1 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 bg-white focus:outline-none"
-              />
-              <button className="px-4 py-3 bg-sky-400 hover:bg-sky-500 transition-colors duration-200 flex items-center justify-center">
-                <Search className="h-5 w-5 text-white" />
-              </button>
-            </div>
-          </div>
+        <div className="flex items-center justify-end gap-4">
           <div className="flex items-center gap-3">
+            <button 
+              onClick={toggleFilters}
+              className={`p-2 rounded-md border inline-flex items-center justify-center relative ${showFilters ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+              title="Filters"
+            >
+              <Filter className="h-4 w-4" />
+              {Object.values(filters).some(Boolean) && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium text-white bg-blue-500 rounded-full">
+                  {Object.values(filters).filter(Boolean).length}
+                </span>
+              )}
+            </button>
             <button 
               onClick={handleAddCustomer}
               className="px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 inline-flex items-center gap-2"
@@ -799,55 +875,189 @@ export default function CustomerListContent() {
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50">
                   <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">#</th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-blue-500" />
                       Customer
                     </div>
+                    {showFilters && (
+                      <input
+                        type="text"
+                        value={filters.customer}
+                        onChange={(e) => handleFilterChange('customer', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter customer..."
+                      />
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-green-500" />
                       Business
                     </div>
+                    {showFilters && (
+                      <input
+                        type="text"
+                        value={filters.business}
+                        onChange={(e) => handleFilterChange('business', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter business..."
+                      />
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <BadgeCheck className="h-4 w-4 text-amber-600" />
                       GST no.
                     </div>
+                    {showFilters && (
+                      <input
+                        type="text"
+                        value={filters.gstNo}
+                        onChange={(e) => handleFilterChange('gstNo', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter GST..."
+                      />
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-rose-500" />
                       Address
                     </div>
+                    {showFilters && (
+                      <input
+                        type="text"
+                        value={filters.address}
+                        onChange={(e) => handleFilterChange('address', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter address..."
+                      />
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <Map className="h-4 w-4 text-indigo-500" />
                       State
                     </div>
+                    {showFilters && (
+                      <input
+                        type="text"
+                        value={filters.state}
+                        onChange={(e) => handleFilterChange('state', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter state..."
+                      />
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-violet-500" />
                       Product Type
                     </div>
+                    {showFilters && (
+                      <select
+                        value={filters.productType}
+                        onChange={(e) => handleFilterChange('productType', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Types</option>
+                        {productTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-purple-500" />
+                      Customer Type
+                    </div>
+                    {showFilters && (
+                      <select
+                        value={filters.customerType}
+                        onChange={(e) => handleFilterChange('customerType', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Types</option>
+                        {customerTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    )}
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-orange-500" />
+                      Lead Source
+                    </div>
+                    {showFilters && (
+                      <select
+                        value={filters.enquiryBy}
+                        onChange={(e) => handleFilterChange('enquiryBy', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Sources</option>
+                        {leadSources.map(source => (
+                          <option key={source} value={source}>{source}</option>
+                        ))}
+                      </select>
+                    )}
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-indigo-500" />
+                      Date
+                    </div>
+                    {showFilters && (
+                      <input
+                        type="date"
+                        value={filters.date}
+                        onChange={(e) => handleFilterChange('date', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      />
+                    )}
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <BadgeCheck className="h-4 w-4 text-emerald-600" />
                       Connected Status
                     </div>
+                    {showFilters && (
+                      <select
+                        value={filters.connectedStatus}
+                        onChange={(e) => handleFilterChange('connectedStatus', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Statuses</option>
+                        <option value="Connected">Connected</option>
+                        <option value="Not Connected">Not Connected</option>
+                        <option value="Follow Up">Follow Up</option>
+                        <option value="Not Interested">Not Interested</option>
+                      </select>
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <BadgeCheck className="h-4 w-4 text-blue-600" />
                       Final Status
                     </div>
+                    {showFilters && (
+                      <select
+                        value={filters.finalStatus}
+                        onChange={(e) => handleFilterChange('finalStatus', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Statuses</option>
+                        <option value="Hot">Hot</option>
+                        <option value="Warm">Warm</option>
+                        <option value="Cold">Cold</option>
+                        <option value="Lost">Lost</option>
+                        <option value="Won">Won</option>
+                      </select>
+                    )}
                   </th>
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
                       <Pencil className="h-4 w-4 text-gray-500" />
                       Action
@@ -913,6 +1123,9 @@ export default function CustomerListContent() {
                     <td className="py-4 px-4 text-sm text-gray-700">{customer.address}</td>
                     <td className="py-4 px-4 text-sm text-gray-700">{customer.state}</td>
                     <td className="py-4 px-4 text-sm text-gray-700">{customer.productType}</td>
+                    <td className="py-4 px-4 text-sm text-gray-700">{customer.customerType || 'N/A'}</td>
+                    <td className="py-4 px-4 text-sm text-gray-700">{customer.enquiryBy}</td>
+                    <td className="py-4 px-4 text-sm text-gray-700">{customer.date || 'N/A'}</td>
                     <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="flex flex-col">
                         <span className={
