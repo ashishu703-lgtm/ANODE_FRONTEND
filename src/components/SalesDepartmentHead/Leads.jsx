@@ -1,11 +1,31 @@
-import React, { useState } from 'react';
-import { Search, Trash2, Filter, Upload, RefreshCw, Eye, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus } from 'lucide-react';
+import AddCustomerForm from '../salesperson/salespersonaddcustomer.jsx';
 
 const AllLeads = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewLead, setPreviewLead] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'paymentQuotation' | 'meetings'
+  const fileInputRef = useRef(null);
+  const [leadsData, setLeadsData] = useState(null);
+  const [showColumnFilters, setShowColumnFilters] = useState(false);
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [columnFilters, setColumnFilters] = useState({
+    customerId: '',
+    customer: '',
+    email: '',
+    business: '',
+    leadType: '',
+    category: '',
+    salesStatus: '',
+    createdAt: '',
+    assigned: '',
+    telecaller: '',
+    telecallerStatus: '',
+    paymentStatus: ''
+  });
 
   // Sample data
   const leads = [
@@ -107,6 +127,15 @@ const AllLeads = () => {
     setShowPreview(true);
   };
 
+  useEffect(() => {
+    if (!showPreview) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setShowPreview(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showPreview]);
+
   const getStatusBadge = (status, type) => {
     const baseClasses = "px-2 py-1 rounded text-xs font-medium";
     
@@ -144,54 +173,150 @@ const AllLeads = () => {
     }
   };
 
-  const filteredLeads = leads.filter(lead =>
-    lead.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.business.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const importedLeads = Array.isArray(leadsData) && leadsData.length > 0 ? leadsData : leads;
+
+  const matchesGlobal = (lead) => {
+    if (!searchTerm) return true;
+    const t = searchTerm.toLowerCase();
+    return (
+      (lead.customer || '').toLowerCase().includes(t) ||
+      (lead.email || '').toLowerCase().includes(t) ||
+      (lead.business || '').toLowerCase().includes(t)
+    );
+  };
+
+  const matchesColumnFilters = (lead) => {
+    const cf = columnFilters;
+    const includes = (val, q) => String(val || '').toLowerCase().includes(String(q || '').toLowerCase());
+    return (
+      (!cf.customerId || includes(lead.customerId, cf.customerId)) &&
+      (!cf.customer || includes(lead.customer, cf.customer)) &&
+      (!cf.email || includes(lead.email, cf.email)) &&
+      (!cf.business || includes(lead.business, cf.business)) &&
+      (!cf.leadType || includes(lead.leadType, cf.leadType)) &&
+      (!cf.category || includes(lead.category, cf.category)) &&
+      (!cf.salesStatus || includes(lead.salesStatus, cf.salesStatus)) &&
+      (!cf.createdAt || includes(lead.createdAt, cf.createdAt)) &&
+      (!cf.assigned || includes(lead.assigned, cf.assigned)) &&
+      (!cf.telecaller || includes(lead.telecaller, cf.telecaller)) &&
+      (!cf.telecallerStatus || includes(lead.telecallerStatus, cf.telecallerStatus)) &&
+      (!cf.paymentStatus || includes(lead.paymentStatus, cf.paymentStatus))
+    );
+  };
+
+  const filteredLeads = importedLeads.filter(lead => matchesGlobal(lead) && matchesColumnFilters(lead));
+
+  const handleImportClick = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const parseCsv = (text) => {
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    if (lines.length === 0) return [];
+    const headers = lines[0].split(',').map(h => h.trim());
+    const records = lines.slice(1).map((line, idx) => {
+      const cols = line.split(',');
+      const row = {};
+      headers.forEach((h, i) => {
+        row[h] = (cols[i] || '').trim();
+      });
+      return row;
+    });
+    return records;
+  };
+
+  const normalizeImported = (rows) => {
+    return rows.map((r, index) => ({
+      id: index + 1,
+      customerId: r.customerId || r.customer_id || `CUST-${String(index + 1).padStart(4, '0')}`,
+      customer: r.customer || r.name || r.customer_name || 'N/A',
+      email: r.email || 'N/A',
+      business: r.business || r.business_name || 'N/A',
+      leadType: r.leadType || r.lead_type || 'N/A',
+      category: r.category || 'N/A',
+      salesStatus: r.salesStatus || r.sales_status || 'PENDING',
+      createdAt: r.createdAt || r.created_at || new Date().toISOString().slice(0,10),
+      assigned: r.assigned || 'Unassigned',
+      telecaller: r.telecaller || 'N/A',
+      telecallerStatus: r.telecallerStatus || r.telecaller_status || 'INACTIVE',
+      paymentStatus: r.paymentStatus || r.payment_status || 'PENDING'
+    }));
+  };
+
+  const onFileSelected = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const text = String(evt.target.result || '');
+        const rows = parseCsv(text);
+        const normalized = normalizeImported(rows);
+        setLeadsData(normalized);
+      } catch (err) {
+        console.error('Failed to import leads:', err);
+        alert('Failed to import leads. Please ensure the CSV is valid.');
+      }
+    };
+    reader.readAsText(file);
+    // reset input so selecting the same file again still triggers change
+    e.target.value = '';
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">All Leads</h1>
-        <p className="text-gray-600">Manage and track all your leads</p>
       </div>
 
       {/* Search and Action Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
         <div className="flex items-center justify-between">
-          {/* Search Bar */}
-          <div className="flex-1 max-w-md">
-            <div className="relative">
+          {/* Left: Search (half width) */}
+          <div className="flex items-center gap-3 w-full max-w-xl">
+            <div className="relative w-1/2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search by name, email, or business..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-1.5 rounded-full bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white shadow-inner"
               />
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Right: Small Filter + Add Customer + Import + Refresh */}
           <div className="flex items-center space-x-3">
-            <button className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center space-x-2">
-              <Trash2 className="w-4 h-4 text-red-600" />
-              <span>Delete</span>
-            </button>
-            <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+            <button
+              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              title="Toggle column filters"
+              onClick={() => setShowColumnFilters(v => !v)}
+            >
               <Filter className="w-4 h-4 text-indigo-600" />
-              <span>Filters</span>
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <button
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              onClick={() => setShowAddCustomer(true)}
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Customer</span>
+            </button>
+            <button onClick={handleImportClick} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
               <Upload className="w-4 h-4 text-white" />
               <span>Import Leads</span>
             </button>
-            <button className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+            <button className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" onClick={() => setLeadsData(null)}>
               <RefreshCw className="w-4 h-4 text-gray-600" />
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              onChange={onFileSelected}
+              className="hidden"
+            />
           </div>
         </div>
       </div>
@@ -286,6 +411,52 @@ const AllLeads = () => {
                   Actions
                 </th>
               </tr>
+              {showColumnFilters && (
+                <tr className="border-t border-gray-200 bg-white/70">
+                  <th className="px-4 py-2"></th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.customerId} onChange={e => setColumnFilters({ ...columnFilters, customerId: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.customer} onChange={e => setColumnFilters({ ...columnFilters, customer: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.email} onChange={e => setColumnFilters({ ...columnFilters, email: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.business} onChange={e => setColumnFilters({ ...columnFilters, business: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.leadType} onChange={e => setColumnFilters({ ...columnFilters, leadType: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.category} onChange={e => setColumnFilters({ ...columnFilters, category: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.salesStatus} onChange={e => setColumnFilters({ ...columnFilters, salesStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.createdAt} onChange={e => setColumnFilters({ ...columnFilters, createdAt: e.target.value })} placeholder="YYYY-MM-DD" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.assigned} onChange={e => setColumnFilters({ ...columnFilters, assigned: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.telecaller} onChange={e => setColumnFilters({ ...columnFilters, telecaller: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.telecallerStatus} onChange={e => setColumnFilters({ ...columnFilters, telecallerStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input value={columnFilters.paymentStatus} onChange={e => setColumnFilters({ ...columnFilters, paymentStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  </th>
+                  <th className="px-4 py-2 text-right">
+                    <button className="text-xs text-blue-600 hover:underline" onClick={() => setColumnFilters({
+                      customerId: '', customer: '', email: '', business: '', leadType: '', category: '', salesStatus: '', createdAt: '', assigned: '', telecaller: '', telecallerStatus: '', paymentStatus: ''
+                    })}>Clear</button>
+                  </th>
+                </tr>
+              )}
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLeads.map((lead) => (
@@ -332,9 +503,6 @@ const AllLeads = () => {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors" title="View" onClick={() => openPreview(lead)}>
-                        <Eye className="w-4 h-4 text-blue-500" />
-                      </button>
                       <button
                         className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-indigo-600 border border-indigo-200 rounded-full hover:bg-indigo-50 transition-colors"
                         title="Info"
@@ -354,10 +522,19 @@ const AllLeads = () => {
 
       {/* Preview Modal */}
       {showPreview && previewLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl border border-gray-200">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h3 className="text-base font-semibold text-gray-900">Lead Preview</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white w-full max-w-3xl max-h-[70vh] overflow-y-auto rounded-2xl shadow-2xl border border-gray-200" role="dialog" aria-modal="true">
+            {/* Header */}
+            <div className="flex items-start justify-between px-6 md:px-8 py-5 border-b border-gray-100">
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <h2 className="text-2xl font-bold text-gray-900">{previewLead.customer}</h2>
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${previewLead.salesStatus === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                    {previewLead.salesStatus}
+                  </span>
+                </div>
+                <div className="text-gray-600">{previewLead.business}</div>
+              </div>
               <button
                 className="p-2 text-gray-500 hover:text-gray-700"
                 onClick={() => setShowPreview(false)}
@@ -366,57 +543,264 @@ const AllLeads = () => {
                 ✕
               </button>
             </div>
-            <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-gray-500">Customer ID</div>
-                <div className="text-sm text-gray-900">{previewLead.customerId}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Customer</div>
-                <div className="text-sm text-gray-900">{previewLead.customer}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Email</div>
-                <div className="text-sm text-gray-900">{previewLead.email}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Business</div>
-                <div className="text-sm text-gray-900">{previewLead.business}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Lead Type</div>
-                <div className="text-sm text-gray-900">{previewLead.leadType}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Category</div>
-                <div className="text-sm text-gray-900">{previewLead.category}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Sales Status</div>
-                <div className="text-sm text-gray-900">{previewLead.salesStatus}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Created</div>
-                <div className="text-sm text-gray-900">{previewLead.createdAt}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Assigned</div>
-                <div className="text-sm text-gray-900">{previewLead.assigned}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Telecaller</div>
-                <div className="text-sm text-gray-900">{previewLead.telecaller}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Telecaller Status</div>
-                <div className="text-sm text-gray-900">{previewLead.telecallerStatus}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Payment Status</div>
-                <div className="text-sm text-gray-900">{previewLead.paymentStatus}</div>
+
+            {/* Tabs */}
+            <div className="px-6 md:px-8 pt-4">
+              <div className="flex items-center gap-3">
+                {[
+                  { key: 'overview', label: 'Overview' },
+                  { key: 'paymentQuotation', label: 'Payment & Quotation' },
+                  { key: 'meetings', label: 'Meetings' }
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium ${activeTab === tab.key ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end">
+
+            {/* Body */}
+            <div className="px-6 md:px-8 py-5">
+              {activeTab === 'overview' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Lead Summary - mirrors All Leads table columns */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 lg:col-span-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Lead Summary</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Customer ID</div>
+                        <div className="text-sm text-gray-900">{previewLead.customerId || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Customer</div>
+                        <div className="text-sm text-gray-900">{previewLead.customer || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Email</div>
+                        <div className="text-sm text-gray-900 truncate">{previewLead.email || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Business</div>
+                        <div className="text-sm text-gray-900">{previewLead.business || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Lead Type</div>
+                        <div className="text-sm text-gray-900">{previewLead.leadType || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Category</div>
+                        <div className="text-sm text-gray-900">{previewLead.category || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Sales Status</div>
+                        <div className="mt-1">{getStatusBadge(previewLead.salesStatus, 'sales')}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Created</div>
+                        <div className="text-sm text-gray-900">{previewLead.createdAt || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Assigned</div>
+                        <div className="text-sm text-gray-900">{previewLead.assigned || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Telecaller</div>
+                        <div className="text-sm text-gray-900">{previewLead.telecaller || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Telecaller Status</div>
+                        <div className="mt-1">{getStatusBadge(previewLead.telecallerStatus, 'telecaller')}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Payment Status</div>
+                        <div className="mt-1">{getStatusBadge(previewLead.paymentStatus, 'payment')}</div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Lead Information */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Lead Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="flex items-start gap-3">
+                        <User className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Contact Person</div>
+                          <div className="text-sm text-gray-600">N/A</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Tag className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Lead Type</div>
+                          <div className="text-xs inline-flex items-center px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">{previewLead.leadType}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Building className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Business Name</div>
+                          <div className="text-sm text-gray-600">{previewLead.business || 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Shield className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Category</div>
+                          <div className="text-xs inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">{previewLead.category || 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Location</div>
+                          <div className="text-sm text-gray-600">N/A</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Calendar className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Created Date</div>
+                          <div className="text-sm text-gray-600">{previewLead.createdAt || 'Invalid date'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Phone className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Contact</div>
+                          <div className="text-sm text-gray-600">N/A</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Last Updated</div>
+                          <div className="text-sm text-gray-600">{new Date().toDateString()}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-gray-100">
+                      <div className="flex items-start gap-3">
+                        <Info className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Description</div>
+                          <div className="text-sm text-gray-600">N/A</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Assignment */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Assignment</h3>
+                    <div className="space-y-5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-semibold">A</div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Assigned To</div>
+                          <div className="text-sm text-gray-600 truncate max-w-xs">{previewLead.assigned}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">N</div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Telecaller Assigned</div>
+                          <div className="text-sm text-gray-600">{previewLead.telecaller || 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <User className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Telecaller Status</div>
+                          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${previewLead.telecallerStatus === 'ACTIVE' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                            {previewLead.telecallerStatus}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'paymentQuotation' && (
+                <div className="space-y-6">
+                  {/* Overview - Payment */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">Overview</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Payment Status</div>
+                        <div className="mt-1">{getStatusBadge(previewLead.paymentStatus, 'payment')}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Payment</h3>
+                    <div className="text-sm text-gray-600">No payment information available.</div>
+                  </div>
+                  <div className="pt-4 border-t border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Quotation</h3>
+                    <div className="text-sm text-gray-600">No quotations available.</div>
+                  </div>
+                </div>
+              )}
+              {activeTab === 'meetings' && (
+                <div className="space-y-6">
+                  {/* Overview - Meetings */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">Overview</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Sales Status</div>
+                        <div className="mt-1">{getStatusBadge(previewLead.salesStatus, 'sales')}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-500">Telecaller Status</div>
+                        <div className="mt-1">{getStatusBadge(previewLead.telecallerStatus, 'telecaller')}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Meeting / Remark</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <input type="date" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                        <input type="time" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                          <option>Meeting</option>
+                          <option>Call</option>
+                          <option>Follow-up</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Remark</label>
+                      <textarea rows="4" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add meeting notes or remarks..."></textarea>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Save</button>
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-gray-100">
+                    <h4 className="text-md font-semibold text-gray-900 mb-2">Previous Meetings / Remarks</h4>
+                    <div className="text-sm text-gray-600">No meetings or remarks yet.</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 md:px-8 py-4 border-t border-gray-100 flex items-center justify-end">
               <button
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
                 onClick={() => setShowPreview(false)}
