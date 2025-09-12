@@ -1,6 +1,7 @@
 "use client"
 
 import { LayoutDashboard, Users, LogOut, Menu, X } from "lucide-react"
+import FollowUpDropdown from './FollowUp/FollowUpDropdown'
 
 function cx(...classes) {
   return classes.filter(Boolean).join(" ")
@@ -80,6 +81,11 @@ export default function Sidebar({ currentPage, onNavigate, onLogout, sidebarOpen
                 </span>
               </button>
             </li>
+            <FollowUpDropdown 
+              currentPage={currentPage} 
+              onNavigate={onNavigate} 
+              sidebarOpen={sidebarOpen} 
+            />
           </ul>
         </nav>
 
