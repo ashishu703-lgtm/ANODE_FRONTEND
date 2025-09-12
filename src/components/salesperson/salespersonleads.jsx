@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Import, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X } from "lucide-react"
+import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Import, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X, Clock, Check, Clock as ClockIcon } from "lucide-react"
 import html2pdf from 'html2pdf.js'
 import Quotation from './salespersonquotation.jsx'
 import AddCustomerForm from './salespersonaddcustomer.jsx'
@@ -33,7 +33,63 @@ export default function CustomerListContent() {
   const [showFilters, setShowFilters] = React.useState(false)
   const [showPaymentReceipt, setShowPaymentReceipt] = React.useState(false)
   const [selectedPayment, setSelectedPayment] = React.useState(null)
-  const [showPaymentHistory, setShowPaymentHistory] = React.useState(false)
+  // Quotations data
+  const [quotations, setQuotations] = React.useState([
+    {
+      id: 'QTN-2025-001',
+      date: '2025-09-10T14:30:00',
+      amount: 15000,
+      status: 'sent',
+      remarks: 'Initial quotation for 100m cable',
+      documentUrl: '/quotation-1.pdf',
+      items: [
+        { description: '100m Copper Cable', quantity: 100, rate: 100, amount: 10000 },
+        { description: 'Installation Charges', quantity: 1, rate: 5000, amount: 5000 }
+      ],
+      total: 15000,
+      customerNotes: 'Customer requested discount on bulk order',
+      validity: '2025-10-10',
+      terms: '50% advance, 50% on delivery',
+      preparedBy: 'John Doe'
+    },
+    {
+      id: 'QTN-2025-002',
+      date: '2025-09-15T11:20:00',
+      amount: 25000,
+      status: 'revised',
+      remarks: 'Revised quotation with additional items',
+      documentUrl: '/quotation-2.pdf',
+      items: [
+        { description: '150m Copper Cable', quantity: 150, rate: 100, amount: 15000 },
+        { description: 'Installation Charges', quantity: 1, rate: 5000, amount: 5000 },
+        { description: 'Additional Wiring', quantity: 1, rate: 5000, amount: 5000 }
+      ],
+      total: 25000,
+      customerNotes: 'Customer approved the revised quote',
+      validity: '2025-10-15',
+      terms: '30% advance, 70% on completion',
+      preparedBy: 'John Doe',
+      revisionOf: 'QTN-2025-001'
+    },
+    {
+      id: 'QTN-2025-003',
+      date: '2025-09-20T16:45:00',
+      amount: 12000,
+      status: 'accepted',
+      remarks: 'Follow-up quotation for additional work',
+      documentUrl: '/quotation-3.pdf',
+      items: [
+        { description: 'Additional Wiring', quantity: 1, rate: 7000, amount: 7000 },
+        { description: 'Labor Charges', quantity: 1, rate: 5000, amount: 5000 }
+      ],
+      total: 12000,
+      customerNotes: 'Customer requested urgent completion',
+      validity: '2025-10-20',
+      terms: 'Full payment on completion',
+      preparedBy: 'John Doe'
+    }
+  ])
+  const [showPaymentTimeline, setShowPaymentTimeline] = React.useState(false)
   const [paymentHistory, setPaymentHistory] = React.useState([])
   const [showPdfViewer, setShowPdfViewer] = React.useState(false)
   const [currentPdfUrl, setCurrentPdfUrl] = React.useState('')
@@ -852,7 +908,7 @@ export default function CustomerListContent() {
             <User className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Your Assigned Leads</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">Leads</h1>
             <p className="text-sm text-gray-600">Manage and track your sales leads</p>
           </div>
         </div>
@@ -1227,8 +1283,18 @@ export default function CustomerListContent() {
             </div>
             <div className="mt-4 px-3">
               <div className="flex items-center gap-2 border-b border-gray-200 px-3">
-                <button className={cx("px-3 py-2 text-sm", modalTab === 'details' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')} onClick={() => setModalTab('details')}>Details</button>
-                <button className={cx("px-3 py-2 text-sm", modalTab === 'quotation_status' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')} onClick={() => setModalTab('quotation_status')}>Quotation & Payment Status</button>
+                <button className={cx("px-3 py-2 text-sm flex items-center gap-1", modalTab === 'details' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')} onClick={() => setModalTab('details')}>
+                  <User className="h-4 w-4" />
+                  Details
+                </button>
+                <button className={cx("px-3 py-2 text-sm flex items-center gap-1", modalTab === 'quotation_status' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')} onClick={() => setModalTab('quotation_status')}>
+                  <FileText className="h-4 w-4" />
+                  Quotation & Payment
+                </button>
+                <button className={cx("px-3 py-2 text-sm flex items-center gap-1", modalTab === 'payment_timeline' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')} onClick={() => setModalTab('payment_timeline')}>
+                  <Clock className="h-4 w-4" />
+                  Payment Timeline
+                </button>
               </div>
             </div>
             <div className="px-6 py-4 max-h-[70vh] overflow-auto">
@@ -1240,6 +1306,112 @@ export default function CustomerListContent() {
                   <div className="flex justify-between"><span className="text-gray-500">Address</span><span className="font-medium text-gray-900 text-right max-w-[60%]">{viewingCustomer.address || '-'}</span></div>
                   <div className="flex justify-between"><span className="text-gray-500">Contact</span><span className="font-medium text-gray-900">{viewingCustomer.phone}</span></div>
                   <div className="flex justify-between"><span className="text-gray-500">Email</span><span className="font-medium text-gray-900">{viewingCustomer.email}</span></div>
+                </div>
+              )}
+              {modalTab === 'payment_timeline' && (
+                <div className="space-y-4">
+                  <div className="bg-white rounded-lg shadow overflow-hidden">
+                    <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
+                      <h3 className="text-lg font-medium leading-6 text-gray-900">Quotation History</h3>
+                      <p className="mt-1 text-sm text-gray-500">All quotations sent to {viewingCustomer?.name}</p>
+                    </div>
+                    <div className="divide-y divide-gray-200">
+                      {quotations.map((quotation, index) => (
+                        <div key={quotation.id} className="p-4 hover:bg-gray-50">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center">
+                                <h4 className="text-sm font-medium text-gray-900">
+                                  Quotation #{quotation.id}
+                                  {quotation.revisionOf && (
+                                    <span className="ml-2 text-xs text-gray-500">
+                                      (Revision of {quotation.revisionOf})
+                                    </span>
+                                  )}
+                                </h4>
+                                <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  quotation.status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                                  quotation.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                  quotation.status === 'revised' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {quotation.status.charAt(0).toUpperCase() + quotation.status.slice(1)}
+                                </span>
+                              </div>
+                              <div className="mt-1 text-sm text-gray-500">
+                                <p>{quotation.remarks}</p>
+                                <p className="mt-1">
+                                  <span className="font-medium">Amount:</span> ₹{quotation.amount.toLocaleString()}
+                                  <span className="mx-2">•</span>
+                                  <span>Valid until: {new Date(quotation.validity).toLocaleDateString()}</span>
+                                </p>
+                                {quotation.customerNotes && (
+                                  <div className="mt-1 p-2 bg-yellow-50 border-l-4 border-yellow-400">
+                                    <p className="text-xs text-yellow-700">
+                                      <span className="font-medium">Customer Note:</span> {quotation.customerNotes}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="ml-4 flex-shrink-0">
+                              <div className="text-right">
+                                <time dateTime={quotation.date} className="text-sm text-gray-500">
+                                  {new Date(quotation.date).toLocaleString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </time>
+                                <div className="mt-1">
+                                  <button
+                                    onClick={() => {
+                                      setCurrentPdfUrl(quotation.documentUrl);
+                                      setShowPdfViewer(true);
+                                    }}
+                                    className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                  >
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    View PDF
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Quotation Details - Collapsible */}
+                          <div className="mt-3 border-t border-gray-200 pt-3">
+                            <div className="text-sm text-gray-700">
+                              <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-500 mb-1">
+                                <div>Description</div>
+                                <div className="text-right">Qty</div>
+                                <div className="text-right">Amount</div>
+                              </div>
+                              {quotation.items.map((item, itemIndex) => (
+                                <div key={itemIndex} className="grid grid-cols-3 gap-2 py-1 border-b border-gray-100">
+                                  <div className="text-sm">{item.description}</div>
+                                  <div className="text-right">{item.quantity} x ₹{item.rate.toLocaleString()}</div>
+                                  <div className="text-right font-medium">₹{item.amount.toLocaleString()}</div>
+                                </div>
+                              ))}
+                              <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                                <div className="text-sm font-medium">Total</div>
+                                <div className="text-right">
+                                  <div className="text-base font-bold">₹{quotation.total.toLocaleString()}</div>
+                                  <div className="text-xs text-gray-500">{quotation.terms}</div>
+                                </div>
+                              </div>
+                              <div className="mt-2 text-xs text-gray-500">
+                                <p>Prepared by: {quotation.preparedBy}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
               {modalTab === 'quotation_status' && (
