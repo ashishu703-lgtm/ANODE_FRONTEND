@@ -2,14 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { Calendar, Users, MessageSquare, Clock, CheckCircle, XCircle, TrendingDown, Filter, BarChart3, PieChart, RefreshCw } from 'lucide-react';
 import { PieChart as RechartsPieChart, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const SalesDashboard = () => {
-  const [selectedExecutive, setSelectedExecutive] = useState('All Executives');
+const SalesDashboard = ({ setActiveView }) => {
+  const [selectedSalesperson, setSelectedSalesperson] = useState('All Salespersons');
   const [dateRange, setDateRange] = useState('');
   const [showCharts, setShowCharts] = useState(false);
 
   // Sample data for different time periods
   const sampleData = {
-    'All Executives': {
+    'All Salespersons': {
       totalLeads: 156,
       pendingLeads: 24,
       followUpLeads: 18,
@@ -24,7 +24,7 @@ const SalesDashboard = () => {
       meetingConversion: 75.0,
       pendingRate: 15.4
     },
-    'John Smith': {
+    'Marketing Salesperson': {
       totalLeads: 89,
       pendingLeads: 15,
       followUpLeads: 12,
@@ -38,16 +38,99 @@ const SalesDashboard = () => {
       conversionRate: 50.6,
       meetingConversion: 66.7,
       pendingRate: 16.9
+    },
+    'Tele Sales': {
+      totalLeads: 45,
+      pendingLeads: 8,
+      followUpLeads: 5,
+      meetingScheduled: 3,
+      completedLeads: 25,
+      notConnected: 4,
+      overallRevenue: 450000,
+      totalRevenue: 75000,
+      currentMonthEarnings: 350000,
+      monthGrowth: -25.3,
+      conversionRate: 55.6,
+      meetingConversion: 83.3,
+      pendingRate: 17.8
+    },
+    'Office Sales Person': {
+      totalLeads: 22,
+      pendingLeads: 1,
+      followUpLeads: 1,
+      meetingScheduled: 1,
+      completedLeads: 19,
+      notConnected: 0,
+      overallRevenue: 207727,
+      totalRevenue: 45000,
+      currentMonthEarnings: 110064,
+      monthGrowth: -12.1,
+      conversionRate: 86.4,
+      meetingConversion: 100.0,
+      pendingRate: 4.5
     }
   };
 
-  const [currentData, setCurrentData] = useState(sampleData['All Executives']);
+  const [currentData, setCurrentData] = useState(sampleData['All Salespersons']);
 
-  const executives = ['All Executives', 'John Smith', 'Sarah Johnson', 'Mike Wilson', 'Lisa Chen'];
+  const salespersons = ['All Salespersons', 'Marketing Salesperson', 'Tele Sales', 'Office Sales Person'];
 
-  const handleExecutiveChange = (executive) => {
-    setSelectedExecutive(executive);
-    setCurrentData(sampleData[executive] || sampleData['All Executives']);
+  const handleSalespersonChange = (salesperson) => {
+    setSelectedSalesperson(salesperson);
+    setCurrentData(sampleData[salesperson] || sampleData['All Salespersons']);
+  };
+
+  // Function to render content based on selected salesperson
+  const renderSalespersonContent = () => {
+    switch (selectedSalesperson) {
+      case 'Marketing Salesperson':
+        return (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">Marketing Salesperson Dashboard</h3>
+            <p className="text-blue-600">Click below to open the dedicated Marketing Salesperson dashboard in a new tab.</p>
+            <div className="mt-4 flex space-x-4">
+              <button 
+                onClick={() => window.open('?userType=marketing-salesperson&login=true', '_blank')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Open Marketing Dashboard (New Tab)
+              </button>
+            </div>
+          </div>
+        );
+      case 'Tele Sales':
+        return (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-green-800 mb-2">Tele Sales Dashboard</h3>
+            <p className="text-green-600">Click below to open the dedicated Tele Sales dashboard in a new tab.</p>
+            <div className="mt-4 flex space-x-4">
+              <button 
+                onClick={() => window.open('?userType=tele-sales&login=true', '_blank')}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Open Tele Sales Dashboard (New Tab)
+              </button>
+            </div>
+          </div>
+        );
+      case 'Office Sales Person':
+        return (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-purple-800 mb-2">Office Sales Person Dashboard</h3>
+            <p className="text-purple-600">Click below to open the dedicated Office Sales Person dashboard in a new tab.</p>
+            <div className="mt-4 flex space-x-4">
+              <button 
+                onClick={() => window.open('?userType=office-sales-person&login=true', '_blank')}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Open Office Sales Dashboard (New Tab)
+              </button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   // Chart data
@@ -140,15 +223,15 @@ const SalesDashboard = () => {
       {/* Filters */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Sales Executive</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Sales Department</label>
           <div className="relative">
             <select 
-              value={selectedExecutive}
-              onChange={(e) => handleExecutiveChange(e.target.value)}
+              value={selectedSalesperson}
+              onChange={(e) => handleSalespersonChange(e.target.value)}
               className="w-48 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
-              {executives.map(exec => (
-                <option key={exec} value={exec}>{exec}</option>
+              {salespersons.map(salesperson => (
+                <option key={salesperson} value={salesperson}>{salesperson}</option>
               ))}
             </select>
           </div>
@@ -164,6 +247,9 @@ const SalesDashboard = () => {
           />
         </div>
       </div>
+
+      {/* Salesperson Specific Content */}
+      {renderSalespersonContent()}
 
       {showCharts ? (
         /* Charts View */

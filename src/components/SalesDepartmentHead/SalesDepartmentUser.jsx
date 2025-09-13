@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Search, UserPlus, Upload, Edit, LogOut, Trash2, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal } from 'lucide-react';
+import { Search, UserPlus, Upload, Edit, LogOut, Trash2, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal, TrendingUp, AlertTriangle } from 'lucide-react';
 
 const UserManagementTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,6 +11,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'SALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '45/50',
+      remainingTarget: '5/50',
       createdAt: 'Thu, May 15, 2025'
     },
     {
@@ -20,6 +22,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'TELESALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '38/40',
+      remainingTarget: '2/40',
       createdAt: 'Tue, May 20, 2025'
     },
     {
@@ -29,6 +33,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'TELESALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '25/30',
+      remainingTarget: '5/30',
       createdAt: 'Tue, May 20, 2025'
     },
     {
@@ -38,6 +44,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'SALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '52/50',
+      remainingTarget: '0/50',
       createdAt: 'Wed, May 21, 2025'
     },
     {
@@ -47,6 +55,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'SALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '30/45',
+      remainingTarget: '15/45',
       createdAt: 'Thu, May 22, 2025'
     },
     {
@@ -56,6 +66,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'SALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '42/50',
+      remainingTarget: '8/50',
       createdAt: 'Sat, May 24, 2025'
     },
     {
@@ -65,6 +77,8 @@ const UserManagementTable = () => {
       role: 'DEPARTMENT USER',
       department: 'SALES DEPARTMENT',
       target: 'Not specified',
+      achievedTarget: '28/35',
+      remainingTarget: '7/35',
       createdAt: 'Mon, May 26, 2025'
     }
   ]);
@@ -74,16 +88,21 @@ const UserManagementTable = () => {
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.target.toLowerCase().includes(searchTerm.toLowerCase())
+    user.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.achievedTarget.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.remainingTarget.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const [showAddModal, setShowAddModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
+    password: '',
     role: 'DEPARTMENT USER',
     department: 'SALES DEPARTMENT',
-    target: 'Not specified'
+    target: 'Not specified',
+    achievedTarget: '0/0',
+    remainingTarget: '0/0'
   });
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -127,6 +146,8 @@ const UserManagementTable = () => {
         role: getIndex('role'),
         department: getIndex('department'),
         target: getIndex('target'),
+        achievedtarget: getIndex('achievedtarget'),
+        remainingtarget: getIndex('remainingtarget'),
         createdAt: getIndex('createdat')
       };
       const nextIdStart = (users.at(-1)?.id ?? 0) + 1;
@@ -140,6 +161,8 @@ const UserManagementTable = () => {
           role: (idx.role >= 0 ? cols[idx.role]?.trim() : 'DEPARTMENT USER') || 'DEPARTMENT USER',
           department: (idx.department >= 0 ? cols[idx.department]?.trim() : 'SALES DEPARTMENT') || 'SALES DEPARTMENT',
           target: (idx.target >= 0 ? cols[idx.target]?.trim() : 'Not specified') || 'Not specified',
+          achievedTarget: (idx.achievedtarget >= 0 ? cols[idx.achievedtarget]?.trim() : '0/0') || '0/0',
+          remainingTarget: (idx.remainingtarget >= 0 ? cols[idx.remainingtarget]?.trim() : '0/0') || '0/0',
           createdAt: createdAtVal || new Date().toDateString()
         };
       }).filter(u => u.username || u.email);
@@ -178,7 +201,7 @@ const UserManagementTable = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by username, email, department type, or target"
+              placeholder="Search by username, email, department type, target, achieved target, or remaining target"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
@@ -253,6 +276,18 @@ const UserManagementTable = () => {
                 </th>
                 <th className="text-left py-3 px-4">
                   <div className="flex items-center gap-2 text-gray-600 font-medium">
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                    Achieved Target
+                  </div>
+                </th>
+                <th className="text-left py-3 px-4">
+                  <div className="flex items-center gap-2 text-gray-600 font-medium">
+                    <AlertTriangle className="w-4 h-4 text-red-600" />
+                    Remaining Target
+                  </div>
+                </th>
+                <th className="text-left py-3 px-4">
+                  <div className="flex items-center gap-2 text-gray-600 font-medium">
                     <Calendar className="w-4 h-4 text-teal-600" />
                     Created At
                   </div>
@@ -292,6 +327,12 @@ const UserManagementTable = () => {
                   </td>
                   <td className="py-4 px-4">
                     <span className="text-gray-600">{user.target}</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded-md">{user.achievedTarget}</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-md">{user.remainingTarget}</span>
                   </td>
                   <td className="py-4 px-4">
                     <span className="text-gray-700">{user.createdAt}</span>
@@ -350,7 +391,7 @@ const UserManagementTable = () => {
                   setUsers((prev) => [record, ...prev]);
                   setSaving(false);
                   setShowAddModal(false);
-                  setNewUser({ username: '', email: '', role: 'DEPARTMENT USER', department: 'SALES DEPARTMENT', target: 'Not specified' });
+                  setNewUser({ username: '', email: '', password: '', role: 'DEPARTMENT USER', department: 'SALES DEPARTMENT', target: 'Not specified', achievedTarget: '0/0', remainingTarget: '0/0' });
                 }}
               >
                 <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -377,6 +418,17 @@ const UserManagementTable = () => {
                     />
                   </div>
                   <div>
+                    <label className="block text-xs text-gray-600 mb-1">Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter password"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-xs text-gray-600 mb-1">Role</label>
                     <select
                       value={newUser.role}
@@ -398,7 +450,7 @@ const UserManagementTable = () => {
                       <option>TELESALES DEPARTMENT</option>
                     </select>
                   </div>
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-xs text-gray-600 mb-1">Target</label>
                     <input
                       type="text"
@@ -406,6 +458,26 @@ const UserManagementTable = () => {
                       onChange={(e) => setNewUser({ ...newUser, target: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="e.g. 50 customers/month"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Achieved Target</label>
+                    <input
+                      type="text"
+                      value={newUser.achievedTarget}
+                      onChange={(e) => setNewUser({ ...newUser, achievedTarget: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. 45/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Remaining Target</label>
+                    <input
+                      type="text"
+                      value={newUser.remainingTarget}
+                      onChange={(e) => setNewUser({ ...newUser, remainingTarget: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. 5/50"
                     />
                   </div>
                 </div>
@@ -509,7 +581,7 @@ const UserManagementTable = () => {
                       <option>TELESALES DEPARTMENT</option>
                     </select>
                   </div>
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-xs text-gray-600 mb-1">Target</label>
                     <input
                       type="text"
@@ -517,6 +589,26 @@ const UserManagementTable = () => {
                       onChange={(e) => setEditingUser({ ...editingUser, target: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="e.g. 50 customers/month"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Achieved Target</label>
+                    <input
+                      type="text"
+                      value={editingUser.achievedTarget}
+                      onChange={(e) => setEditingUser({ ...editingUser, achievedTarget: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. 45/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Remaining Target</label>
+                    <input
+                      type="text"
+                      value={editingUser.remainingTarget}
+                      onChange={(e) => setEditingUser({ ...editingUser, remainingTarget: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. 5/50"
                     />
                   </div>
                 </div>

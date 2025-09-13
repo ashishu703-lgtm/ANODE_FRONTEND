@@ -9,14 +9,24 @@ import {
   Target,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Calendar,
+  TrendingUp
 } from 'lucide-react';
 
 const SalesDepartmentHeadSidebar = ({ onLogout, activeView, setActiveView }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [expandedDropdowns, setExpandedDropdowns] = useState({});
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const toggleDropdown = (dropdownId) => {
+    setExpandedDropdowns(prev => ({
+      ...prev,
+      [dropdownId]: !prev[dropdownId]
+    }));
   };
 
   const sidebarItems = [
@@ -93,21 +103,69 @@ const SalesDepartmentHeadSidebar = ({ onLogout, activeView, setActiveView }) => 
         <ul className="space-y-1">
           {sidebarItems.map((item) => (
             <li key={item.id}>
-              <div
-                className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                  activeView === item.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'
-                }`}
-                onClick={() => setActiveView(item.id)}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={activeView === item.id ? 'text-blue-600' : 'text-gray-500'}>
-                    {item.icon}
+              {item.hasDropdown ? (
+                <div>
+                  <div
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                      activeView.startsWith(item.id) ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                    onClick={() => toggleDropdown(item.id)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={activeView.startsWith(item.id) ? 'text-blue-600' : 'text-gray-500'}>
+                        {item.icon}
+                      </div>
+                      {isExpanded && (
+                        <span className="text-sm font-medium">{item.label}</span>
+                      )}
+                    </div>
+                    {isExpanded && (
+                      <div className={activeView.startsWith(item.id) ? 'text-blue-600' : 'text-gray-500'}>
+                        {expandedDropdowns[item.id] ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </div>
+                    )}
                   </div>
-                  {isExpanded && (
-                    <span className="text-sm font-medium">{item.label}</span>
+                  {expandedDropdowns[item.id] && isExpanded && (
+                    <ul className="ml-4 mt-1 space-y-1">
+                      {item.dropdownItems.map((subItem) => (
+                        <li key={subItem.id}>
+                          <div
+                            className={`flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                              activeView === subItem.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
+                            onClick={() => setActiveView(subItem.id)}
+                          >
+                            <div className={activeView === subItem.id ? 'text-blue-600' : 'text-gray-500'}>
+                              {subItem.icon}
+                            </div>
+                            <span className="text-sm font-medium">{subItem.label}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
-              </div>
+              ) : (
+                <div
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                    activeView === item.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'
+                  }`}
+                  onClick={() => setActiveView(item.id)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={activeView === item.id ? 'text-blue-600' : 'text-gray-500'}>
+                      {item.icon}
+                    </div>
+                    {isExpanded && (
+                      <span className="text-sm font-medium">{item.label}</span>
+                    )}
+                  </div>
+                </div>
+              )}
             </li>
           ))}
         </ul>

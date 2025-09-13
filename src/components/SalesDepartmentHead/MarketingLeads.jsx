@@ -1,18 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus, Download, ChevronDown } from 'lucide-react';
+import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus, TrendingUp, Target, Users, BarChart3 } from 'lucide-react';
 import AddCustomerForm from '../salesperson/salespersonaddcustomer.jsx';
 
-const AllLeads = () => {
+const MarketingLeads = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewLead, setPreviewLead] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'paymentQuotation' | 'meetings'
+  const [activeTab, setActiveTab] = useState('overview');
   const fileInputRef = useRef(null);
   const [leadsData, setLeadsData] = useState(null);
   const [showColumnFilters, setShowColumnFilters] = useState(false);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
-  const [showImportDropdown, setShowImportDropdown] = useState(false);
   const [columnFilters, setColumnFilters] = useState({
     customerId: '',
     customer: '',
@@ -28,85 +27,81 @@ const AllLeads = () => {
     paymentStatus: ''
   });
 
-  const activeFilterCount = Object.values(columnFilters).filter(v => String(v || '').trim() !== '').length;
-
-  const filterControlClass = "w-full px-2 py-1.5 border border-gray-300 rounded bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
-
-  // Sample data
+  // Sample data for marketing leads
   const leads = [
     {
       id: 1,
-      customerId: 'CUST-0001',
-      customer: 'na 9769334242',
-      email: 'tejaldrive@gmail.com',
-      business: 'na',
-      leadType: '999 7 aug',
-      category: 'na',
+      customerId: 'MKT-0001',
+      customer: 'John Smith',
+      email: 'john.smith@example.com',
+      business: 'Tech Solutions Inc',
+      leadType: 'Website Inquiry',
+      category: 'Hot Lead',
       salesStatus: 'PENDING',
       createdAt: '2024-01-15',
-      assigned: 'John Doe',
-      telecaller: 'Sarah Smith',
+      assigned: 'Sarah Johnson',
+      telecaller: 'Mike Wilson',
       telecallerStatus: 'ACTIVE',
       paymentStatus: 'PENDING'
     },
     {
       id: 2,
-      customerId: 'CUST-0002',
-      customer: 'na 9769868287',
-      email: 'Shilpawadkar29@gmail.com',
-      business: 'na',
-      leadType: '999 7 aug',
-      category: 'na',
-      salesStatus: 'PENDING',
+      customerId: 'MKT-0002',
+      customer: 'Emily Davis',
+      email: 'emily.davis@company.com',
+      business: 'Marketing Agency',
+      leadType: 'Social Media',
+      category: 'Warm Lead',
+      salesStatus: 'FOLLOW_UP',
       createdAt: '2024-01-16',
-      assigned: 'Mike Johnson',
-      telecaller: 'Alex Brown',
-      telecallerStatus: 'INACTIVE',
-      paymentStatus: 'COMPLETED'
-    },
-    {
-      id: 3,
-      customerId: 'CUST-0003',
-      customer: 'na 9840457999',
-      email: 'rahul.44@gmail.com',
-      business: 'na',
-      leadType: '999 7 aug',
-      category: 'na',
-      salesStatus: 'PENDING',
-      createdAt: '2024-01-17',
-      assigned: 'Lisa Wilson',
-      telecaller: 'Tom Davis',
-      telecallerStatus: 'ACTIVE',
-      paymentStatus: 'PENDING'
-    },
-    {
-      id: 4,
-      customerId: 'CUST-0004',
-      customer: 'na 9876543210',
-      email: 'bluestarindustriespvtltd@gmail.com',
-      business: 'na',
-      leadType: '999 7 aug',
-      category: 'na',
-      salesStatus: 'PENDING',
-      createdAt: '2024-01-18',
       assigned: 'David Lee',
-      telecaller: 'Emma Taylor',
+      telecaller: 'Lisa Chen',
       telecallerStatus: 'ACTIVE',
       paymentStatus: 'IN_PROGRESS'
     },
     {
+      id: 3,
+      customerId: 'MKT-0003',
+      customer: 'Robert Brown',
+      email: 'robert.brown@business.com',
+      business: 'Manufacturing Co',
+      leadType: 'Referral',
+      category: 'Cold Lead',
+      salesStatus: 'PENDING',
+      createdAt: '2024-01-17',
+      assigned: 'Anna Garcia',
+      telecaller: 'Tom Davis',
+      telecallerStatus: 'INACTIVE',
+      paymentStatus: 'PENDING'
+    },
+    {
+      id: 4,
+      customerId: 'MKT-0004',
+      customer: 'Maria Rodriguez',
+      email: 'maria.rodriguez@enterprise.com',
+      business: 'Enterprise Solutions',
+      leadType: 'Email Campaign',
+      category: 'Hot Lead',
+      salesStatus: 'MEETING_SCHEDULED',
+      createdAt: '2024-01-18',
+      assigned: 'Chris Miller',
+      telecaller: 'Emma Taylor',
+      telecallerStatus: 'ACTIVE',
+      paymentStatus: 'COMPLETED'
+    },
+    {
       id: 5,
-      customerId: 'CUST-0005',
-      customer: 'na 9123456789',
-      email: 'testuser@gmail.com',
-      business: 'na',
-      leadType: '999 7 aug',
-      category: 'na',
+      customerId: 'MKT-0005',
+      customer: 'James Wilson',
+      email: 'james.wilson@startup.com',
+      business: 'Startup Ventures',
+      leadType: 'Trade Show',
+      category: 'Warm Lead',
       salesStatus: 'PENDING',
       createdAt: '2024-01-19',
-      assigned: 'Anna Garcia',
-      telecaller: 'Chris Miller',
-      telecallerStatus: 'INACTIVE',
+      assigned: 'Alex Johnson',
+      telecaller: 'Sarah Smith',
+      telecallerStatus: 'ACTIVE',
       paymentStatus: 'PENDING'
     }
   ];
@@ -141,28 +136,22 @@ const AllLeads = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [showPreview]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showImportDropdown && !event.target.closest('.relative')) {
-        setShowImportDropdown(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showImportDropdown]);
-
   const getStatusBadge = (status, type) => {
     const baseClasses = "px-2 py-1 rounded text-xs font-medium";
     
     switch (type) {
       case 'sales':
         return (
-          <span className={`${baseClasses} bg-yellow-100 text-yellow-800 border border-yellow-200`}>
-            {status}
+          <span className={`${baseClasses} ${
+            status === 'PENDING' 
+              ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+              : status === 'FOLLOW_UP'
+              ? 'bg-blue-100 text-blue-800 border border-blue-200'
+              : status === 'MEETING_SCHEDULED'
+              ? 'bg-purple-100 text-purple-800 border border-purple-200'
+              : 'bg-green-100 text-green-800 border border-green-200'
+          }`}>
+            {status.replace('_', ' ')}
           </span>
         );
       case 'telecaller':
@@ -184,7 +173,7 @@ const AllLeads = () => {
               ? 'bg-blue-100 text-blue-800 border border-blue-200'
               : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
           }`}>
-            {status}
+            {status.replace('_', ' ')}
           </span>
         );
       default:
@@ -247,7 +236,7 @@ const AllLeads = () => {
   const normalizeImported = (rows) => {
     return rows.map((r, index) => ({
       id: index + 1,
-      customerId: r.customerId || r.customer_id || `CUST-${String(index + 1).padStart(4, '0')}`,
+      customerId: r.customerId || r.customer_id || `MKT-${String(index + 1).padStart(4, '0')}`,
       customer: r.customer || r.name || r.customer_name || 'N/A',
       email: r.email || 'N/A',
       business: r.business || r.business_name || 'N/A',
@@ -278,102 +267,18 @@ const AllLeads = () => {
       }
     };
     reader.readAsText(file);
-    // reset input so selecting the same file again still triggers change
     e.target.value = '';
-  };
-
-  const handleCustomerSave = (customerData) => {
-    // Generate a new customer ID
-    const newCustomerId = `CUST-${String((importedLeads.length + 1)).padStart(4, '0')}`;
-    
-    // Create new customer object with the form data
-    const newCustomer = {
-      id: importedLeads.length + 1,
-      customerId: newCustomerId,
-      customer: customerData.customerName,
-      email: customerData.email || 'N/A',
-      business: customerData.businessType,
-      leadType: customerData.productType,
-      category: customerData.customerType,
-      salesStatus: 'PENDING',
-      createdAt: customerData.date,
-      assigned: 'Unassigned',
-      telecaller: 'N/A',
-      telecallerStatus: 'INACTIVE',
-      paymentStatus: 'PENDING'
-    };
-
-    // Update the leads data
-    if (leadsData) {
-      setLeadsData([...leadsData, newCustomer]);
-    } else {
-      setLeadsData([...leads, newCustomer]);
-    }
-
-    // Close the modal
-    setShowAddCustomer(false);
-  };
-
-  const downloadSampleCSV = () => {
-    // Sample CSV data with proper headers and example rows
-    const sampleData = [
-      {
-        customerId: 'CUST-0001',
-        customer: 'John Doe',
-        email: 'john.doe@example.com',
-        business: 'ABC Industries',
-        leadType: 'Conductor',
-        category: 'Business',
-        salesStatus: 'PENDING',
-        createdAt: '2024-01-15',
-        assigned: 'Sales Rep 1',
-        telecaller: 'Telecaller 1',
-        telecallerStatus: 'ACTIVE',
-        paymentStatus: 'PENDING'
-      },
-      {
-        customerId: 'CUST-0002',
-        customer: 'Jane Smith',
-        email: 'jane.smith@example.com',
-        business: 'XYZ Corporation',
-        leadType: 'Cable',
-        category: 'Corporate',
-        salesStatus: 'IN_PROGRESS',
-        createdAt: '2024-01-16',
-        assigned: 'Sales Rep 2',
-        telecaller: 'Telecaller 2',
-        telecallerStatus: 'INACTIVE',
-        paymentStatus: 'COMPLETED'
-      }
-    ];
-
-    // Convert to CSV format
-    const headers = Object.keys(sampleData[0]);
-    const csvContent = [
-      headers.join(','),
-      ...sampleData.map(row => headers.map(header => `"${row[header]}"`).join(','))
-    ].join('\n');
-
-    // Create and download the file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'leads_sample_format.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Close dropdown
-    setShowImportDropdown(false);
   };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">All Leads</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <TrendingUp className="w-8 h-8 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-900">Marketing Leads</h1>
+        </div>
+        <p className="text-gray-600">Manage and track marketing salesperson leads</p>
       </div>
 
       {/* Search and Action Bar */}
@@ -396,16 +301,11 @@ const AllLeads = () => {
           {/* Right: Small Filter + Add Customer + Import + Refresh */}
           <div className="flex items-center space-x-3">
             <button
-              className={`p-2 rounded-lg border inline-flex items-center justify-center relative ${showColumnFilters ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
               title="Toggle column filters"
               onClick={() => setShowColumnFilters(v => !v)}
             >
-              <Filter className="w-4 h-4" />
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium text-white bg-blue-500 rounded-full">
-                  {activeFilterCount}
-                </span>
-              )}
+              <Filter className="w-4 h-4 text-indigo-600" />
             </button>
             <button
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
@@ -414,62 +314,11 @@ const AllLeads = () => {
               <Plus className="w-4 h-4" />
               <span>Add Customer</span>
             </button>
-            <div className="relative">
-              <button 
-                onClick={() => setShowImportDropdown(!showImportDropdown)} 
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-              >
-                <Upload className="w-4 h-4 text-white" />
-                <span>Import Leads</span>
-                <ChevronDown className="w-4 h-4 text-white" />
-              </button>
-              
-              {showImportDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                  <div className="py-1">
-                    <button
-                      onClick={handleImportClick}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                    >
-                      <Upload className="w-4 h-4 text-gray-500" />
-                      <span>Import from CSV</span>
-                    </button>
-                    <button
-                      onClick={downloadSampleCSV}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                    >
-                      <Download className="w-4 h-4 text-gray-500" />
-                      <span>Download Sample Format</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <button 
-              className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" 
-              onClick={() => {
-                // Reset all data and filters
-                setLeadsData(null);
-                setSearchTerm('');
-                setSelectedLeads([]);
-                setColumnFilters({
-                  customerId: '',
-                  customer: '',
-                  email: '',
-                  business: '',
-                  leadType: '',
-                  category: '',
-                  salesStatus: '',
-                  createdAt: '',
-                  assigned: '',
-                  telecaller: '',
-                  telecallerStatus: '',
-                  paymentStatus: ''
-                });
-                setShowColumnFilters(false);
-              }}
-              title="Refresh and reset all filters"
-            >
+            <button onClick={handleImportClick} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+              <Upload className="w-4 h-4 text-white" />
+              <span>Import Leads</span>
+            </button>
+            <button className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" onClick={() => setLeadsData(null)}>
               <RefreshCw className="w-4 h-4 text-gray-600" />
             </button>
             <input
@@ -577,54 +426,40 @@ const AllLeads = () => {
                 <tr className="border-t border-gray-200 bg-white/70">
                   <th className="px-4 py-2"></th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.customerId} onChange={e => setColumnFilters({ ...columnFilters, customerId: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.customerId} onChange={e => setColumnFilters({ ...columnFilters, customerId: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.customer} onChange={e => setColumnFilters({ ...columnFilters, customer: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.customer} onChange={e => setColumnFilters({ ...columnFilters, customer: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.email} onChange={e => setColumnFilters({ ...columnFilters, email: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.email} onChange={e => setColumnFilters({ ...columnFilters, email: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.business} onChange={e => setColumnFilters({ ...columnFilters, business: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.business} onChange={e => setColumnFilters({ ...columnFilters, business: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.leadType} onChange={e => setColumnFilters({ ...columnFilters, leadType: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.leadType} onChange={e => setColumnFilters({ ...columnFilters, leadType: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.category} onChange={e => setColumnFilters({ ...columnFilters, category: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.category} onChange={e => setColumnFilters({ ...columnFilters, category: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <select value={columnFilters.salesStatus} onChange={e => setColumnFilters({ ...columnFilters, salesStatus: e.target.value })} className={filterControlClass}>
-                      <option value="">All</option>
-                      <option value="PENDING">PENDING</option>
-                      <option value="IN_PROGRESS">IN_PROGRESS</option>
-                      <option value="COMPLETED">COMPLETED</option>
-                    </select>
+                    <input value={columnFilters.salesStatus} onChange={e => setColumnFilters({ ...columnFilters, salesStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input type="date" value={columnFilters.createdAt} onChange={e => setColumnFilters({ ...columnFilters, createdAt: e.target.value })} className={filterControlClass} />
+                    <input value={columnFilters.createdAt} onChange={e => setColumnFilters({ ...columnFilters, createdAt: e.target.value })} placeholder="YYYY-MM-DD" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.assigned} onChange={e => setColumnFilters({ ...columnFilters, assigned: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.assigned} onChange={e => setColumnFilters({ ...columnFilters, assigned: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.telecaller} onChange={e => setColumnFilters({ ...columnFilters, telecaller: e.target.value })} placeholder="Filter" className={filterControlClass} />
+                    <input value={columnFilters.telecaller} onChange={e => setColumnFilters({ ...columnFilters, telecaller: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <select value={columnFilters.telecallerStatus} onChange={e => setColumnFilters({ ...columnFilters, telecallerStatus: e.target.value })} className={filterControlClass}>
-                      <option value="">All</option>
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="INACTIVE">INACTIVE</option>
-                    </select>
+                    <input value={columnFilters.telecallerStatus} onChange={e => setColumnFilters({ ...columnFilters, telecallerStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-2 py-2">
-                    <select value={columnFilters.paymentStatus} onChange={e => setColumnFilters({ ...columnFilters, paymentStatus: e.target.value })} className={filterControlClass}>
-                      <option value="">All</option>
-                      <option value="PENDING">PENDING</option>
-                      <option value="IN_PROGRESS">IN_PROGRESS</option>
-                      <option value="COMPLETED">COMPLETED</option>
-                    </select>
+                    <input value={columnFilters.paymentStatus} onChange={e => setColumnFilters({ ...columnFilters, paymentStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
                   </th>
                   <th className="px-4 py-2 text-right">
                     <button className="text-xs text-blue-600 hover:underline" onClick={() => setColumnFilters({
@@ -706,7 +541,7 @@ const AllLeads = () => {
                 <div className="flex items-center gap-3 mb-1">
                   <h2 className="text-2xl font-bold text-gray-900">{previewLead.customer}</h2>
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${previewLead.salesStatus === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
-                    {previewLead.salesStatus}
+                    {previewLead.salesStatus.replace('_', ' ')}
                   </span>
                 </div>
                 <div className="text-gray-600">{previewLead.business}</div>
@@ -742,9 +577,9 @@ const AllLeads = () => {
             {/* Body */}
             <div className="px-6 md:px-8 py-5">
               {activeTab === 'overview' && (
-                <div className="grid grid-cols-1 gap-6">
-                  {/* Lead Summary - mirrors All Leads table columns */}
-                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Lead Summary */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 lg:col-span-2">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Lead Summary</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
@@ -797,42 +632,11 @@ const AllLeads = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Assignment */}
-                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Assignment</h3>
-                    <div className="space-y-5">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-semibold">A</div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Assigned To</div>
-                          <div className="text-sm text-gray-600 truncate max-w-xs">{previewLead.assigned}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">N</div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Telecaller Assigned</div>
-                          <div className="text-sm text-gray-600">{previewLead.telecaller || 'N/A'}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <User className="w-5 h-5 text-indigo-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Telecaller Status</div>
-                          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${previewLead.telecallerStatus === 'ACTIVE' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
-                            {previewLead.telecallerStatus}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
 
               {activeTab === 'paymentQuotation' && (
                 <div className="space-y-6">
-                  {/* Overview - Payment */}
                   <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
                     <h4 className="text-md font-semibold text-gray-900 mb-3">Overview</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -852,9 +656,9 @@ const AllLeads = () => {
                   </div>
                 </div>
               )}
+
               {activeTab === 'meetings' && (
                 <div className="space-y-6">
-                  {/* Overview - Meetings */}
                   <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
                     <h4 className="text-md font-semibold text-gray-900 mb-3">Overview</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -919,10 +723,7 @@ const AllLeads = () => {
 
       {/* Add Customer Modal */}
       {showAddCustomer && (
-        <AddCustomerForm
-          onClose={() => setShowAddCustomer(false)}
-          onSave={handleCustomerSave}
-        />
+        <AddCustomerForm onClose={() => setShowAddCustomer(false)} />
       )}
 
       {/* Pagination or Empty State */}
@@ -936,4 +737,4 @@ const AllLeads = () => {
   );
 };
 
-export default AllLeads;
+export default MarketingLeads;
