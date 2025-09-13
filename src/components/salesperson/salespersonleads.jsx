@@ -31,8 +31,12 @@ export default function CustomerListContent() {
   const [searchQuery, setSearchQuery] = React.useState('')
   const [editingCustomer, setEditingCustomer] = React.useState(null)
   const [showFilters, setShowFilters] = React.useState(false)
-  const [showPaymentReceipt, setShowPaymentReceipt] = React.useState(false)
-  const [selectedPayment, setSelectedPayment] = React.useState(null)
+  // Payment related state
+  const [showPaymentDetails, setShowPaymentDetails] = React.useState(false)
+  const [selectedCustomer, setSelectedCustomer] = React.useState(null)
+  const [paymentHistory, setPaymentHistory] = React.useState([])
+  const [totalAmount, setTotalAmount] = React.useState(0)
+  
   // Quotations data
   const [quotations, setQuotations] = React.useState([
     {
@@ -89,8 +93,6 @@ export default function CustomerListContent() {
       preparedBy: 'John Doe'
     }
   ])
-  const [showPaymentTimeline, setShowPaymentTimeline] = React.useState(false)
-  const [paymentHistory, setPaymentHistory] = React.useState([])
   const [showPdfViewer, setShowPdfViewer] = React.useState(false)
   const [currentPdfUrl, setCurrentPdfUrl] = React.useState('')
   // Available options for dropdowns
@@ -398,13 +400,12 @@ export default function CustomerListContent() {
   }
 
   const handleWalletClick = async (customer) => {
-    // In a real app, you would fetch the payment history for this customer
-    // For now, we'll use sample data
+    // Sample payment history data
     const sampleHistory = [
       {
         id: 1,
         date: '2025-09-10',
-        amount: '₹12,500.00',
+        amount: 12500.00,
         receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
         paymentMethod: 'Bank Transfer',
         status: 'Completed',
@@ -413,30 +414,26 @@ export default function CustomerListContent() {
       {
         id: 2,
         date: '2025-08-25',
-        amount: '₹8,750.00',
+        amount: 8750.00,
         receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
         paymentMethod: 'UPI',
         status: 'Completed',
         description: 'Advance Payment for Order #ORD-2025-0098'
-      },
-      {
-        id: 3,
-        date: '2025-08-15',
-        amount: '₹5,200.00',
-        receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
-        paymentMethod: 'Cheque',
-        status: 'Cleared',
-        description: 'Previous Order #ORD-2025-0076'
       }
     ]
     
+    // Calculate total amount (in a real app, this would come from the order/quote)
+    const customerTotal = 30000.00 // Example total amount
+    
     setPaymentHistory(sampleHistory)
-    setSelectedPayment({
-      customerName: customer.name,
-      customerId: customer.id,
-      ...sampleHistory[0] // Show the most recent payment as default
+    setTotalAmount(customerTotal)
+    setSelectedCustomer({
+      id: customer.id,
+      name: customer.name,
+      phone: customer.phone,
+      email: customer.email
     })
-    setShowPaymentReceipt(true)
+    setShowPaymentDetails(true)
   }
 
   const handleDownloadReceipt = () => {
@@ -884,10 +881,14 @@ export default function CustomerListContent() {
           const value = filterValue.toString().toLowerCase().trim();
           if (!value) return true;
           
-          const customerValue = key === 'customer' ? customer.name || '' :
-                              key === 'connectedStatus' ? customer.connected?.status || '' :
-                              customer[key] || '';
-                              
+          // Special handling for connected status to match exactly
+          if (key === 'connectedStatus') {
+            // For connected status, do an exact match (case-insensitive)
+            return customer.connected?.status?.toLowerCase() === value.toLowerCase();
+          }
+          
+          // For other fields, do a partial match
+          const customerValue = key === 'customer' ? customer.name || '' : customer[key] || '';
           return customerValue.toString().toLowerCase().includes(value);
         });
       });
@@ -960,8 +961,8 @@ export default function CustomerListContent() {
                   <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">#</th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-blue-500" />
-                      Customer
+                      <User className="h-4 w-4 text-indigo-500" />
+                      Name & Phone
                     </div>
                     {showFilters && (
                       <input
@@ -975,22 +976,7 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-green-500" />
-                      Business
-                    </div>
-                    {showFilters && (
-                      <input
-                        type="text"
-                        value={filters.business}
-                        onChange={(e) => handleFilterChange('business', e.target.value)}
-                        className="mt-1 w-full text-xs p-1 border rounded"
-                        placeholder="Filter business..."
-                      />
-                    )}
-                  </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-rose-500" />
+                      <MapPin className="h-4 w-4 text-blue-500" />
                       Address
                     </div>
                     {showFilters && (
@@ -1005,20 +991,17 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <Map className="h-4 w-4 text-indigo-500" />
-                      State
+                      <FileText className="h-4 w-4 text-purple-500" />
+                      GST No.
                     </div>
                     {showFilters && (
-                      <select
-                        value={filters.state}
-                        onChange={(e) => handleFilterChange('state', e.target.value)}
-                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
-                      >
-                        <option value="">All States</option>
-                        {states.map(state => (
-                          <option key={state} value={state}>{state}</option>
-                        ))}
-                      </select>
+                      <input
+                        type="text"
+                        value={filters.gstNo}
+                        onChange={(e) => handleFilterChange('gstNo', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter GST..."
+                      />
                     )}
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-64">
@@ -1041,18 +1024,18 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-purple-500" />
-                      Customer Type
+                      <Map className="h-4 w-4 text-indigo-500" />
+                      State
                     </div>
                     {showFilters && (
                       <select
-                        value={filters.customerType}
-                        onChange={(e) => handleFilterChange('customerType', e.target.value)}
+                        value={filters.state}
+                        onChange={(e) => handleFilterChange('state', e.target.value)}
                         className="mt-1 w-full text-xs p-1 border rounded bg-white"
                       >
-                        <option value="">All Types</option>
-                        {customerTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
+                        <option value="">All States</option>
+                        {states.map(state => (
+                          <option key={state} value={state}>{state}</option>
                         ))}
                       </select>
                     )}
@@ -1071,6 +1054,24 @@ export default function CustomerListContent() {
                         <option value="">All Sources</option>
                         {leadSources.map(source => (
                           <option key={source} value={source}>{source}</option>
+                        ))}
+                      </select>
+                    )}
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-purple-500" />
+                      Customer Type
+                    </div>
+                    {showFilters && (
+                      <select
+                        value={filters.customerType}
+                        onChange={(e) => handleFilterChange('customerType', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Types</option>
+                        {customerTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
                         ))}
                       </select>
                     )}
@@ -1184,18 +1185,27 @@ export default function CustomerListContent() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4">
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm">{customer.business}</div>
-                        <div className="text-xs text-gray-500">{customer.location}</div>
-                      </div>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.address}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.gstNo}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.address}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.state}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.productType}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.customerType || 'N/A'}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.enquiryBy}</td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.gstNo}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.productType}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.state}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.enquiryBy}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.customerType || 'N/A'}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.date}</div>
+                    </td>
                     <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="flex flex-col">
                         <span className={
@@ -1502,273 +1512,95 @@ export default function CustomerListContent() {
         />
       )}
 
-      {/* Payment Receipt Modal */}
-      {showPaymentReceipt && selectedPayment && (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Payment Receipt</h3>
-                  <button 
-                    onClick={() => setShowPaymentReceipt(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <XCircle className="h-6 w-6" />
-                  </button>
+      {/* Payment Details Modal */}
+      {showPaymentDetails && selectedCustomer && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div className="p-6 flex-1 overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">Payment Details</h3>
+                <button 
+                  onClick={() => setShowPaymentDetails(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label="Close payment details"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              {/* Customer Info */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-1">{selectedCustomer.name}</h4>
+                <p className="text-sm text-gray-600">{selectedCustomer.phone} • {selectedCustomer.email}</p>
+              </div>
+              
+              {/* Payment Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">Total Amount</p>
+                  <p className="text-lg font-semibold text-gray-900">₹{totalAmount.toLocaleString('en-IN')}</p>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Receipt Details */}
-                  <div className="md:col-span-2 space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-gray-700 mb-3">Payment Details</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Receipt No</p>
-                          <p className="font-medium">{selectedPayment.receiptNo}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Date</p>
-                          <p>{selectedPayment.date}</p>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="text-sm text-gray-500">Customer</p>
-                          <p className="font-medium">{selectedPayment.customerName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Payment Method</p>
-                          <p>{selectedPayment.paymentMethod}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Status</p>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            selectedPayment.status === 'Completed' || selectedPayment.status === 'Cleared' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {selectedPayment.status}
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">Paid Amount</p>
+                  <p className="text-lg font-semibold text-green-600">
+                    ₹{paymentHistory.reduce((sum, p) => sum + p.amount, 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className="bg-amber-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">Remaining</p>
+                  <p className="text-lg font-semibold text-amber-600">
+                    ₹{(totalAmount - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Payment History */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Payment History</h4>
+                {paymentHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {paymentHistory.map((payment) => (
+                      <div key={payment.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium text-gray-900">₹{payment.amount.toLocaleString('en-IN')}</p>
+                            <p className="text-sm text-gray-500">{payment.description}</p>
+                            <p className="text-xs text-gray-400 mt-1">{payment.date} • {payment.paymentMethod}</p>
+                          </div>
+                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                            {payment.status}
                           </span>
                         </div>
-                        <div className="col-span-2 pt-4 border-t">
-                          <p className="text-lg font-semibold">Amount Paid:</p>
-                          <p className="text-2xl font-bold text-green-600">{selectedPayment.amount}</p>
-                        </div>
-                        {selectedPayment.description && (
-                          <div className="col-span-2 mt-2">
-                            <p className="text-sm text-gray-500">Description</p>
-                            <p className="text-sm">{selectedPayment.description}</p>
-                          </div>
-                        )}
                       </div>
-                    </div>
-
-                    {/* Payment History Preview */}
-                    <div className="bg-white border rounded-lg overflow-hidden">
-                      <div className="px-4 py-3 border-b flex justify-between items-center bg-gray-50">
-                        <h4 className="font-medium text-gray-700">Recent Transactions</h4>
-                        <button 
-                          onClick={() => setShowPaymentHistory(true)}
-                          className="text-sm text-blue-600 hover:text-blue-800"
-                        >
-                          View All
-                        </button>
-                      </div>
-                      <div className="divide-y">
-                        {paymentHistory.slice(0, 3).map((payment) => (
-                          <div 
-                            key={payment.id} 
-                            className={`p-3 hover:bg-gray-50 cursor-pointer ${
-                              payment.id === selectedPayment.id ? 'bg-blue-50' : ''
-                            }`}
-                            onClick={() => setSelectedPayment(prev => ({
-                              ...prev,
-                              ...payment
-                            }))}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-medium">{payment.amount}</p>
-                                <p className="text-sm text-gray-500">{payment.paymentMethod}</p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm">{payment.date}</p>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  payment.status === 'Completed' || payment.status === 'Cleared'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {payment.status}
-                                </span>
-                              </div>
-                            </div>
-                            {payment.description && (
-                              <p className="text-xs text-gray-500 mt-1 truncate">{payment.description}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    ))}
                   </div>
-
-                  {/* Quick Actions */}
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-3">Quick Actions</h4>
-                      <div className="space-y-3">
-                        <button
-                          onClick={handleDownloadReceipt}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-blue-200 text-blue-700 rounded-md hover:bg-blue-50"
-                        >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Download Receipt
-                        </button>
-                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-green-200 text-green-700 rounded-md hover:bg-green-50">
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10V6a5 5 0 1110 0v4" />
-                          </svg>
-                          Send to Email
-                        </button>
-                        <button 
-                          onClick={() => setShowPaymentHistory(true)}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-purple-200 text-purple-700 rounded-md hover:bg-purple-50"
-                        >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                          Full Payment History
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="bg-white border rounded-lg p-4">
-                      <h4 className="font-medium text-gray-700 mb-3">Customer Summary</h4>
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Total Payments:</span>
-                          <span className="font-medium">₹26,450.00</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Last Payment:</span>
-                          <span>Sep 10, 2025</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Payment Method:</span>
-                          <span>Bank Transfer</span>
-                        </div>
-                        <div className="pt-3 mt-3 border-t">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">Current Balance:</span>
-                            <span className="text-green-600 font-semibold">₹0.00</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={() => setShowPaymentReceipt(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Close
-                  </button>
-                </div>
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No payment history found</p>
+                )}
               </div>
+            </div>
+            
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowPaymentDetails(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={() => {
+                  // In a real app, this would open a form to add a new payment
+                  alert('Add new payment functionality would open here');
+                }}
+              >
+                Add Payment
+              </button>
             </div>
           </div>
-
-          {/* Full Payment History Side Panel */}
-          {showPaymentHistory && (
-            <div className="fixed inset-0 z-50 overflow-hidden">
-              <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowPaymentHistory(false)}></div>
-              <div className="absolute inset-y-0 right-0 max-w-full flex">
-                <div className="relative w-screen max-w-md">
-                  <div className="h-full flex flex-col bg-white shadow-xl overflow-y-auto">
-                    <div className="px-6 py-4 border-b flex justify-between items-center">
-                      <h2 className="text-lg font-semibold">Payment History</h2>
-                      <div className="flex items-center">
-                        <button 
-                          onClick={() => setShowPaymentHistory(false)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="px-6 py-4 bg-gray-50 border-b">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-gray-500">Customer</p>
-                          <p className="font-medium">{selectedPayment.customerName}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">Total Paid</p>
-                          <p className="font-semibold text-lg text-green-600">₹26,450.00</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 overflow-y-auto">
-                      <div className="divide-y">
-                        {paymentHistory.map((payment) => (
-                          <div 
-                            key={payment.id} 
-                            className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                              payment.id === selectedPayment.id ? 'bg-blue-50' : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedPayment(prev => ({
-                                ...prev,
-                                ...payment
-                              }));
-                              setShowPaymentHistory(false);
-                            }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-medium">{payment.amount}</p>
-                                <p className="text-sm text-gray-500">{payment.receiptNo}</p>
-                                {payment.description && (
-                                  <p className="text-sm mt-1">{payment.description}</p>
-                                )}
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm">{payment.date}</p>
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                                  payment.status === 'Completed' || payment.status === 'Cleared'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {payment.status}
-                                </span>
-                                <p className="text-xs text-gray-500 mt-1">{payment.paymentMethod}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="border-t p-4 bg-gray-50">
-                      <button
-                        onClick={() => setShowPaymentHistory(false)}
-                        className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
     </main>
   )
