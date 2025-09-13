@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus } from 'lucide-react';
+import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus, Download, ChevronDown } from 'lucide-react';
 import AddCustomerForm from '../salesperson/salespersonaddcustomer.jsx';
 
 const AllLeads = () => {
@@ -12,6 +12,7 @@ const AllLeads = () => {
   const [leadsData, setLeadsData] = useState(null);
   const [showColumnFilters, setShowColumnFilters] = useState(false);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [showImportDropdown, setShowImportDropdown] = useState(false);
   const [columnFilters, setColumnFilters] = useState({
     customerId: '',
     customer: '',
@@ -26,6 +27,10 @@ const AllLeads = () => {
     telecallerStatus: '',
     paymentStatus: ''
   });
+
+  const activeFilterCount = Object.values(columnFilters).filter(v => String(v || '').trim() !== '').length;
+
+  const filterControlClass = "w-full px-2 py-1.5 border border-gray-300 rounded bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   // Sample data
   const leads = [
@@ -135,6 +140,20 @@ const AllLeads = () => {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [showPreview]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showImportDropdown && !event.target.closest('.relative')) {
+        setShowImportDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showImportDropdown]);
 
   const getStatusBadge = (status, type) => {
     const baseClasses = "px-2 py-1 rounded text-xs font-medium";
@@ -263,6 +282,93 @@ const AllLeads = () => {
     e.target.value = '';
   };
 
+  const handleCustomerSave = (customerData) => {
+    // Generate a new customer ID
+    const newCustomerId = `CUST-${String((importedLeads.length + 1)).padStart(4, '0')}`;
+    
+    // Create new customer object with the form data
+    const newCustomer = {
+      id: importedLeads.length + 1,
+      customerId: newCustomerId,
+      customer: customerData.customerName,
+      email: customerData.email || 'N/A',
+      business: customerData.businessType,
+      leadType: customerData.productType,
+      category: customerData.customerType,
+      salesStatus: 'PENDING',
+      createdAt: customerData.date,
+      assigned: 'Unassigned',
+      telecaller: 'N/A',
+      telecallerStatus: 'INACTIVE',
+      paymentStatus: 'PENDING'
+    };
+
+    // Update the leads data
+    if (leadsData) {
+      setLeadsData([...leadsData, newCustomer]);
+    } else {
+      setLeadsData([...leads, newCustomer]);
+    }
+
+    // Close the modal
+    setShowAddCustomer(false);
+  };
+
+  const downloadSampleCSV = () => {
+    // Sample CSV data with proper headers and example rows
+    const sampleData = [
+      {
+        customerId: 'CUST-0001',
+        customer: 'John Doe',
+        email: 'john.doe@example.com',
+        business: 'ABC Industries',
+        leadType: 'Conductor',
+        category: 'Business',
+        salesStatus: 'PENDING',
+        createdAt: '2024-01-15',
+        assigned: 'Sales Rep 1',
+        telecaller: 'Telecaller 1',
+        telecallerStatus: 'ACTIVE',
+        paymentStatus: 'PENDING'
+      },
+      {
+        customerId: 'CUST-0002',
+        customer: 'Jane Smith',
+        email: 'jane.smith@example.com',
+        business: 'XYZ Corporation',
+        leadType: 'Cable',
+        category: 'Corporate',
+        salesStatus: 'IN_PROGRESS',
+        createdAt: '2024-01-16',
+        assigned: 'Sales Rep 2',
+        telecaller: 'Telecaller 2',
+        telecallerStatus: 'INACTIVE',
+        paymentStatus: 'COMPLETED'
+      }
+    ];
+
+    // Convert to CSV format
+    const headers = Object.keys(sampleData[0]);
+    const csvContent = [
+      headers.join(','),
+      ...sampleData.map(row => headers.map(header => `"${row[header]}"`).join(','))
+    ].join('\n');
+
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'leads_sample_format.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Close dropdown
+    setShowImportDropdown(false);
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -290,11 +396,16 @@ const AllLeads = () => {
           {/* Right: Small Filter + Add Customer + Import + Refresh */}
           <div className="flex items-center space-x-3">
             <button
-              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              className={`p-2 rounded-lg border inline-flex items-center justify-center relative ${showColumnFilters ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
               title="Toggle column filters"
               onClick={() => setShowColumnFilters(v => !v)}
             >
-              <Filter className="w-4 h-4 text-indigo-600" />
+              <Filter className="w-4 h-4" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium text-white bg-blue-500 rounded-full">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
             <button
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
@@ -303,11 +414,62 @@ const AllLeads = () => {
               <Plus className="w-4 h-4" />
               <span>Add Customer</span>
             </button>
-            <button onClick={handleImportClick} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-              <Upload className="w-4 h-4 text-white" />
-              <span>Import Leads</span>
-            </button>
-            <button className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" onClick={() => setLeadsData(null)}>
+            <div className="relative">
+              <button 
+                onClick={() => setShowImportDropdown(!showImportDropdown)} 
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Upload className="w-4 h-4 text-white" />
+                <span>Import Leads</span>
+                <ChevronDown className="w-4 h-4 text-white" />
+              </button>
+              
+              {showImportDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={handleImportClick}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                    >
+                      <Upload className="w-4 h-4 text-gray-500" />
+                      <span>Import from CSV</span>
+                    </button>
+                    <button
+                      onClick={downloadSampleCSV}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                    >
+                      <Download className="w-4 h-4 text-gray-500" />
+                      <span>Download Sample Format</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button 
+              className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" 
+              onClick={() => {
+                // Reset all data and filters
+                setLeadsData(null);
+                setSearchTerm('');
+                setSelectedLeads([]);
+                setColumnFilters({
+                  customerId: '',
+                  customer: '',
+                  email: '',
+                  business: '',
+                  leadType: '',
+                  category: '',
+                  salesStatus: '',
+                  createdAt: '',
+                  assigned: '',
+                  telecaller: '',
+                  telecallerStatus: '',
+                  paymentStatus: ''
+                });
+                setShowColumnFilters(false);
+              }}
+              title="Refresh and reset all filters"
+            >
               <RefreshCw className="w-4 h-4 text-gray-600" />
             </button>
             <input
@@ -415,40 +577,54 @@ const AllLeads = () => {
                 <tr className="border-t border-gray-200 bg-white/70">
                   <th className="px-4 py-2"></th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.customerId} onChange={e => setColumnFilters({ ...columnFilters, customerId: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.customerId} onChange={e => setColumnFilters({ ...columnFilters, customerId: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.customer} onChange={e => setColumnFilters({ ...columnFilters, customer: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.customer} onChange={e => setColumnFilters({ ...columnFilters, customer: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.email} onChange={e => setColumnFilters({ ...columnFilters, email: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.email} onChange={e => setColumnFilters({ ...columnFilters, email: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.business} onChange={e => setColumnFilters({ ...columnFilters, business: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.business} onChange={e => setColumnFilters({ ...columnFilters, business: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.leadType} onChange={e => setColumnFilters({ ...columnFilters, leadType: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.leadType} onChange={e => setColumnFilters({ ...columnFilters, leadType: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.category} onChange={e => setColumnFilters({ ...columnFilters, category: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.category} onChange={e => setColumnFilters({ ...columnFilters, category: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.salesStatus} onChange={e => setColumnFilters({ ...columnFilters, salesStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <select value={columnFilters.salesStatus} onChange={e => setColumnFilters({ ...columnFilters, salesStatus: e.target.value })} className={filterControlClass}>
+                      <option value="">All</option>
+                      <option value="PENDING">PENDING</option>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="COMPLETED">COMPLETED</option>
+                    </select>
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.createdAt} onChange={e => setColumnFilters({ ...columnFilters, createdAt: e.target.value })} placeholder="YYYY-MM-DD" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input type="date" value={columnFilters.createdAt} onChange={e => setColumnFilters({ ...columnFilters, createdAt: e.target.value })} className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.assigned} onChange={e => setColumnFilters({ ...columnFilters, assigned: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.assigned} onChange={e => setColumnFilters({ ...columnFilters, assigned: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.telecaller} onChange={e => setColumnFilters({ ...columnFilters, telecaller: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <input value={columnFilters.telecaller} onChange={e => setColumnFilters({ ...columnFilters, telecaller: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.telecallerStatus} onChange={e => setColumnFilters({ ...columnFilters, telecallerStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <select value={columnFilters.telecallerStatus} onChange={e => setColumnFilters({ ...columnFilters, telecallerStatus: e.target.value })} className={filterControlClass}>
+                      <option value="">All</option>
+                      <option value="ACTIVE">ACTIVE</option>
+                      <option value="INACTIVE">INACTIVE</option>
+                    </select>
                   </th>
                   <th className="px-2 py-2">
-                    <input value={columnFilters.paymentStatus} onChange={e => setColumnFilters({ ...columnFilters, paymentStatus: e.target.value })} placeholder="Filter" className="w-full px-2 py-1 border border-gray-300 rounded" />
+                    <select value={columnFilters.paymentStatus} onChange={e => setColumnFilters({ ...columnFilters, paymentStatus: e.target.value })} className={filterControlClass}>
+                      <option value="">All</option>
+                      <option value="PENDING">PENDING</option>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="COMPLETED">COMPLETED</option>
+                    </select>
                   </th>
                   <th className="px-4 py-2 text-right">
                     <button className="text-xs text-blue-600 hover:underline" onClick={() => setColumnFilters({
@@ -566,9 +742,9 @@ const AllLeads = () => {
             {/* Body */}
             <div className="px-6 md:px-8 py-5">
               {activeTab === 'overview' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   {/* Lead Summary - mirrors All Leads table columns */}
-                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 lg:col-span-2">
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Lead Summary</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
@@ -618,77 +794,6 @@ const AllLeads = () => {
                       <div>
                         <div className="text-xs font-medium text-gray-500">Payment Status</div>
                         <div className="mt-1">{getStatusBadge(previewLead.paymentStatus, 'payment')}</div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Lead Information */}
-                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Lead Information</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <div className="flex items-start gap-3">
-                        <User className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Contact Person</div>
-                          <div className="text-sm text-gray-600">N/A</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Tag className="w-5 h-5 text-indigo-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Lead Type</div>
-                          <div className="text-xs inline-flex items-center px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">{previewLead.leadType}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Building className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Business Name</div>
-                          <div className="text-sm text-gray-600">{previewLead.business || 'N/A'}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Shield className="w-5 h-5 text-indigo-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Category</div>
-                          <div className="text-xs inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">{previewLead.category || 'N/A'}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Location</div>
-                          <div className="text-sm text-gray-600">N/A</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Calendar className="w-5 h-5 text-indigo-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Created Date</div>
-                          <div className="text-sm text-gray-600">{previewLead.createdAt || 'Invalid date'}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Phone className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Contact</div>
-                          <div className="text-sm text-gray-600">N/A</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Clock className="w-5 h-5 text-indigo-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Last Updated</div>
-                          <div className="text-sm text-gray-600">{new Date().toDateString()}</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-6 pt-4 border-t border-gray-100">
-                      <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 text-indigo-600 mt-0.5" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">Description</div>
-                          <div className="text-sm text-gray-600">N/A</div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -810,6 +915,14 @@ const AllLeads = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Add Customer Modal */}
+      {showAddCustomer && (
+        <AddCustomerForm
+          onClose={() => setShowAddCustomer(false)}
+          onSave={handleCustomerSave}
+        />
       )}
 
       {/* Pagination or Empty State */}

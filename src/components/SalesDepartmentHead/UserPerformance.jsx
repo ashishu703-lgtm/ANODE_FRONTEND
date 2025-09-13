@@ -1,124 +1,298 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { User, Mail, Clock, Phone, CheckCircle, XCircle, UserX, Calendar, Edit, Trash2, ArrowRight, Search, RefreshCw, BarChart3, Users, DollarSign, Eye } from 'lucide-react';
 
 const SalesDashboard = () => {
-  const salesData = [
+  const userData = [
     {
       id: 1,
-      initial: 'Y',
-      email: 'yadavakanksha133@gmail.com',
-      pending: { count: 121, total: 486 },
-      followUp: { count: 33, total: 486 },
-      done: { count: 0, total: 486 },
-      notConnected: { count: 139, total: 486 },
-      notInterested: { count: 140, total: 486 },
-      meetingScheduled: { count: 53, total: 486 }
+      username: 'shivank_admin',
+      email: 'shivank@mbgcard.com',
+      department: 'Sales Department',
+      role: 'Department Head',
+      associatedEmail: 'admin@mbg.com',
+      date: 'Thu, May 15, 2025',
+      pending: { count: 25, total: 50 },
+      followUp: { count: 12, total: 30 },
+      done: { count: 8, total: 20 },
+      notConnected: { count: 5, total: 15 },
+      notInterested: { count: 3, total: 10 },
+      meetingScheduled: { count: 2, total: 8 },
+      totalAmount: 125000,
+      dueAmount: 25000
     },
     {
       id: 2,
-      initial: 'J',
-      email: 'jatinbuss2003@gmail.com',
-      pending: { count: 335, total: 639 },
-      followUp: { count: 36, total: 639 },
-      done: { count: 7, total: 639 },
-      notConnected: { count: 157, total: 639 },
-      notInterested: { count: 95, total: 639 },
-      meetingScheduled: { count: 9, total: 639 }
+      username: 'ankit_sales',
+      email: 'ankit@gmail.com',
+      department: 'Sales Department',
+      role: 'Department User',
+      associatedEmail: 'shivank@mbgcard.com',
+      date: 'Thu, May 15, 2025',
+      pending: { count: 18, total: 40 },
+      followUp: { count: 7, total: 25 },
+      done: { count: 15, total: 35 },
+      notConnected: { count: 8, total: 20 },
+      notInterested: { count: 4, total: 12 },
+      meetingScheduled: { count: 3, total: 10 },
+      totalAmount: 98000,
+      dueAmount: 15000
     },
     {
       id: 3,
-      initial: 'A',
-      email: 'Any738597308@gmail.com',
-      pending: { count: 67, total: 101 },
-      followUp: { count: 2, total: 101 },
-      done: { count: 0, total: 101 },
-      notConnected: { count: 20, total: 101 },
-      notInterested: { count: 7, total: 101 },
-      meetingScheduled: { count: 5, total: 101 }
+      username: 'auto_system',
+      email: 'automation@mbg.com',
+      department: 'Automation Department',
+      role: 'Department Head',
+      associatedEmail: 'admin@mbg.com',
+      date: 'Thu, May 15, 2025',
+      pending: { count: 5, total: 15 },
+      followUp: { count: 3, total: 10 },
+      done: { count: 22, total: 30 },
+      notConnected: { count: 2, total: 8 },
+      notInterested: { count: 1, total: 5 },
+      meetingScheduled: { count: 1, total: 6 },
+      totalAmount: 75000,
+      dueAmount: 5000
     },
     {
       id: 4,
-      initial: 'A',
-      email: 'ankushkushwaha3107@gmail.com',
-      pending: { count: 288, total: 487 },
-      followUp: { count: 12, total: 487 },
-      done: { count: 2, total: 487 },
-      notConnected: { count: 52, total: 487 },
-      notInterested: { count: 133, total: 487 },
-      meetingScheduled: { count: 0, total: 487 }
+      username: 'telesales_user',
+      email: 'telesalesuser@gmail.com',
+      department: 'Telesales Department',
+      role: 'Department User',
+      associatedEmail: 'shivank@mbgcard.com',
+      date: 'Tue, May 20, 2025',
+      pending: { count: 32, total: 60 },
+      followUp: { count: 14, total: 35 },
+      done: { count: 6, total: 25 },
+      notConnected: { count: 12, total: 30 },
+      notInterested: { count: 7, total: 18 },
+      meetingScheduled: { count: 4, total: 12 },
+      totalAmount: 85000,
+      dueAmount: 18000
     },
     {
       id: 5,
-      initial: 'M',
-      email: 'muzaffar.mbg@gmail.com',
-      pending: { count: 43, total: 85 },
-      followUp: { count: 6, total: 85 },
-      done: { count: 2, total: 85 },
-      notConnected: { count: 21, total: 85 },
-      notInterested: { count: 8, total: 85 },
-      meetingScheduled: { count: 5, total: 85 }
+      username: 'teleuser_01',
+      email: 'teleuser@gmail.com',
+      department: 'Telesales Department',
+      role: 'Department User',
+      associatedEmail: 'shivank@mbgcard.com',
+      date: 'Tue, May 20, 2025',
+      pending: { count: 28, total: 55 },
+      followUp: { count: 9, total: 30 },
+      done: { count: 11, total: 28 },
+      notConnected: { count: 10, total: 25 },
+      notInterested: { count: 6, total: 15 },
+      meetingScheduled: { count: 3, total: 9 },
+      totalAmount: 92000,
+      dueAmount: 12000
     },
     {
       id: 6,
-      initial: 'G',
-      email: 'gaurav.sarkarr@mbacard.com',
-      pending: { count: 17, total: 126 },
-      followUp: { count: 25, total: 126 },
-      done: { count: 44, total: 126 },
-      notConnected: { count: 22, total: 126 },
-      notInterested: { count: 9, total: 126 },
-      meetingScheduled: { count: 9, total: 126 }
-    },
-    {
-      id: 7,
-      initial: 'G',
-      email: 'growitharmaann@gmail.com',
-      pending: { count: 231, total: 317 },
-      followUp: { count: 11, total: 317 },
-      done: { count: 0, total: 317 },
-      notConnected: { count: 48, total: 317 },
-      notInterested: { count: 20, total: 317 },
-      meetingScheduled: { count: 7, total: 317 }
-    },
-    {
-      id: 8,
-      initial: 'S',
-      email: 'SalesUser123@gmail.com',
-      pending: { count: 2, total: 2 },
-      followUp: { count: 0, total: 2 },
-      done: { count: 0, total: 2 },
-      notConnected: { count: 0, total: 2 },
-      notInterested: { count: 0, total: 2 },
-      meetingScheduled: { count: 0, total: 2 }
+      username: 'mohit_sales',
+      email: 'mohitpa021@gmail.com',
+      department: 'Sales Department',
+      role: 'Department User',
+      associatedEmail: 'shivank@mbgcard.com',
+      date: 'Wed, May 21, 2025',
+      pending: { count: 15, total: 35 },
+      followUp: { count: 6, total: 20 },
+      done: { count: 19, total: 40 },
+      notConnected: { count: 4, total: 12 },
+      notInterested: { count: 2, total: 8 },
+      meetingScheduled: { count: 2, total: 7 },
+      totalAmount: 110000,
+      dueAmount: 20000
     }
   ];
 
-  // Calculate totals
-  const totals = salesData.reduce((acc, user) => {
-    acc.totalLeads += user.pending.total;
-    acc.pending += user.pending.count;
-    acc.followUp += user.followUp.count;
-    acc.done += user.done.count;
-    acc.notConnected += user.notConnected.count;
-    acc.notInterested += user.notInterested.count;
-    acc.meetingScheduled += user.meetingScheduled.count;
-    return acc;
-  }, {
-    totalLeads: 0,
-    pending: 0,
-    followUp: 0,
-    done: 0,
-    notConnected: 0,
-    notInterested: 0,
-    meetingScheduled: 0
-  });
+  const teleSalesData = [
+    {
+      id: 1,
+      username: 'tele_agent_01',
+      email: 'teleagent01@company.com',
+      department: 'Telesales Department',
+      role: 'Tele Sales Agent',
+      associatedEmail: 'telehead@company.com',
+      date: 'Mon, May 13, 2025',
+      pending: { count: 45, total: 80 },
+      followUp: { count: 20, total: 50 },
+      done: { count: 15, total: 30 },
+      notConnected: { count: 25, total: 60 },
+      notInterested: { count: 18, total: 40 },
+      meetingScheduled: { count: 8, total: 20 },
+      totalAmount: 95000,
+      dueAmount: 22000
+    },
+    {
+      id: 2,
+      username: 'tele_agent_02',
+      email: 'teleagent02@company.com',
+      department: 'Telesales Department',
+      role: 'Tele Sales Agent',
+      associatedEmail: 'telehead@company.com',
+      date: 'Tue, May 14, 2025',
+      pending: { count: 38, total: 70 },
+      followUp: { count: 15, total: 45 },
+      done: { count: 12, total: 25 },
+      notConnected: { count: 20, total: 50 },
+      notInterested: { count: 15, total: 35 },
+      meetingScheduled: { count: 6, total: 18 },
+      totalAmount: 78000,
+      dueAmount: 15000
+    },
+    {
+      id: 3,
+      username: 'tele_agent_03',
+      email: 'teleagent03@company.com',
+      department: 'Telesales Department',
+      role: 'Tele Sales Agent',
+      associatedEmail: 'telehead@company.com',
+      date: 'Wed, May 15, 2025',
+      pending: { count: 52, total: 90 },
+      followUp: { count: 25, total: 55 },
+      done: { count: 18, total: 35 },
+      notConnected: { count: 30, total: 65 },
+      notInterested: { count: 22, total: 45 },
+      meetingScheduled: { count: 10, total: 25 },
+      totalAmount: 105000,
+      dueAmount: 28000
+    },
+    {
+      id: 4,
+      username: 'tele_agent_04',
+      email: 'teleagent04@company.com',
+      department: 'Telesales Department',
+      role: 'Tele Sales Agent',
+      associatedEmail: 'telehead@company.com',
+      date: 'Thu, May 16, 2025',
+      pending: { count: 42, total: 75 },
+      followUp: { count: 18, total: 48 },
+      done: { count: 14, total: 28 },
+      notConnected: { count: 22, total: 55 },
+      notInterested: { count: 16, total: 38 },
+      meetingScheduled: { count: 7, total: 22 },
+      totalAmount: 88000,
+      dueAmount: 18000
+    },
+    {
+      id: 5,
+      username: 'tele_agent_05',
+      email: 'teleagent05@company.com',
+      department: 'Telesales Department',
+      role: 'Tele Sales Agent',
+      associatedEmail: 'telehead@company.com',
+      date: 'Fri, May 17, 2025',
+      pending: { count: 35, total: 65 },
+      followUp: { count: 12, total: 40 },
+      done: { count: 10, total: 22 },
+      notConnected: { count: 18, total: 45 },
+      notInterested: { count: 12, total: 30 },
+      meetingScheduled: { count: 5, total: 15 },
+      totalAmount: 72000,
+      dueAmount: 12000
+    }
+  ];
 
-  const conversionRate = totals.totalLeads > 0 ? ((totals.done / totals.totalLeads) * 100).toFixed(1) : 0;
+  const [activeTab, setActiveTab] = useState('sales');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
 
-  const StatusCell = ({ count, total, bgColor, textColor = 'text-gray-800' }) => (
-    <div className={`px-3 py-2 rounded-lg ${bgColor} ${textColor} text-center font-medium`}>
-      {count}/{total}
-    </div>
-  );
+  const handleEditUser = (user) => {
+    console.log('Edit user:', user);
+    setEditingUser(user);
+    setEditFormData({
+      username: user.username,
+      email: user.email,
+      department: user.department,
+      role: user.role,
+      associatedEmail: user.associatedEmail,
+      totalAmount: user.totalAmount,
+      dueAmount: user.dueAmount
+    });
+    setShowEditModal(true);
+  };
+
+  const handleDeleteUser = (user) => {
+    console.log('Delete user:', user);
+    // Add delete functionality here
+    if (window.confirm(`Are you sure you want to delete ${user.username}?`)) {
+      alert(`Delete functionality for ${user.username} - Coming soon!`);
+    }
+  };
+
+  const handleViewUser = (user) => {
+    console.log('View user:', user);
+    setSelectedUser(user);
+    setShowUserModal(true);
+  };
+
+  const closeUserModal = () => {
+    setShowUserModal(false);
+    setSelectedUser(null);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditingUser(null);
+    setEditFormData({});
+  };
+
+  const handleFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    if (editingUser) {
+      // Update the user data (in a real app, this would be an API call)
+      const currentData = activeTab === 'sales' ? userData : teleSalesData;
+      const userIndex = currentData.findIndex(user => user.id === editingUser.id);
+      
+      if (userIndex !== -1) {
+        // Update the user data
+        const updatedUser = {
+          ...currentData[userIndex],
+          ...editFormData
+        };
+        
+        // In a real application, you would update the state or make an API call
+        console.log('Updated user:', updatedUser);
+        alert(`User ${editFormData.username} updated successfully!`);
+      }
+    }
+    closeEditModal();
+  };
+
+  const getDepartmentPillStyle = (department) => {
+    switch (department) {
+      case 'Sales Department':
+        return 'bg-green-100 text-green-800 border border-green-200';
+      case 'Automation Department':
+        return 'bg-purple-100 text-purple-800 border border-purple-200';
+      case 'Telesales Department':
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+    }
+  };
+
+  const getRolePillStyle = (role) => {
+    switch (role) {
+      case 'Department Head':
+        return 'bg-blue-100 text-blue-800 border border-blue-200';
+      case 'Department User':
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -129,194 +303,407 @@ const SalesDashboard = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search by user email..."
+                placeholder="Search by username or email..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80"
               />
-              <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
             <div className="flex items-center space-x-2">
-              <i className="far fa-calendar text-gray-500"></i>
+              <Calendar className="w-4 h-4 text-gray-500" />
               <span className="text-gray-600">Select date range</span>
             </div>
             <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100">
-              <i className="fas fa-sync-alt text-gray-500"></i>
+              <RefreshCw className="w-4 h-4 text-gray-500" />
             </button>
           </div>
         </div>
 
         {/* Tab Navigation */}
         <div className="mb-6 flex">
-          <button className="px-6 py-3 bg-white border-b-2 border-blue-500 text-blue-600 font-medium">
-            <i className="fas fa-chart-line mr-2"></i>
-            Sales Users
+          <button 
+            onClick={() => setActiveTab('sales')}
+            className={`px-6 py-3 font-medium flex items-center ${
+              activeTab === 'sales' 
+                ? 'bg-white border-b-2 border-blue-500 text-blue-600' 
+                : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Sales User
           </button>
-          <button className="px-6 py-3 bg-gray-100 text-gray-600 font-medium">
-            <i className="fas fa-users mr-2"></i>
-            Telesales Users
+          <button 
+            onClick={() => setActiveTab('tele')}
+            className={`px-6 py-3 font-medium flex items-center ${
+              activeTab === 'tele' 
+                ? 'bg-white border-b-2 border-blue-500 text-blue-600' 
+                : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Tele Sales User
           </button>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
                   <th className="px-6 py-4 text-left">
-                    <div className="flex items-center space-x-2">
-                      <i className="fas fa-plus text-blue-500"></i>
-                      <i className="fas fa-user text-blue-500"></i>
-                      <span className="font-medium text-gray-900">Sales User</span>
+                    <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">#</span>
+                  </th>
+                  <th className="px-3 py-2 text-left">
+                    <div className="flex items-center space-x-1">
+                      <User className="w-3 h-3 text-blue-600" />
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Sales User</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <i className="fas fa-clock text-orange-500"></i>
-                      <span className="font-medium text-gray-900">PENDING</span>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <i className="fas fa-clock text-orange-500 text-xs"></i>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">PENDING</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <i className="fas fa-phone text-purple-500"></i>
-                      <span className="font-medium text-gray-900">FOLLOW UP</span>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <i className="fas fa-phone text-purple-500 text-xs"></i>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">FOLLOW UP</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <i className="fas fa-check-circle text-green-500"></i>
-                      <span className="font-medium text-gray-900">DONE</span>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <i className="fas fa-check-circle text-green-500 text-xs"></i>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">DONE</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <i className="fas fa-times-circle text-blue-400"></i>
-                      <span className="font-medium text-gray-900">NOT CONNECTED</span>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <i className="fas fa-times-circle text-blue-400 text-xs"></i>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">NOT CONNECTED</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <i className="fas fa-user-slash text-red-500"></i>
-                      <span className="font-medium text-gray-900">NOT INTERESTED</span>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <i className="fas fa-user-slash text-red-500 text-xs"></i>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">NOT INTERESTED</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <i className="fas fa-calendar-check text-blue-600"></i>
-                      <span className="font-medium text-gray-900">MEETING SCHEDULED</span>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <i className="fas fa-calendar-check text-blue-600 text-xs"></i>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">MEETING SCHEDULED</span>
                     </div>
+                  </th>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <DollarSign className="w-3 h-3 text-green-600" />
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">TOTAL TARGET</span>
+                    </div>
+                  </th>
+                  <th className="px-2 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      <DollarSign className="w-3 h-3 text-red-600" />
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">DUE TARGET</span>
+                    </div>
+                  </th>
+                  <th className="px-2 py-2 text-center">
+                    <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</span>
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                {salesData.map((user, index) => (
-                  <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-gray-500 font-medium">{index + 1}</span>
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                          {user.initial}
-                        </div>
-                        <span className="text-gray-900">{user.email}</span>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {(activeTab === 'sales' ? userData : teleSalesData).map((user, index) => (
+                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-3 py-2">
+                      <span className="text-xs text-gray-500 font-medium">{index + 1}</span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className="text-xs text-gray-900 font-bold">{user.username}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">{user.pending.count}/{user.pending.total}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">{user.followUp.count}/{user.followUp.total}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">{user.done.count}/{user.done.total}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">{user.notConnected.count}/{user.notConnected.total}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">{user.notInterested.count}/{user.notInterested.total}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">{user.meetingScheduled.count}/{user.meetingScheduled.total}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">₹{user.totalAmount.toLocaleString()}</span>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className="text-xs text-gray-900">₹{user.dueAmount.toLocaleString()}</span>
+                    </td>
+                    <td className="px-2 py-2">
+                      <div className="flex flex-col items-center justify-center space-y-1">
+                        <button 
+                          onClick={() => handleEditUser(user)}
+                          className="w-5 h-5 flex items-center justify-center text-blue-600 border border-blue-200 rounded hover:bg-blue-50 transition-colors"
+                          title="Edit User"
+                        >
+                          <Edit className="w-2.5 h-2.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleViewUser(user)}
+                          className="w-5 h-5 flex items-center justify-center text-green-600 border border-green-200 rounded hover:bg-green-50 transition-colors"
+                          title="View Details"
+                        >
+                          <Eye className="w-2.5 h-2.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteUser(user)}
+                          className="w-5 h-5 flex items-center justify-center text-red-600 border border-red-200 rounded hover:bg-red-50 transition-colors"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusCell 
-                        count={user.pending.count} 
-                        total={user.pending.total} 
-                        bgColor="bg-yellow-100" 
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusCell 
-                        count={user.followUp.count} 
-                        total={user.followUp.total} 
-                        bgColor="bg-purple-100" 
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusCell 
-                        count={user.done.count} 
-                        total={user.done.total} 
-                        bgColor="bg-green-100" 
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusCell 
-                        count={user.notConnected.count} 
-                        total={user.notConnected.total} 
-                        bgColor="bg-gray-100" 
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusCell 
-                        count={user.notInterested.count} 
-                        total={user.notInterested.total} 
-                        bgColor="bg-red-100" 
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusCell 
-                        count={user.meetingScheduled.count} 
-                        total={user.meetingScheduled.total} 
-                        bgColor="bg-blue-100" 
-                      />
                     </td>
                   </tr>
                 ))}
-                
-                {/* Totals Row */}
-                <tr className="bg-gray-50 border-t-2 border-gray-300 font-semibold">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-gray-700">TOTALS</span>
-                      <div className="text-sm text-gray-600">
-                        <div><strong>Total Leads:</strong> {totals.totalLeads}</div>
-                        <div><strong>Conversion Rate:</strong> {conversionRate}% ({totals.done}/{totals.totalLeads})</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="px-3 py-2 rounded-lg bg-yellow-200 text-gray-800 text-center font-bold">
-                      <i className="fas fa-clock mr-1"></i>
-                      {totals.pending}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="px-3 py-2 rounded-lg bg-purple-200 text-gray-800 text-center font-bold">
-                      <i className="fas fa-phone mr-1"></i>
-                      {totals.followUp}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="px-3 py-2 rounded-lg bg-green-200 text-gray-800 text-center font-bold">
-                      <i className="fas fa-check-circle mr-1"></i>
-                      {totals.done}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="px-3 py-2 rounded-lg bg-gray-200 text-gray-800 text-center font-bold">
-                      <i className="fas fa-times-circle mr-1"></i>
-                      {totals.notConnected}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="px-3 py-2 rounded-lg bg-red-200 text-gray-800 text-center font-bold">
-                      <i className="fas fa-user-slash mr-1"></i>
-                      {totals.notInterested}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="px-3 py-2 rounded-lg bg-blue-200 text-gray-800 text-center font-bold">
-                      <i className="fas fa-calendar-check mr-1"></i>
-                      {totals.meetingScheduled}
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
+      
+      {/* User Details Modal */}
+      {showUserModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">User Details</h2>
+                <button
+                  onClick={closeUserModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-6">
+                {/* User Information */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">User Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Username</label>
+                      <p className="text-gray-900">{selectedUser.username}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Email</label>
+                      <p className="text-gray-900">{selectedUser.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Department</label>
+                      <p className="text-gray-900">{selectedUser.department}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Role</label>
+                      <p className="text-gray-900">{selectedUser.role}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Associated Email</label>
+                      <p className="text-gray-900">{selectedUser.associatedEmail}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Date</label>
+                      <p className="text-gray-900">{selectedUser.date}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Performance Metrics */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Pending</label>
+                      <p className="text-gray-900">{selectedUser.pending.count}/{selectedUser.pending.total}</p>
+                      </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Follow Up</label>
+                      <p className="text-gray-900">{selectedUser.followUp.count}/{selectedUser.followUp.total}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Done</label>
+                      <p className="text-gray-900">{selectedUser.done.count}/{selectedUser.done.total}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Not Connected</label>
+                      <p className="text-gray-900">{selectedUser.notConnected.count}/{selectedUser.notConnected.total}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Not Interested</label>
+                      <p className="text-gray-900">{selectedUser.notInterested.count}/{selectedUser.notInterested.total}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Meeting Scheduled</label>
+                      <p className="text-gray-900">{selectedUser.meetingScheduled.count}/{selectedUser.meetingScheduled.total}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Information */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Total Target</label>
+                      <p className="text-gray-900">₹{selectedUser.totalAmount.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Due Target</label>
+                      <p className="text-gray-900">₹{selectedUser.dueAmount.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={closeUserModal}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Edit User</h2>
+                <button
+                  onClick={closeEditModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-6">
+                {/* User Information Form */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">User Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                      <input
+                        type="text"
+                        value={editFormData.username || ''}
+                        onChange={(e) => handleFormChange('username', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <input
+                        type="email"
+                        value={editFormData.email || ''}
+                        onChange={(e) => handleFormChange('email', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                      <select
+                        value={editFormData.department || ''}
+                        onChange={(e) => handleFormChange('department', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="Sales Department">Sales Department</option>
+                        <option value="Automation Department">Automation Department</option>
+                        <option value="Telesales Department">Telesales Department</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                      <select
+                        value={editFormData.role || ''}
+                        onChange={(e) => handleFormChange('role', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="Sales Head">Sales Head</option>
+                        <option value="Sales Rep">Sales Rep</option>
+                        <option value="Tele Sales Agent">Tele Sales Agent</option>
+                        <option value="Automation System">Automation System</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Associated Email</label>
+                      <input
+                        type="email"
+                        value={editFormData.associatedEmail || ''}
+                        onChange={(e) => handleFormChange('associatedEmail', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Information Form */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Total Target (₹)</label>
+                      <input
+                        type="number"
+                        value={editFormData.totalAmount || ''}
+                        onChange={(e) => handleFormChange('totalAmount', parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Due Target (₹)</label>
+                      <input
+                        type="number"
+                        value={editFormData.dueAmount || ''}
+                        onChange={(e) => handleFormChange('dueAmount', parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+          </div>
+        </div>
+      </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={closeEditModal}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Font Awesome CDN */}
       <link 
