@@ -20,8 +20,8 @@ import {
   Target
 } from 'lucide-react';
 
-const SalesDashboard = () => {
-  const [selectedExecutive, setSelectedExecutive] = useState('All Executives');
+const SalesDashboard = ({ setActiveView }) => {
+  const [selectedSalesperson, setSelectedSalesperson] = useState('All Salespersons');
   const [dateRange, setDateRange] = useState('Select date range');
 
   const leadCards = [
@@ -161,6 +161,59 @@ const SalesDashboard = () => {
     }
   ];
 
+  // Function to render content based on selected salesperson
+  const renderSalespersonContent = () => {
+    switch (selectedSalesperson) {
+      case 'Marketing Salesperson':
+        return (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">Marketing Salesperson Dashboard</h3>
+            <p className="text-blue-600">Click below to open the dedicated Marketing Salesperson dashboard.</p>
+            <div className="mt-4 flex space-x-4">
+              <button 
+                onClick={() => setActiveView('marketing-salesperson')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Open Marketing Dashboard
+              </button>
+            </div>
+          </div>
+        );
+      case 'Tele Sales':
+        return (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-green-800 mb-2">Tele Sales Dashboard</h3>
+            <p className="text-green-600">Click below to open the dedicated Tele Sales dashboard.</p>
+            <div className="mt-4 flex space-x-4">
+              <button 
+                onClick={() => setActiveView('tele-sales')}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Open Tele Sales Dashboard
+              </button>
+            </div>
+          </div>
+        );
+      case 'Office Sales Person':
+        return (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-purple-800 mb-2">Office Sales Person Dashboard</h3>
+            <p className="text-purple-600">Click below to open the dedicated Office Sales Person dashboard.</p>
+            <div className="mt-4 flex space-x-4">
+              <button 
+                onClick={() => setActiveView('office-sales-person')}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Open Office Sales Dashboard
+              </button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header Section */}
@@ -192,16 +245,17 @@ const SalesDashboard = () => {
         {/* Filters */}
         <div className="flex items-center justify-between">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Sales Executive</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Sales Department</label>
             <div className="relative">
               <select 
-                value={selectedExecutive}
-                onChange={(e) => setSelectedExecutive(e.target.value)}
+                value={selectedSalesperson}
+                onChange={(e) => setSelectedSalesperson(e.target.value)}
                 className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option>All Executives</option>
-                <option>Executive 1</option>
-                <option>Executive 2</option>
+                <option>All Salespersons</option>
+                <option>Marketing Salesperson</option>
+                <option>Tele Sales</option>
+                <option>Office Sales Person</option>
               </select>
               <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
@@ -220,6 +274,9 @@ const SalesDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Salesperson Specific Content */}
+      {renderSalespersonContent()}
 
       {/* Lead Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
