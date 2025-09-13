@@ -239,7 +239,7 @@ const FixedHeader = ({ userType = "superadmin" }) => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Left Section - Sales Overview */}
         <div className="flex items-center space-x-4">

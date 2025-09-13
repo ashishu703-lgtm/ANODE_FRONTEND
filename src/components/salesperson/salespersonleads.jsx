@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Import, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X, Clock, Check, Clock as ClockIcon } from "lucide-react"
+import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Download, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X, Clock, Check, Clock as ClockIcon, ArrowRightLeft } from "lucide-react"
 import html2pdf from 'html2pdf.js'
 import Quotation from './salespersonquotation.jsx'
 import AddCustomerForm from './salespersonaddcustomer.jsx'
@@ -176,6 +176,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+919340662655",
+      transferredLeads: 2,
     },
     {
       id: 2,
@@ -198,6 +199,7 @@ export default function CustomerListContent() {
       quotationsSent: 1,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
+      transferredLeads: 0,
     },
     {
       id: 3,
@@ -220,6 +222,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
+      transferredLeads: 1,
     },
     {
       id: 4,
@@ -240,6 +243,7 @@ export default function CustomerListContent() {
       quotationsSent: 2,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
+      transferredLeads: 0,
     },
     {
       id: 5,
@@ -260,6 +264,7 @@ export default function CustomerListContent() {
       quotationsSent: 3,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
+      transferredLeads: 0,
     },
     {
       id: 6,
@@ -280,6 +285,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
+      transferredLeads: 0,
     },
     {
       id: 7,
@@ -300,6 +306,7 @@ export default function CustomerListContent() {
       quotationsSent: 1,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917845416535",
+      transferredLeads: 3,
     },
     {
       id: 8,
@@ -320,6 +327,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+919340662655",
+      transferredLeads: 0,
     },
     {
       id: 9,
@@ -340,6 +348,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+919340662655",
+      transferredLeads: 0,
     },
   ])
 
@@ -466,7 +475,7 @@ export default function CustomerListContent() {
     document.body.removeChild(element)
   }
 
-  const handleImportLeads = async () => {
+  const handleExportLeads = async () => {
     try {
       // Create a temporary div for PDF generation
       const tempDiv = document.createElement('div')
@@ -949,11 +958,11 @@ export default function CustomerListContent() {
               Add Customer
             </button>
             <button 
-              onClick={handleImportLeads}
+              onClick={handleExportLeads}
               className="px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 inline-flex items-center gap-2"
             >
-              <Import className="h-4 w-4" />
-              Import
+              <Download className="h-4 w-4" />
+              Export
             </button>
             <button 
               onClick={handleRefresh}
@@ -1147,6 +1156,12 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
+                      <ArrowRightLeft className="h-4 w-4 text-indigo-500" />
+                      Transferred Leads
+                    </div>
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
                       <Pencil className="h-4 w-4 text-gray-500" />
                       Action
                     </div>
@@ -1156,7 +1171,7 @@ export default function CustomerListContent() {
               <tbody>
                 {paginatedCustomers.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="py-12 text-center text-gray-500">
+                    <td colSpan="12" className="py-12 text-center text-gray-500">
                       <div className="flex flex-col items-center gap-2">
                         <Search className="h-8 w-8 text-gray-300" />
                         <p className="text-sm">
@@ -1258,6 +1273,18 @@ export default function CustomerListContent() {
                             {customer.finalInfo.remark}
                           </span>
                         )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          customer.transferredLeads > 0 
+                            ? 'bg-indigo-100 text-indigo-800' 
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          <ArrowRightLeft className="h-3 w-3 mr-1" />
+                          {customer.transferredLeads || 0}
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-4">

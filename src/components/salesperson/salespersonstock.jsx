@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Search, Package, Filter, Download, Plus, X, Save, Edit, Trash2 } from "lucide-react"
+import { Search, Package, Filter, Download, Plus, X, Save } from "lucide-react"
 import html2pdf from 'html2pdf.js'
 
 export default function StockManagement() {
@@ -155,19 +155,6 @@ export default function StockManagement() {
     setShowAddItemModal(true)
   }
 
-  const handleEdit = (item) => {
-    setFormData({
-      itemCode: item.itemCode,
-      name: item.name,
-      category: item.category,
-      quantity: item.quantity.toString(),
-      unit: item.unit,
-      rate: item.rate.toString(),
-      location: item.location
-    })
-    setEditingItem(item)
-    setShowAddItemModal(true)
-  }
 
   const handleSave = () => {
     if (editingItem) {
@@ -198,11 +185,6 @@ export default function StockManagement() {
     resetForm()
   }
 
-  const handleDelete = (itemId) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      setStockItems(prev => prev.filter(item => item.id !== itemId))
-    }
-  }
 
   const handleExport = async () => {
     try {
@@ -403,9 +385,6 @@ export default function StockManagement() {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Updated
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -420,29 +399,11 @@ export default function StockManagement() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₹{item.rate.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.location}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.lastUpdated}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(item)}
-                          className="text-blue-600 hover:text-blue-900 p-1"
-                          title="Edit"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="text-red-600 hover:text-red-900 p-1"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="9" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
                     No items found matching your criteria
                   </td>
                 </tr>

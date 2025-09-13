@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp, CheckCircle, Clock, CreditCard, UserPlus, CalendarCheck, ArrowUp, XCircle, PhoneOff, Target, BarChart3, PieChart as PieChartIcon, Activity, Award, TrendingDown } from "lucide-react"
+import { TrendingUp, CheckCircle, Clock, CreditCard, UserPlus, CalendarCheck, ArrowUp, XCircle, PhoneOff, Target, BarChart3, PieChart as PieChartIcon, Activity, Award, TrendingDown, ArrowRightLeft, Calendar } from "lucide-react"
 import { useState } from "react"
 
 function cx(...classes) {
@@ -129,64 +129,158 @@ function ProgressBar({ value, max, label, color = "bg-blue-500" }) {
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview')
-  
-  // Performance Data
-  const performanceData = {
-    targets: {
-      monthlyLeads: { current: 45, target: 100, label: "Monthly Leads" },
-      conversionRate: { current: 12, target: 25, label: "Conversion Rate (%)" },
-      revenue: { current: 125000, target: 300000, label: "Monthly Revenue (₹)" },
-      calls: { current: 180, target: 300, label: "Daily Calls" }
-    },
-    leadStatusData: [
-      { label: "Hot", value: 15, color: "#ef4444" },
-      { label: "Warm", value: 25, color: "#f97316" },
-      { label: "Cold", value: 35, color: "#6b7280" },
-      { label: "Converted", value: 12, color: "#22c55e" }
-    ],
-    monthlyPerformance: [
-      { label: "Jan", value: 85, color: "#3b82f6" },
-      { label: "Feb", value: 92, color: "#3b82f6" },
-      { label: "Mar", value: 78, color: "#3b82f6" },
-      { label: "Apr", value: 95, color: "#3b82f6" },
-      { label: "May", value: 88, color: "#3b82f6" },
-      { label: "Jun", value: 100, color: "#3b82f6" }
-    ],
-    kpis: [
-      {
-        title: "Lead Response Time",
-        value: "2.3 hrs",
-        target: "< 1 hr",
-        status: "warning",
-        icon: Clock,
-        color: "bg-orange-50 text-orange-600 border-orange-200"
-      },
-      {
-        title: "Follow-up Rate",
-        value: "78%",
-        target: "> 85%",
-        status: "warning",
-        icon: ArrowUp,
-        color: "bg-orange-50 text-orange-600 border-orange-200"
-      },
-      {
-        title: "Customer Satisfaction",
-        value: "4.2/5",
-        target: "> 4.5",
-        status: "warning",
-        icon: Award,
-        color: "bg-orange-50 text-orange-600 border-orange-200"
-      },
-      {
-        title: "Quotation Success",
-        value: "65%",
-        target: "> 70%",
-        status: "warning",
-        icon: CheckCircle,
-        color: "bg-orange-50 text-orange-600 border-orange-200"
-      }
-    ]
+  const [dateFilter, setDateFilter] = useState('')
+
+  // Handle date filter change
+  const handleDateFilterChange = (selectedDate) => {
+    setDateFilter(selectedDate)
+    console.log('Filtering performance data for date:', selectedDate)
   }
+
+  // Generate performance data based on selected date
+  const getPerformanceData = (selectedDate) => {
+    // Base performance data
+    const baseData = {
+      targets: {
+        monthlyLeads: { current: 45, target: 100, label: "Monthly Leads" },
+        conversionRate: { current: 12, target: 25, label: "Conversion Rate (%)" },
+        revenue: { current: 125000, target: 300000, label: "Monthly Revenue (₹)" },
+        calls: { current: 180, target: 300, label: "Daily Calls" }
+      },
+      leadStatusData: [
+        { label: "Hot", value: 15, color: "#ef4444" },
+        { label: "Warm", value: 25, color: "#f97316" },
+        { label: "Cold", value: 35, color: "#6b7280" },
+        { label: "Converted", value: 12, color: "#22c55e" }
+      ],
+      monthlyPerformance: [
+        { label: "Jan", value: 85, color: "#3b82f6" },
+        { label: "Feb", value: 92, color: "#3b82f6" },
+        { label: "Mar", value: 78, color: "#3b82f6" },
+        { label: "Apr", value: 95, color: "#3b82f6" },
+        { label: "May", value: 88, color: "#3b82f6" },
+        { label: "Jun", value: 100, color: "#3b82f6" }
+      ],
+      kpis: [
+        {
+          title: "Lead Response Time",
+          value: "2.3 hrs",
+          target: "< 1 hr",
+          status: "warning",
+          icon: Clock,
+          color: "bg-orange-50 text-orange-600 border-orange-200"
+        },
+        {
+          title: "Follow-up Rate",
+          value: "78%",
+          target: "> 85%",
+          status: "warning",
+          icon: ArrowUp,
+          color: "bg-orange-50 text-orange-600 border-orange-200"
+        },
+        {
+          title: "Customer Satisfaction",
+          value: "4.2/5",
+          target: "> 4.5",
+          status: "warning",
+          icon: Award,
+          color: "bg-orange-50 text-orange-600 border-orange-200"
+        },
+        {
+          title: "Quotation Success",
+          value: "65%",
+          target: "> 70%",
+          status: "warning",
+          icon: CheckCircle,
+          color: "bg-orange-50 text-orange-600 border-orange-200"
+        },
+        {
+          title: "Transfer Leads",
+          value: "15",
+          target: "< 20",
+          status: "success",
+          icon: ArrowRightLeft,
+          color: "bg-indigo-50 text-indigo-600 border-indigo-200"
+        }
+      ]
+    }
+
+    // If no date is selected, return base data
+    if (!selectedDate) {
+      return baseData
+    }
+
+    // Simulate different performance data based on selected date
+    const selectedDateObj = new Date(selectedDate)
+    const dayOfWeek = selectedDateObj.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const dayOfMonth = selectedDateObj.getDate()
+    const month = selectedDateObj.getMonth() + 1 // 1-12
+
+    // Generate date-specific performance variations
+    const dateMultiplier = 0.8 + (dayOfMonth % 10) * 0.04 // 0.8 to 1.16
+    const dayMultiplier = dayOfWeek === 0 || dayOfWeek === 6 ? 0.6 : 1.0 // Weekend vs weekday
+    const monthMultiplier = month <= 3 ? 0.9 : month <= 6 ? 1.0 : month <= 9 ? 1.1 : 1.2 // Seasonal variation
+
+    const totalMultiplier = dateMultiplier * dayMultiplier * monthMultiplier
+
+    return {
+      targets: {
+        monthlyLeads: { 
+          current: Math.round(45 * totalMultiplier), 
+          target: 100, 
+          label: "Monthly Leads" 
+        },
+        conversionRate: { 
+          current: Math.round(12 * totalMultiplier), 
+          target: 25, 
+          label: "Conversion Rate (%)" 
+        },
+        revenue: { 
+          current: Math.round(125000 * totalMultiplier), 
+          target: 300000, 
+          label: "Monthly Revenue (₹)" 
+        },
+        calls: { 
+          current: Math.round(180 * totalMultiplier), 
+          target: 300, 
+          label: "Daily Calls" 
+        }
+      },
+      leadStatusData: [
+        { label: "Hot", value: Math.round(15 * totalMultiplier), color: "#ef4444" },
+        { label: "Warm", value: Math.round(25 * totalMultiplier), color: "#f97316" },
+        { label: "Cold", value: Math.round(35 * totalMultiplier), color: "#6b7280" },
+        { label: "Converted", value: Math.round(12 * totalMultiplier), color: "#22c55e" }
+      ],
+      monthlyPerformance: baseData.monthlyPerformance.map(item => ({
+        ...item,
+        value: Math.round(item.value * totalMultiplier)
+      })),
+      kpis: baseData.kpis.map(kpi => {
+        let newValue = kpi.value
+        if (kpi.title === "Lead Response Time") {
+          const hours = parseFloat(kpi.value)
+          newValue = `${(hours / totalMultiplier).toFixed(1)} hrs`
+        } else if (kpi.title === "Follow-up Rate") {
+          const rate = parseInt(kpi.value)
+          newValue = `${Math.round(rate * totalMultiplier)}%`
+        } else if (kpi.title === "Customer Satisfaction") {
+          const rating = parseFloat(kpi.value)
+          newValue = `${(rating * totalMultiplier).toFixed(1)}/5`
+        } else if (kpi.title === "Quotation Success") {
+          const rate = parseInt(kpi.value)
+          newValue = `${Math.round(rate * totalMultiplier)}%`
+        } else if (kpi.title === "Transfer Leads") {
+          const count = parseInt(kpi.value)
+          newValue = `${Math.round(count * totalMultiplier)}`
+        }
+        return { ...kpi, value: newValue }
+      })
+    }
+  }
+
+  // Get filtered performance data
+  const performanceData = getPerformanceData(dateFilter)
 
   // Overview Data with dummy values
   const overviewData = {
@@ -280,7 +374,7 @@ export default function DashboardContent() {
       color: "bg-blue-50 text-blue-600 border-blue-200",
     },
     {
-      title: "Completed",
+      title: "Win Leads",
       count: "89",
       subtitle: "Successfully converted",
       icon: CheckCircle,
@@ -294,11 +388,18 @@ export default function DashboardContent() {
       color: "bg-red-50 text-red-600 border-red-200",
     },
     {
-      title: "Not Connected",
+      title: "Loose Leads",
       count: "8",
       subtitle: "Unable to reach",
       icon: PhoneOff,
       color: "bg-gray-50 text-gray-600 border-gray-200",
+    },
+    {
+      title: "Transfer Leads",
+      count: "15",
+      subtitle: "Transferred to other teams",
+      icon: ArrowRightLeft,
+      color: "bg-indigo-50 text-indigo-600 border-indigo-200",
     },
   ]
 
@@ -363,6 +464,33 @@ export default function DashboardContent() {
             </Card>
           )
         })}
+      </div>
+
+      {/* Lead Status Summary */}
+      <div className="space-y-4 mb-8">
+        <div className="flex items-center gap-2">
+          <Clock className="h-5 w-5 text-gray-500" />
+          <h2 className="text-lg font-semibold">Lead Status Summary</h2>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Overview of your leads by status</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {leadStatuses.map((status, index) => {
+            const Icon = status.icon
+            return (
+              <Card key={index} className={cx("border-2", status.color)}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{status.title}</CardTitle>
+                  <Icon className="h-5 w-5" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold mb-1">{status.count}</div>
+                  <p className="text-xs text-gray-500">{status.subtitle}</p>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       </div>
 
       {/* Charts Row */}
@@ -434,47 +562,63 @@ export default function DashboardContent() {
         </CardContent>
       </Card>
 
-      {/* Lead Status Summary */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-gray-500" />
-          <h2 className="text-lg font-semibold">Lead Status Summary</h2>
-        </div>
-        <p className="text-sm text-gray-500 mb-4">Overview of your leads by status</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {leadStatuses.map((status, index) => {
-            const Icon = status.icon
-            return (
-              <Card key={index} className={cx("border-2", status.color)}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{status.title}</CardTitle>
-                  <Icon className="h-5 w-5" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold mb-1">{status.count}</div>
-                  <p className="text-xs text-gray-500">{status.subtitle}</p>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      </div>
         </>
       )}
 
       {activeTab === 'performance' && (
         <div className="space-y-6">
           {/* Performance Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <Target className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <Target className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900">Performance Dashboard</h1>
+                <p className="text-sm text-gray-600">Track your targets and performance metrics</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Performance Dashboard</h1>
-              <p className="text-sm text-gray-600">Track your targets and performance metrics</p>
+            
+            {/* Date Filter */}
+            <div className="flex items-center gap-2">
+              <Calendar className={`h-4 w-4 ${dateFilter ? 'text-blue-500' : 'text-gray-500'}`} />
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => handleDateFilterChange(e.target.value)}
+                className={`px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  dateFilter ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                }`}
+                title="Filter performance by date"
+              />
+              {dateFilter && (
+                <button
+                  onClick={() => handleDateFilterChange('')}
+                  className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                  title="Clear date filter"
+                >
+                  Clear
+                </button>
+              )}
             </div>
           </div>
+
+          {/* Filter Status */}
+          {dateFilter && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-blue-600" />
+                <span className="text-sm text-blue-800">
+                  Showing performance data for: <strong>{new Date(dateFilter).toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}</strong>
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Target Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -499,8 +643,48 @@ export default function DashboardContent() {
             ))}
           </div>
 
+          {/* KPI Cards */}
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-gray-500" />
+              <h2 className="text-lg font-semibold">Key Performance Indicators</h2>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">Track important metrics that impact your success</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {performanceData.kpis.map((kpi, index) => {
+                const Icon = kpi.icon
+                return (
+                  <Card key={index} className={`border-2 ${kpi.color}`}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
+                      <Icon className="h-5 w-5" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold mb-1">{kpi.value}</div>
+                      <p className="text-xs text-gray-500 mb-2">Target: {kpi.target}</p>
+                      <div className="flex items-center gap-1">
+                        {kpi.status === 'warning' ? (
+                          <>
+                            <TrendingDown className="h-3 w-3 text-orange-500" />
+                            <span className="text-xs text-orange-600">Below Target</span>
+                          </>
+                        ) : (
+                          <>
+                            <TrendingUp className="h-3 w-3 text-green-500" />
+                            <span className="text-xs text-green-600">Above Target</span>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Lead Status Pie Chart */}
             <Card className="border-2">
               <CardHeader>
@@ -546,45 +730,6 @@ export default function DashboardContent() {
             </Card>
           </div>
 
-          {/* KPI Cards */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-gray-500" />
-              <h2 className="text-lg font-semibold">Key Performance Indicators</h2>
-            </div>
-            <p className="text-sm text-gray-500 mb-4">Track important metrics that impact your success</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {performanceData.kpis.map((kpi, index) => {
-                const Icon = kpi.icon
-                return (
-                  <Card key={index} className={`border-2 ${kpi.color}`}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-                      <Icon className="h-5 w-5" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold mb-1">{kpi.value}</div>
-                      <p className="text-xs text-gray-500 mb-2">Target: {kpi.target}</p>
-                      <div className="flex items-center gap-1">
-                        {kpi.status === 'warning' ? (
-                          <>
-                            <TrendingDown className="h-3 w-3 text-orange-500" />
-                            <span className="text-xs text-orange-600">Below Target</span>
-                          </>
-                        ) : (
-                          <>
-                            <TrendingUp className="h-3 w-3 text-green-500" />
-                            <span className="text-xs text-green-600">Above Target</span>
-                          </>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-          </div>
 
           {/* Performance Summary */}
           <Card className="border-2 border-gray-200">

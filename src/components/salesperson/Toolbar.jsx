@@ -20,8 +20,6 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
     status: 'in-stock',
     description: ''
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -29,65 +27,14 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
     onSearch(value);
   };
 
-  const handleFilterChange = (filterName, value) => {
-    const newFilters = {
-      ...filters,
-      [filterName]: value
-    };
+  const handleFilterChange = (filterType, value) => {
+    const newFilters = { ...filters, [filterType]: value };
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
 
-  // Filter products based on search and filters
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = (product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.code?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                         !searchQuery.trim();
-    
-    const matchesCategory = !filters.category || product.category === filters.category;
-    const matchesStatus = !filters.status || product.status === filters.status;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-  // Reset to first page when search or filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, filters]);
-
-  // Pagination helper functions
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1);
-  };
-
-  const goToFirstPage = () => setCurrentPage(1);
-  const goToLastPage = () => setCurrentPage(totalPages);
-  const goToPreviousPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
-  const goToNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
-
-  // Form handling functions
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const resetForm = () => {
+  const handleAddProduct = () => {
+    setEditingItem(null);
     setFormData({
       name: '',
       category: '',
@@ -96,25 +43,15 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
       status: 'in-stock',
       description: ''
     });
-    setEditingItem(null);
-  };
-
-  const handleAddNew = () => {
-    resetForm();
     setShowAddItemModal(true);
   };
 
-  const handleEdit = (item) => {
-    setFormData({
-      name: item.name || '',
-      category: item.category || '',
-      price: item.price || '',
-      stock: item.stock || '',
-      status: item.status || 'in-stock',
-      description: item.description || ''
-    });
-    setEditingItem(item);
-    setShowAddItemModal(true);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSave = () => {
@@ -123,72 +60,61 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
       return;
     }
 
-    if (onAddProduct) {
-      onAddProduct(editingItem ? { ...editingItem, ...formData } : formData);
-    }
-    
+    const productData = {
+      ...formData,
+      id: editingItem ? editingItem.id : Date.now(),
+      code: `PRD-${String(Date.now()).slice(-6)}`,
+      unit: 'Piece',
+      price: parseFloat(formData.price) || 0,
+      stock: parseInt(formData.stock) || 0,
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+
+    onAddProduct(productData, editingItem);
     setShowAddItemModal(false);
-    resetForm();
+    setEditingItem(null);
+    setFormData({
+      name: '',
+      category: '',
+      price: '',
+      stock: '',
+      status: 'in-stock',
+      description: ''
+    });
   };
 
-  const handleDelete = (item) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      if (onAddProduct) {
-        onAddProduct({ action: 'delete', item });
-      }
-    }
-  };
-
-  // Export functionality
   const handleExport = async () => {
     try {
       const tempDiv = document.createElement('div');
-      tempDiv.style.padding = '20px';
-      tempDiv.style.fontFamily = 'Arial, sans-serif';
-      tempDiv.style.fontSize = '12px';
-      tempDiv.style.color = '#000';
-      tempDiv.style.backgroundColor = '#fff';
-      
-      const currentDate = new Date().toLocaleDateString();
-      const filename = `anocab-products-report-${new Date().toISOString().split('T')[0]}.pdf`;
-      
-      let tableRows = '';
-      filteredProducts.forEach((product, index) => {
-        const statusStyle = product.status === 'in-stock' 
-          ? 'background-color: #dcfce7; color: #166534;'
-          : product.status === 'low-stock' 
-          ? 'background-color: #fef3c7; color: #92400e;'
-          : 'background-color: #fee2e2; color: #991b1b;';
+      tempDiv.style.cssText = `
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #333;
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: white;
+      `;
+
+      const filteredProducts = products.filter(product => {
+        const matchesSearch = !searchQuery || 
+          product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
         
-        const statusText = product.status === 'in-stock' 
-          ? 'In Stock'
-          : product.status === 'low-stock' 
-          ? 'Low Stock'
-          : 'Out of Stock';
+        const matchesCategory = !filters.category || product.category === filters.category;
+        const matchesStatus = !filters.status || product.status === filters.status;
         
-        tableRows += `
-          <tr>
-            <td style="border: 1px solid #d1d5db; padding: 8px;">${index + 1}</td>
-            <td style="border: 1px solid #d1d5db; padding: 8px; font-weight: bold;">${product.name || 'N/A'}</td>
-            <td style="border: 1px solid #d1d5db; padding: 8px;">${product.category || 'N/A'}</td>
-            <td style="border: 1px solid #d1d5db; padding: 8px;">₹${product.price || '0'}</td>
-            <td style="border: 1px solid #d1d5db; padding: 8px;">${product.stock || '0'}</td>
-            <td style="border: 1px solid #d1d5db; padding: 8px;">
-              <span style="padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; ${statusStyle}">
-                ${statusText}
-              </span>
-            </td>
-            <td style="border: 1px solid #d1d5db; padding: 8px;">${product.description || product.code || 'N/A'}</td>
-          </tr>
-        `;
+        return matchesSearch && matchesCategory && matchesStatus;
       });
-      
+
       tempDiv.innerHTML = `
         <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px;">
           <h1 style="margin: 0; font-size: 24px; color: #1f2937;">ANOCAB PRODUCTS REPORT</h1>
-          <p style="margin: 5px 0 0 0; color: #6b7280;">Generated on: ${currentDate}</p>
+          <p style="margin: 5px 0 0 0; color: #6b7280;">Generated on: ${new Date().toLocaleDateString()}</p>
         </div>
-        
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
           <thead>
             <tr style="background-color: #f3f4f6;">
@@ -202,20 +128,43 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
             </tr>
           </thead>
           <tbody>
-            ${tableRows}
+            ${filteredProducts.map((product, index) => `
+              <tr>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${index + 1}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px; font-weight: bold;">${product.name || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${product.category || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">₹${product.price || '0'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${product.stock || '0'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">
+                  <span style="
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    ${product.status === 'in-stock' ? 'background-color: #dcfce7; color: #166534;' :
+                      product.status === 'low-stock' ? 'background-color: #fef3c7; color: #92400e;' :
+                      'background-color: #fee2e2; color: #991b1b;'}
+                  ">
+                    ${product.status === 'in-stock' ? 'In Stock' :
+                      product.status === 'low-stock' ? 'Low Stock' :
+                      'Out of Stock'}
+                  </span>
+                </td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${product.description || product.code || 'N/A'}</td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
-        
         <div style="margin-top: 30px; text-align: center; color: #6b7280; font-size: 11px;">
           <p>Total Records: ${filteredProducts.length}</p>
           <p>Generated by ANOCAB CRM System</p>
         </div>
       `;
-      
+
       document.body.appendChild(tempDiv);
       const opt = {
         margin: 0.5,
-        filename: filename,
+        filename: `anocab-products-report-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 1, useCORS: true, logging: false },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
@@ -249,61 +198,49 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
         </div>
 
         {/* Right side - Filters and Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-3">
           {/* Category Filter */}
-          <div className="relative">
-            <select
-              className="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-            >
-              <option value="">All Categories</option>
-              <option value="cable">Cables</option>
-              <option value="conductor">Conductors</option>
-              <option value="wire">Wires</option>
-              <option value="accessories">Accessories</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <ChevronDown className="h-4 w-4" />
-            </div>
-          </div>
+          <select
+            value={filters.category}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Categories</option>
+            <option value="cable">Cable</option>
+            <option value="conductor">Conductor</option>
+            <option value="switch">Switch</option>
+            <option value="accessory">Accessory</option>
+          </select>
 
           {/* Status Filter */}
-          <div className="relative">
-            <select
-              className="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-            >
-              <option value="">All Status</option>
-              <option value="in-stock">In Stock</option>
-              <option value="low-stock">Low Stock</option>
-              <option value="out-of-stock">Out of Stock</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <ChevronDown className="h-4 w-4" />
-            </div>
-          </div>
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Status</option>
+            <option value="in-stock">In Stock</option>
+            <option value="low-stock">Low Stock</option>
+            <option value="out-of-stock">Out of Stock</option>
+          </select>
 
-          {/* Export Button */}
           <button
             onClick={handleExport}
-            className="inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto"
+            className="px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 inline-flex items-center gap-2"
           >
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4" />
             Export
           </button>
-
-          {/* Add Product Button */}
           <button
-            onClick={handleAddNew}
-            className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto"
+            onClick={handleAddProduct}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 inline-flex items-center gap-2"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4" />
             Add New Item
           </button>
         </div>
       </div>
+
 
       {/* Add/Edit Item Modal */}
       {showAddItemModal && (
@@ -348,10 +285,10 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Category</option>
-                  <option value="cable">Cables</option>
-                  <option value="conductor">Conductors</option>
-                  <option value="wire">Wires</option>
-                  <option value="accessories">Accessories</option>
+                  <option value="cable">Cable</option>
+                  <option value="conductor">Conductor</option>
+                  <option value="switch">Switch</option>
+                  <option value="accessory">Accessory</option>
                 </select>
               </div>
 
@@ -374,7 +311,7 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock Quantity
+                    Stock
                   </label>
                   <input
                     type="number"
@@ -436,106 +373,127 @@ export default function ProductToolbar({ onSearch, onAddProduct, onExport, onFil
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* Pagination Controls */}
-      <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg border border-gray-200">
-        {/* Items per page selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">Show:</span>
-          <select
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-          <span className="text-sm text-gray-700">per page</span>
+// Separate Pagination Component
+export function ProductPagination({ 
+  currentPage, 
+  totalPages, 
+  itemsPerPage, 
+  totalItems, 
+  onPageChange, 
+  onItemsPerPageChange 
+}) {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+  const goToFirstPage = () => onPageChange(1);
+  const goToPreviousPage = () => onPageChange(Math.max(1, currentPage - 1));
+  const goToNextPage = () => onPageChange(Math.min(totalPages, currentPage + 1));
+  const goToLastPage = () => onPageChange(totalPages);
+
+  return (
+    <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg border border-gray-200">
+      {/* Items per page selector */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-700">Show:</span>
+        <select
+          value={itemsPerPage}
+          onChange={(e) => onItemsPerPageChange(parseInt(e.target.value))}
+          className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+        </select>
+        <span className="text-sm text-gray-700">per page</span>
+      </div>
+
+      {/* Page info */}
+      <div className="text-sm text-gray-700">
+        {totalItems > 0 ? (
+          <>
+            Showing {startIndex + 1} to {endIndex} of {totalItems} results
+          </>
+        ) : (
+          <>No results found</>
+        )}
+      </div>
+
+      {/* Pagination buttons */}
+      <div className="flex items-center gap-2">
+        {/* First page */}
+        <button
+          onClick={goToFirstPage}
+          disabled={currentPage === 1 || totalItems === 0}
+          className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="First page"
+        >
+          <ChevronsLeft className="h-4 w-4" />
+        </button>
+
+        {/* Previous page */}
+        <button
+          onClick={goToPreviousPage}
+          disabled={currentPage === 1 || totalItems === 0}
+          className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Previous page"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+
+        {/* Page numbers */}
+        <div className="flex items-center gap-1">
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let pageNum;
+            if (totalPages <= 5) {
+              pageNum = i + 1;
+            } else if (currentPage <= 3) {
+              pageNum = i + 1;
+            } else if (currentPage >= totalPages - 2) {
+              pageNum = totalPages - 4 + i;
+            } else {
+              pageNum = currentPage - 2 + i;
+            }
+
+            return (
+              <button
+                key={pageNum}
+                onClick={() => onPageChange(pageNum)}
+                className={`px-3 py-1 text-sm rounded-md border ${
+                  currentPage === pageNum
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Page info */}
-        <div className="text-sm text-gray-700">
-          {filteredProducts.length > 0 ? (
-            <>Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} results</>
-          ) : (
-            <>No results found</>
-          )}
-        </div>
+        {/* Next page */}
+        <button
+          onClick={goToNextPage}
+          disabled={currentPage === totalPages || totalItems === 0}
+          className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Next page"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
 
-        {/* Pagination buttons */}
-        <div className="flex items-center gap-2">
-          {/* First page */}
-          <button
-            onClick={goToFirstPage}
-            disabled={currentPage === 1 || filteredProducts.length === 0}
-            className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="First page"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </button>
-
-          {/* Previous page */}
-          <button
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1 || filteredProducts.length === 0}
-            className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-
-          {/* Page numbers */}
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`px-3 py-1 text-sm rounded-md border ${
-                    currentPage === pageNum
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Next page */}
-          <button
-            onClick={goToNextPage}
-            disabled={currentPage === totalPages || filteredProducts.length === 0}
-            className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-
-          {/* Last page */}
-          <button
-            onClick={goToLastPage}
-            disabled={currentPage === totalPages || filteredProducts.length === 0}
-            className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Last page"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </button>
-        </div>
+        {/* Last page */}
+        <button
+          onClick={goToLastPage}
+          disabled={currentPage === totalPages || totalItems === 0}
+          className="p-2 rounded-md border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Last page"
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );
