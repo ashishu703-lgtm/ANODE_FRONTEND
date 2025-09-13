@@ -31,8 +31,12 @@ export default function CustomerListContent() {
   const [searchQuery, setSearchQuery] = React.useState('')
   const [editingCustomer, setEditingCustomer] = React.useState(null)
   const [showFilters, setShowFilters] = React.useState(false)
-  const [showPaymentReceipt, setShowPaymentReceipt] = React.useState(false)
-  const [selectedPayment, setSelectedPayment] = React.useState(null)
+  // Payment related state
+  const [showPaymentDetails, setShowPaymentDetails] = React.useState(false)
+  const [selectedCustomer, setSelectedCustomer] = React.useState(null)
+  const [paymentHistory, setPaymentHistory] = React.useState([])
+  const [totalAmount, setTotalAmount] = React.useState(0)
+  
   // Quotations data
   const [quotations, setQuotations] = React.useState([
     {
@@ -89,8 +93,6 @@ export default function CustomerListContent() {
       preparedBy: 'John Doe'
     }
   ])
-  const [showPaymentTimeline, setShowPaymentTimeline] = React.useState(false)
-  const [paymentHistory, setPaymentHistory] = React.useState([])
   const [showPdfViewer, setShowPdfViewer] = React.useState(false)
   const [currentPdfUrl, setCurrentPdfUrl] = React.useState('')
   // Available options for dropdowns
@@ -398,13 +400,12 @@ export default function CustomerListContent() {
   }
 
   const handleWalletClick = async (customer) => {
-    // In a real app, you would fetch the payment history for this customer
-    // For now, we'll use sample data
+    // Sample payment history data
     const sampleHistory = [
       {
         id: 1,
         date: '2025-09-10',
-        amount: '₹12,500.00',
+        amount: 12500.00,
         receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
         paymentMethod: 'Bank Transfer',
         status: 'Completed',
@@ -413,30 +414,26 @@ export default function CustomerListContent() {
       {
         id: 2,
         date: '2025-08-25',
-        amount: '₹8,750.00',
+        amount: 8750.00,
         receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
         paymentMethod: 'UPI',
         status: 'Completed',
         description: 'Advance Payment for Order #ORD-2025-0098'
-      },
-      {
-        id: 3,
-        date: '2025-08-15',
-        amount: '₹5,200.00',
-        receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
-        paymentMethod: 'Cheque',
-        status: 'Cleared',
-        description: 'Previous Order #ORD-2025-0076'
       }
     ]
     
+    // Calculate total amount (in a real app, this would come from the order/quote)
+    const customerTotal = 30000.00 // Example total amount
+    
     setPaymentHistory(sampleHistory)
-    setSelectedPayment({
-      customerName: customer.name,
-      customerId: customer.id,
-      ...sampleHistory[0] // Show the most recent payment as default
+    setTotalAmount(customerTotal)
+    setSelectedCustomer({
+      id: customer.id,
+      name: customer.name,
+      phone: customer.phone,
+      email: customer.email
     })
-    setShowPaymentReceipt(true)
+    setShowPaymentDetails(true)
   }
 
   const handleDownloadReceipt = () => {
@@ -465,231 +462,214 @@ export default function CustomerListContent() {
     document.body.removeChild(element)
   }
 
+  const handleImportLeads = async () => {
+    try {
+      // Create a temporary div for PDF generation
+      const tempDiv = document.createElement('div')
+      tempDiv.style.padding = '20px'
+      tempDiv.style.fontFamily = 'Arial, sans-serif'
+      tempDiv.style.fontSize = '12px'
+      tempDiv.style.color = '#000'
+      tempDiv.style.backgroundColor = '#fff'
+      
+      // Add title
+      tempDiv.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px;">
+          <h1 style="margin: 0; font-size: 24px; color: #1f2937;">ANOCAB LEADS REPORT</h1>
+          <p style="margin: 5px 0 0 0; color: #6b7280;">Generated on: ${new Date().toLocaleDateString()}</p>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background-color: #f3f4f6;">
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">#</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Name & Phone</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Address</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">GST No.</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Product Type</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">State</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Lead Source</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Customer Type</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Date</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Connected Status</th>
+              <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Final Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredCustomers.map((customer, index) => `
+              <tr>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.id}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">
+                  <div style="font-weight: bold;">${customer.name}</div>
+                  <div style="color: #6b7280; font-size: 11px;">${customer.phone}</div>
+                  ${customer.whatsapp ? `<div style="color: #059669; font-size: 11px;">WhatsApp: ${customer.whatsapp}</div>` : ''}
+                </td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.address || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.gstNo || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.productType || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.state || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.enquiryBy || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.customerType || 'N/A'}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">${customer.date}</td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">
+                  <span style="
+                    padding: 2px 6px; 
+                    border-radius: 4px; 
+                    font-size: 10px; 
+                    font-weight: bold;
+                    ${customer.connected?.status === 'Connected' ? 'background-color: #dcfce7; color: #166534;' : 
+                      customer.connected?.status === 'Follow Up' ? 'background-color: #fef3c7; color: #92400e;' : 
+                      'background-color: #fee2e2; color: #991b1b;'}
+                  ">
+                    ${customer.connected?.status || 'Not Connected'}
+                  </span>
+                </td>
+                <td style="border: 1px solid #d1d5db; padding: 8px;">
+                  <span style="
+                    padding: 2px 6px; 
+                    border-radius: 4px; 
+                    font-size: 10px; 
+                    font-weight: bold;
+                    ${customer.finalInfo?.status === 'closed' ? 'background-color: #dcfce7; color: #166534;' : 
+                      customer.finalInfo?.status === 'next_meeting' ? 'background-color: #dbeafe; color: #1e40af;' : 
+                      'background-color: #f3f4f6; color: #374151;'}
+                  ">
+                    ${customer.finalInfo?.status === 'closed' ? 'Closed' : 
+                      customer.finalInfo?.status === 'next_meeting' ? 'Next Meeting' : 
+                      customer.finalStatus || 'New'}
+                  </span>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div style="margin-top: 30px; text-align: center; color: #6b7280; font-size: 11px;">
+          <p>Total Records: ${filteredCustomers.length}</p>
+          <p>Generated by ANOCAB CRM System</p>
+        </div>
+      `
+      
+      // Temporarily add to DOM
+      document.body.appendChild(tempDiv)
+      
+      // PDF generation options
+      const opt = {
+        margin: 0.5,
+        filename: `anocab-leads-report-${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 1,
+          useCORS: true,
+          logging: false
+        },
+        jsPDF: { 
+          unit: 'in', 
+          format: 'a4', 
+          orientation: 'landscape' 
+        }
+      }
+      
+      // Generate and download the PDF
+      await html2pdf().set(opt).from(tempDiv).save()
+      
+      // Clean up
+      document.body.removeChild(tempDiv)
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Error generating PDF. Please try again.')
+    }
+  }
+
   const generateQuotationPDF = async (quotationData, customer, returnBlob = false) => {
-    // Create a temporary quotation element
+    // Create a simple test content first
     const tempDiv = document.createElement('div')
-    tempDiv.style.position = 'absolute'
-    tempDiv.style.left = '-9999px'
+    tempDiv.style.position = 'fixed'
+    tempDiv.style.left = '0'
+    tempDiv.style.top = '0'
+    tempDiv.style.width = '800px'
+    tempDiv.style.backgroundColor = 'white'
+    tempDiv.style.padding = '20px'
+    tempDiv.style.fontFamily = 'Arial, sans-serif'
+    tempDiv.style.fontSize = '14px'
+    tempDiv.style.color = 'black'
+    tempDiv.style.zIndex = '9999'
+    tempDiv.style.visibility = 'hidden'
+    
+    // Simple test content
     tempDiv.innerHTML = `
-      <div class="p-6 font-sans text-sm">
-        <!-- Header -->
-        <div class="border-2 border-black mb-4">
-          <div class="p-2 flex justify-between items-center">
-            <div>
-              <h1 class="text-xl font-bold">ANODE ELECTRIC PVT. LTD.</h1>
-              <p class="text-xs">MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES</p>
-            </div>
-            <div class="text-right">
-              <img
-                src="https://res.cloudinary.com/drpbrn2ax/image/upload/v1757416761/logo2_kpbkwm-removebg-preview_jteu6d.png"
-                alt="Anode Electric Logo"
-                class="h-12 w-auto bg-white p-1 rounded"
-              />
-            </div>
-          </div>
-          <div class="p-3 bg-gray-50">
-            <div class="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <p><strong>KHASRA NO. 805/5, PLOT NO. 10, IT PARK</strong></p>
-                <p>BARGI HILLS, JABALPUR - 482003</p>
-                <p>MADHYA PRADESH, INDIA</p>
-              </div>
-              <div class="text-right">
-                <p>Tel: 6262002116, 6262002113</p>
-                <p>Web: www.anocab.com</p>
-                <p>Email: info@anocab.com</p>
-              </div>
-            </div>
-          </div>
+      <div style="width: 100%; background: white; padding: 20px;">
+        <h1 style="color: black; font-size: 24px; margin-bottom: 20px;">ANODE ELECTRIC PVT. LTD.</h1>
+        <h2 style="color: black; font-size: 18px; margin-bottom: 15px;">QUOTATION</h2>
+        
+        <div style="border: 2px solid black; padding: 15px; margin-bottom: 20px;">
+          <h3 style="color: black; margin-bottom: 10px;">Company Details</h3>
+          <p style="color: black; margin: 5px 0;">MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES</p>
+          <p style="color: black; margin: 5px 0;">KHASRA NO. 805/5, PLOT NO. 10, IT PARK</p>
+          <p style="color: black; margin: 5px 0;">BARGI HILLS, JABALPUR - 482003</p>
+          <p style="color: black; margin: 5px 0;">MADHYA PRADESH, INDIA</p>
+          <p style="color: black; margin: 5px 0;">Tel: 6262002116, 6262002113</p>
+          <p style="color: black; margin: 5px 0;">Email: info@anocab.com</p>
         </div>
-
-        <!-- Quotation Details -->
-        <div class="border border-black mb-4">
-          <div class="bg-gray-100 p-2 text-center font-bold">
-            <h2>Quotation Details</h2>
-          </div>
-          <div class="grid grid-cols-5 gap-2 p-2 text-xs border-b">
-            <div><strong>Quotation Detail</strong></div>
-            <div><strong>Revised Quotation</strong></div>
-            <div><strong>Quotation Date</strong></div>
-            <div><strong>Customer ID</strong></div>
-            <div><strong>Valid Upto</strong></div>
-          </div>
-          <div class="grid grid-cols-5 gap-2 p-2 text-xs">
-            <div>${quotationData?.quotationDetail || 'Final Quotation'}</div>
-            <div>${quotationData?.quotationNumber || 'ANO/25-26/458'}</div>
-            <div>${quotationData?.quotationDate || '08/09/2025'}</div>
-            <div>CUST${Date.now().toString().slice(-4)}</div>
-            <div>${quotationData?.validUpto || '2 DAYS'}</div>
-          </div>
+        
+        <div style="border: 1px solid black; padding: 15px; margin-bottom: 20px;">
+          <h3 style="color: black; margin-bottom: 10px;">Quotation Details</h3>
+          <p style="color: black; margin: 5px 0;"><strong>Date:</strong> ${quotationData?.quotationDate || new Date().toLocaleDateString()}</p>
+          <p style="color: black; margin: 5px 0;"><strong>Quotation No:</strong> ${quotationData?.quotationNumber || 'ANO/25-26/001'}</p>
+          <p style="color: black; margin: 5px 0;"><strong>Valid Until:</strong> ${quotationData?.validUpto || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
         </div>
-
-        <!-- Customer Information -->
-        <div class="border border-black mb-4">
-          <div class="grid grid-cols-2 gap-4 p-3 text-xs">
-            <div>
-              <h3 class="font-bold mb-2">BILL TO:</h3>
-              <p><strong>${quotationData?.billTo?.business || customer?.business || 'Das Industrial Controls'}</strong></p>
-              <p>${quotationData?.billTo?.address || customer?.address || 'Panvel, Maharashtra, India'}</p>
-              <p><strong>PHONE:</strong> ${quotationData?.billTo?.phone || customer?.phone || '7039542259'}</p>
-              <p><strong>GSTIN:</strong> ${quotationData?.billTo?.gstNo || customer?.gstNo || '27DVTPS2973B1Z0'}</p>
-              <p><strong>State:</strong> ${quotationData?.billTo?.state || customer?.state || 'Maharashtra'}</p>
-            </div>
-            <div>
-              <p><strong>L.R. No:</strong> -</p>
-              <p><strong>Transport:</strong> STAR TRANSPORTS</p>
-              <p><strong>Transport ID:</strong> 562345</p>
-              <p><strong>Vehicle Number:</strong> GJ01HJ2520</p>
-            </div>
-          </div>
+        
+        <div style="border: 1px solid black; padding: 15px; margin-bottom: 20px;">
+          <h3 style="color: black; margin-bottom: 10px;">Bill To:</h3>
+          <p style="color: black; margin: 5px 0;"><strong>${quotationData?.billTo?.business || customer?.business || 'Customer Name'}</strong></p>
+          <p style="color: black; margin: 5px 0;">${quotationData?.billTo?.address || customer?.address || 'Customer Address'}</p>
+          <p style="color: black; margin: 5px 0;"><strong>Phone:</strong> ${quotationData?.billTo?.phone || customer?.phone || 'Phone Number'}</p>
+          <p style="color: black; margin: 5px 0;"><strong>GST:</strong> ${quotationData?.billTo?.gstNo || customer?.gstNo || 'GST Number'}</p>
         </div>
-
-        <!-- Product Details Table -->
-        <div class="border border-black mb-4">
-          <table class="w-full text-xs" style="table-layout: fixed; width: 100%;">
-            <colgroup>
-              <col style="width: 40px;" />  <!-- Sr. No. -->
-              <col style="min-width: 200px;" /> <!-- Product Name -->
-              <col style="width: 80px;" />  <!-- HSN/SAC -->
-              <col style="width: 70px;" />  <!-- Qty -->
-              <col style="width: 60px;" />  <!-- Unit -->
-              <col style="width: 100px;" /> <!-- Taxable Value -->
-              <col style="width: 60px;" />  <!-- GST (matches Unit column) -->
-              <col style="width: 100px;" /> <!-- Total -->
-            </colgroup>
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="border border-gray-300 p-1 text-center">Sr. No.</th>
-                <th class="border border-gray-300 p-1 text-left">Name of Product / Service</th>
-                <th class="border border-gray-300 p-1 text-center">HSN / SAC</th>
-                <th class="border border-gray-300 p-1 text-center">Qty</th>
-                <th class="border border-gray-300 p-1 text-center">Unit</th>
-                <th class="border border-gray-300 p-1 text-right">Taxable Value</th>
-                <th class="border border-gray-300 p-1 text-center">GST</th>
-                <th class="border border-gray-300 p-1 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${quotationData?.items?.length > 0 ? 
-                quotationData.items.map((item, index) => `
-                  <tr>
-                    <td class="border border-gray-300 p-1 text-center">${index + 1}</td>
-                    <td class="border border-gray-300 p-1 text-left whitespace-normal break-words">${item.description}</td>
-                    <td class="border border-gray-300 p-1 text-center">85446090</td>
-                    <td class="border border-gray-300 p-1 text-center">${item.quantity} ${item.unit}</td>
-                    <td class="border border-gray-300 p-1 text-center">${item.rate.toFixed(2)}</td>
-                    <td class="border border-gray-300 p-1 text-right">${item.amount.toFixed(2)}</td>
-                    <td class="border border-gray-300 p-1 text-center">18% ${(item.amount * 0.18).toFixed(2)}</td>
-                    <td class="border border-gray-300 p-1 text-right">${(item.amount * 1.18).toFixed(2)}</td>
-                  </tr>
-                `).join('') : 
-                `<tr>
-                  <td class="border border-gray-300 p-1 text-center">1</td>
-                  <td class="border border-gray-300 p-1 text-left whitespace-normal break-words">ACSR Dog Conductor</td>
-                  <td class="border border-gray-300 p-1 text-center">76042910</td>
-                  <td class="border border-gray-300 p-1 text-center">120,000 MTR</td>
-                  <td class="border border-gray-300 p-1 text-center">82.00</td>
-                  <td class="border border-gray-300 p-1 text-right">9,840,000</td>
-                  <td class="border border-gray-300 p-1 text-center">18% 1,772,400</td>
-                  <td class="border border-gray-300 p-1 text-right">11,612,400</td>
-                </tr>`
-              }
-              ${Array(8).fill().map(() => `
-                <tr class="h-8">
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                  <td class="border border-gray-300 p-2"></td>
-                </tr>
-              `).join('')}
-              <tr class="bg-gray-100 font-bold">
-                <td class="border border-gray-300 p-2" colspan="5">Total</td>
-                <td class="border border-gray-300 p-2">${quotationData?.subtotal?.toFixed(2) || '34,440,000'}</td>
-                <td class="border border-gray-300 p-2">${quotationData?.taxAmount?.toFixed(2) || '6,200,400'}</td>
-                <td class="border border-gray-300 p-2">${quotationData?.total?.toFixed(2) || '40,640,400'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Amount Summary -->
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="border border-black p-3">
-            <h3 class="font-bold text-xs mb-2">Bank Details</h3>
-            <div class="text-xs space-y-1">
-              <p><strong>Bank Name:</strong> ICICI Bank</p>
-              <p><strong>Branch Name:</strong> WRIGHT TOWN JABALPUR</p>
-              <p><strong>Bank Account Number:</strong> 657605601783</p>
-              <p><strong>Bank Branch IFSC:</strong> ICIC0006576</p>
-            </div>
-          </div>
-          <div class="border border-black p-3">
-            <div class="text-xs space-y-1">
-              <div class="flex justify-between">
-                <span>Taxable Amount</span>
-                <span>${quotationData?.subtotal?.toFixed(2) || '34,440,000'}</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Add: Total GST (18%)</span>
-                <span>${quotationData?.taxAmount?.toFixed(2) || '6,200,400'}</span>
-              </div>
-              <div class="flex justify-between font-bold border-t pt-1">
-                <span>Total Amount After Tax</span>
-                <span>₹ ${quotationData?.total?.toFixed(2) || '40,640,400'}</span>
-              </div>
-              <div class="text-center mt-2">
-                <span class="text-xs">(Rupees Four Crore Six Lakh Forty Thousand Four Hundred Only)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Terms and Conditions -->
-        <div class="border border-black mb-4">
-          <div class="bg-gray-100 p-2 font-bold text-xs">
-            <h3>Terms and Conditions</h3>
-          </div>
-          <div class="p-3 text-xs space-y-2">
-            <div>
-              <h4 class="font-bold">PRICING & VALIDITY</h4>
-              <p>• Prices are valid for 3 days only from the date of the final quotation/PI unless otherwise specified terms.</p>
-              <p>• The order will be considered confirmed only upon receipt of the advance payment.</p>
-            </div>
-            <div>
-              <h4 class="font-bold">PAYMENT TERMS</h4>
-              <p>• 30% advance payment upon order confirmation</p>
-              <p>• Remaining Balance at time of final dispatch / against LC / Bank Guarantee (if applicable).</p>
-              <p>• Liquidated Damages @ 0.5% to 1% per WEEK will be charged on delayed payments beyond the agreed terms.</p>
-            </div>
-            <div>
-              <h4 class="font-bold">DELIVERY & DISPATCH</h4>
-              <p>• Standard delivery period as per the telecommunication with customer.</p>
-              <p>• Any delays due to unforeseen circumstances (force majeure, strikes, and transportation issues) will be communicated.</p>
-            </div>
-            <div>
-              <h4 class="font-bold">QUALITY & WARRANTY</h4>
-              <p>• Cables will be supplied as per IS and other applicable BIS standards/or as per the agreed specifications mentioned/special demand by the customer.</p>
-              <p>• Any manufacturing defects should be reported immediately, within 3 working days of receipt.</p>
-              <p>• Warranty: 12 months from the date of dispatch for manufacturing defects only in ISI mark products.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="text-right text-xs">
-          <p class="mb-4">For <strong>ANODE ELECTRIC PRIVATE LIMITED</strong></p>
-          <p class="mb-8">This is computer generated invoice no signature required.</p>
-          <p class="font-bold">Authorized Signatory</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <thead>
+            <tr style="background-color: #f0f0f0;">
+              <th style="border: 1px solid black; padding: 8px; text-align: left;">Sr.</th>
+              <th style="border: 1px solid black; padding: 8px; text-align: left;">Description</th>
+              <th style="border: 1px solid black; padding: 8px; text-align: center;">Qty</th>
+              <th style="border: 1px solid black; padding: 8px; text-align: right;">Rate</th>
+              <th style="border: 1px solid black; padding: 8px; text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border: 1px solid black; padding: 8px;">1</td>
+              <td style="border: 1px solid black; padding: 8px;">Sample Product</td>
+              <td style="border: 1px solid black; padding: 8px; text-align: center;">1</td>
+              <td style="border: 1px solid black; padding: 8px; text-align: right;">1000.00</td>
+              <td style="border: 1px solid black; padding: 8px; text-align: right;">1000.00</td>
+            </tr>
+            <tr style="background-color: #f0f0f0;">
+              <td style="border: 1px solid black; padding: 8px;" colspan="4"><strong>Total</strong></td>
+              <td style="border: 1px solid black; padding: 8px; text-align: right;"><strong>1000.00</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div style="text-align: right; margin-top: 30px;">
+          <p style="color: black; margin: 5px 0;">For ANODE ELECTRIC PRIVATE LIMITED</p>
+          <p style="color: black; margin: 5px 0;">Authorized Signatory</p>
         </div>
       </div>
     `
     
     // Add the temporary div to the document
     document.body.appendChild(tempDiv)
+    
+    // Debug: Check if element is visible
+    console.log('Element created:', tempDiv)
+    console.log('Element innerHTML length:', tempDiv.innerHTML.length)
+    console.log('Element offsetHeight:', tempDiv.offsetHeight)
+
+    // Wait a bit for the element to render
+    await new Promise(resolve => setTimeout(resolve, 100))
 
     try {
       // Generate the PDF
@@ -699,15 +679,15 @@ export default function CustomerListContent() {
         filename: `quotation-${customer.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
-          scale: 2,
+          scale: 1,
           useCORS: true,
           logging: true,
-          letterRendering: true
+          backgroundColor: '#ffffff'
         },
         jsPDF: { 
           unit: 'in', 
-          format: 'letter', 
-          orientation: 'portrait' 
+          format: 'a4', 
+          orientation: 'portrait'
         }
       }
 
@@ -884,10 +864,14 @@ export default function CustomerListContent() {
           const value = filterValue.toString().toLowerCase().trim();
           if (!value) return true;
           
-          const customerValue = key === 'customer' ? customer.name || '' :
-                              key === 'connectedStatus' ? customer.connected?.status || '' :
-                              customer[key] || '';
-                              
+          // Special handling for connected status to match exactly
+          if (key === 'connectedStatus') {
+            // For connected status, do an exact match (case-insensitive)
+            return customer.connected?.status?.toLowerCase() === value.toLowerCase();
+          }
+          
+          // For other fields, do a partial match
+          const customerValue = key === 'customer' ? customer.name || '' : customer[key] || '';
           return customerValue.toString().toLowerCase().includes(value);
         });
       });
@@ -934,7 +918,10 @@ export default function CustomerListContent() {
               <Plus className="h-4 w-4" />
               Add Customer
             </button>
-            <button className="px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 inline-flex items-center gap-2">
+            <button 
+              onClick={handleImportLeads}
+              className="px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 inline-flex items-center gap-2"
+            >
               <Import className="h-4 w-4" />
               Import
             </button>
@@ -960,8 +947,8 @@ export default function CustomerListContent() {
                   <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">#</th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-blue-500" />
-                      Customer
+                      <User className="h-4 w-4 text-indigo-500" />
+                      Name & Phone
                     </div>
                     {showFilters && (
                       <input
@@ -975,22 +962,7 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-green-500" />
-                      Business
-                    </div>
-                    {showFilters && (
-                      <input
-                        type="text"
-                        value={filters.business}
-                        onChange={(e) => handleFilterChange('business', e.target.value)}
-                        className="mt-1 w-full text-xs p-1 border rounded"
-                        placeholder="Filter business..."
-                      />
-                    )}
-                  </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-rose-500" />
+                      <MapPin className="h-4 w-4 text-blue-500" />
                       Address
                     </div>
                     {showFilters && (
@@ -1005,20 +977,17 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <Map className="h-4 w-4 text-indigo-500" />
-                      State
+                      <FileText className="h-4 w-4 text-purple-500" />
+                      GST No.
                     </div>
                     {showFilters && (
-                      <select
-                        value={filters.state}
-                        onChange={(e) => handleFilterChange('state', e.target.value)}
-                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
-                      >
-                        <option value="">All States</option>
-                        {states.map(state => (
-                          <option key={state} value={state}>{state}</option>
-                        ))}
-                      </select>
+                      <input
+                        type="text"
+                        value={filters.gstNo}
+                        onChange={(e) => handleFilterChange('gstNo', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter GST..."
+                      />
                     )}
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-64">
@@ -1041,18 +1010,18 @@ export default function CustomerListContent() {
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-purple-500" />
-                      Customer Type
+                      <Map className="h-4 w-4 text-indigo-500" />
+                      State
                     </div>
                     {showFilters && (
                       <select
-                        value={filters.customerType}
-                        onChange={(e) => handleFilterChange('customerType', e.target.value)}
+                        value={filters.state}
+                        onChange={(e) => handleFilterChange('state', e.target.value)}
                         className="mt-1 w-full text-xs p-1 border rounded bg-white"
                       >
-                        <option value="">All Types</option>
-                        {customerTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
+                        <option value="">All States</option>
+                        {states.map(state => (
+                          <option key={state} value={state}>{state}</option>
                         ))}
                       </select>
                     )}
@@ -1076,6 +1045,24 @@ export default function CustomerListContent() {
                     )}
                   </th>
                   <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-purple-500" />
+                      Customer Type
+                    </div>
+                    {showFilters && (
+                      <select
+                        value={filters.customerType}
+                        onChange={(e) => handleFilterChange('customerType', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded bg-white"
+                      >
+                        <option value="">All Types</option>
+                        {customerTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    )}
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-32">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-indigo-500" />
                       Date
@@ -1184,18 +1171,27 @@ export default function CustomerListContent() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4">
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm">{customer.business}</div>
-                        <div className="text-xs text-gray-500">{customer.location}</div>
-                      </div>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.address}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.gstNo}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.address}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.state}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.productType}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.customerType || 'N/A'}</td>
-                    <td className="py-4 px-4 text-sm text-gray-700">{customer.enquiryBy}</td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.gstNo}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.productType}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.state}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.enquiryBy}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.customerType || 'N/A'}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700 w-32">
+                      <div className="font-medium whitespace-nowrap">{customer.date}</div>
+                    </td>
                     <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="flex flex-col">
                         <span className={
@@ -1258,10 +1254,10 @@ export default function CustomerListContent() {
                             Last Payment
                           </span>
                         </button>
-                        <button onClick={() => handleQuotation(customer)} className="p-1.5 rounded-md hover:bg-purple-50 text-purple-600 relative group" title="View Quotation">
+                        <button onClick={() => handleQuotation(customer)} className="p-1.5 rounded-md hover:bg-purple-50 text-purple-600 relative group" title="Quotation">
                           <FileText className="h-4 w-4" />
                           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                            View Quotation
+                            Quotation
                           </span>
                         </button>
                       </div>
@@ -1502,273 +1498,95 @@ export default function CustomerListContent() {
         />
       )}
 
-      {/* Payment Receipt Modal */}
-      {showPaymentReceipt && selectedPayment && (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Payment Receipt</h3>
-                  <button 
-                    onClick={() => setShowPaymentReceipt(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <XCircle className="h-6 w-6" />
-                  </button>
+      {/* Payment Details Modal */}
+      {showPaymentDetails && selectedCustomer && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div className="p-6 flex-1 overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">Payment Details</h3>
+                <button 
+                  onClick={() => setShowPaymentDetails(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label="Close payment details"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              {/* Customer Info */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-1">{selectedCustomer.name}</h4>
+                <p className="text-sm text-gray-600">{selectedCustomer.phone} • {selectedCustomer.email}</p>
+              </div>
+              
+              {/* Payment Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">Total Amount</p>
+                  <p className="text-lg font-semibold text-gray-900">₹{totalAmount.toLocaleString('en-IN')}</p>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Receipt Details */}
-                  <div className="md:col-span-2 space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-gray-700 mb-3">Payment Details</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Receipt No</p>
-                          <p className="font-medium">{selectedPayment.receiptNo}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Date</p>
-                          <p>{selectedPayment.date}</p>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="text-sm text-gray-500">Customer</p>
-                          <p className="font-medium">{selectedPayment.customerName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Payment Method</p>
-                          <p>{selectedPayment.paymentMethod}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Status</p>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            selectedPayment.status === 'Completed' || selectedPayment.status === 'Cleared' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {selectedPayment.status}
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">Paid Amount</p>
+                  <p className="text-lg font-semibold text-green-600">
+                    ₹{paymentHistory.reduce((sum, p) => sum + p.amount, 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className="bg-amber-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-500">Remaining</p>
+                  <p className="text-lg font-semibold text-amber-600">
+                    ₹{(totalAmount - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Payment History */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Payment History</h4>
+                {paymentHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {paymentHistory.map((payment) => (
+                      <div key={payment.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium text-gray-900">₹{payment.amount.toLocaleString('en-IN')}</p>
+                            <p className="text-sm text-gray-500">{payment.description}</p>
+                            <p className="text-xs text-gray-400 mt-1">{payment.date} • {payment.paymentMethod}</p>
+                          </div>
+                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                            {payment.status}
                           </span>
                         </div>
-                        <div className="col-span-2 pt-4 border-t">
-                          <p className="text-lg font-semibold">Amount Paid:</p>
-                          <p className="text-2xl font-bold text-green-600">{selectedPayment.amount}</p>
-                        </div>
-                        {selectedPayment.description && (
-                          <div className="col-span-2 mt-2">
-                            <p className="text-sm text-gray-500">Description</p>
-                            <p className="text-sm">{selectedPayment.description}</p>
-                          </div>
-                        )}
                       </div>
-                    </div>
-
-                    {/* Payment History Preview */}
-                    <div className="bg-white border rounded-lg overflow-hidden">
-                      <div className="px-4 py-3 border-b flex justify-between items-center bg-gray-50">
-                        <h4 className="font-medium text-gray-700">Recent Transactions</h4>
-                        <button 
-                          onClick={() => setShowPaymentHistory(true)}
-                          className="text-sm text-blue-600 hover:text-blue-800"
-                        >
-                          View All
-                        </button>
-                      </div>
-                      <div className="divide-y">
-                        {paymentHistory.slice(0, 3).map((payment) => (
-                          <div 
-                            key={payment.id} 
-                            className={`p-3 hover:bg-gray-50 cursor-pointer ${
-                              payment.id === selectedPayment.id ? 'bg-blue-50' : ''
-                            }`}
-                            onClick={() => setSelectedPayment(prev => ({
-                              ...prev,
-                              ...payment
-                            }))}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-medium">{payment.amount}</p>
-                                <p className="text-sm text-gray-500">{payment.paymentMethod}</p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm">{payment.date}</p>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  payment.status === 'Completed' || payment.status === 'Cleared'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {payment.status}
-                                </span>
-                              </div>
-                            </div>
-                            {payment.description && (
-                              <p className="text-xs text-gray-500 mt-1 truncate">{payment.description}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    ))}
                   </div>
-
-                  {/* Quick Actions */}
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-3">Quick Actions</h4>
-                      <div className="space-y-3">
-                        <button
-                          onClick={handleDownloadReceipt}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-blue-200 text-blue-700 rounded-md hover:bg-blue-50"
-                        >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Download Receipt
-                        </button>
-                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-green-200 text-green-700 rounded-md hover:bg-green-50">
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10V6a5 5 0 1110 0v4" />
-                          </svg>
-                          Send to Email
-                        </button>
-                        <button 
-                          onClick={() => setShowPaymentHistory(true)}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-purple-200 text-purple-700 rounded-md hover:bg-purple-50"
-                        >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                          Full Payment History
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="bg-white border rounded-lg p-4">
-                      <h4 className="font-medium text-gray-700 mb-3">Customer Summary</h4>
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Total Payments:</span>
-                          <span className="font-medium">₹26,450.00</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Last Payment:</span>
-                          <span>Sep 10, 2025</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Payment Method:</span>
-                          <span>Bank Transfer</span>
-                        </div>
-                        <div className="pt-3 mt-3 border-t">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">Current Balance:</span>
-                            <span className="text-green-600 font-semibold">₹0.00</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={() => setShowPaymentReceipt(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Close
-                  </button>
-                </div>
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No payment history found</p>
+                )}
               </div>
+            </div>
+            
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowPaymentDetails(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={() => {
+                  // In a real app, this would open a form to add a new payment
+                  alert('Add new payment functionality would open here');
+                }}
+              >
+                Add Payment
+              </button>
             </div>
           </div>
-
-          {/* Full Payment History Side Panel */}
-          {showPaymentHistory && (
-            <div className="fixed inset-0 z-50 overflow-hidden">
-              <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowPaymentHistory(false)}></div>
-              <div className="absolute inset-y-0 right-0 max-w-full flex">
-                <div className="relative w-screen max-w-md">
-                  <div className="h-full flex flex-col bg-white shadow-xl overflow-y-auto">
-                    <div className="px-6 py-4 border-b flex justify-between items-center">
-                      <h2 className="text-lg font-semibold">Payment History</h2>
-                      <div className="flex items-center">
-                        <button 
-                          onClick={() => setShowPaymentHistory(false)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="px-6 py-4 bg-gray-50 border-b">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-gray-500">Customer</p>
-                          <p className="font-medium">{selectedPayment.customerName}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">Total Paid</p>
-                          <p className="font-semibold text-lg text-green-600">₹26,450.00</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 overflow-y-auto">
-                      <div className="divide-y">
-                        {paymentHistory.map((payment) => (
-                          <div 
-                            key={payment.id} 
-                            className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                              payment.id === selectedPayment.id ? 'bg-blue-50' : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedPayment(prev => ({
-                                ...prev,
-                                ...payment
-                              }));
-                              setShowPaymentHistory(false);
-                            }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-medium">{payment.amount}</p>
-                                <p className="text-sm text-gray-500">{payment.receiptNo}</p>
-                                {payment.description && (
-                                  <p className="text-sm mt-1">{payment.description}</p>
-                                )}
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm">{payment.date}</p>
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                                  payment.status === 'Completed' || payment.status === 'Cleared'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {payment.status}
-                                </span>
-                                <p className="text-xs text-gray-500 mt-1">{payment.paymentMethod}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="border-t p-4 bg-gray-50">
-                      <button
-                        onClick={() => setShowPaymentHistory(false)}
-                        className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
     </main>
   )
