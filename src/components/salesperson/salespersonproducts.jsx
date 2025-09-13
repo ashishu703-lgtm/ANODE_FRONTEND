@@ -87,55 +87,60 @@ const sampleProducts = [
     id: 1,
     code: 'CBL-001',
     name: 'Copper Cable 1.5mm',
-    category: 'Cable',
+    category: 'cable',
     stock: 1250,
     unit: 'Meter',
     price: 125.50,
     status: 'in-stock',
+    description: 'High quality copper cable for electrical wiring',
     lastUpdated: '2025-09-10',
   },
   {
     id: 2,
     code: 'CND-002',
     name: 'Aluminum Conductor 4mm',
-    category: 'Conductor',
+    category: 'conductor',
     stock: 850,
     unit: 'Meter',
     price: 95.75,
     status: 'in-stock',
+    description: 'Lightweight aluminum conductor for power transmission',
     lastUpdated: '2025-09-11',
   },
   {
     id: 3,
     code: 'WIR-003',
     name: 'Copper Wire 2.5mm',
-    category: 'Wire',
+    category: 'wire',
     stock: 2000,
     unit: 'Meter',
     price: 85.25,
     status: 'in-stock',
+    description: 'Flexible copper wire for general electrical applications',
     lastUpdated: '2025-09-12',
   },
   {
     id: 4,
     code: 'ACC-004',
     name: 'Cable Glands',
-    category: 'Accessories',
+    category: 'accessories',
     stock: 500,
     unit: 'Pieces',
     price: 25.00,
     status: 'low-stock',
+    description: 'Cable glands for secure cable termination',
     lastUpdated: '2025-09-10',
   },
   {
     id: 5,
     code: 'CBL-005',
     name: 'Armored Cable 4mm',
-    category: 'Cable',
+    category: 'cable',
     stock: 0,
     unit: 'Meter',
     price: 210.00,
     status: 'out-of-stock',
+    description: 'Armored cable for outdoor and underground installations',
     lastUpdated: '2025-09-11',
   },
 ];
@@ -251,6 +256,7 @@ export default function ProductsPage() {
         onAddProduct={handleAddProduct}
         onExport={handleExport}
         onFilterChange={handleFilterChange}
+        products={products}
       />
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">

@@ -124,6 +124,10 @@ export default function CustomerListContent() {
     finalStatus: ''
   });
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [itemsPerPage, setItemsPerPage] = React.useState(10);
+
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
@@ -880,9 +884,35 @@ export default function CustomerListContent() {
     return result;
   }, [customers, searchQuery, filters])
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filters]);
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value)
   }
+
+  // Pagination functions
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+  const goToPreviousPage = () => setCurrentPage(prev => Math.max(1, prev - 1));
+  const goToNextPage = () => setCurrentPage(prev => Math.min(totalPages, prev + 1));
 
   return (
     <main className="flex-1 overflow-auto p-6">
@@ -1124,7 +1154,7 @@ export default function CustomerListContent() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.length === 0 ? (
+                {paginatedCustomers.length === 0 ? (
                   <tr>
                     <td colSpan="9" className="py-12 text-center text-gray-500">
                       <div className="flex flex-col items-center gap-2">
@@ -1144,7 +1174,7 @@ export default function CustomerListContent() {
                     </td>
                   </tr>
                 ) : (
-                  filteredCustomers.map((customer) => (
+                  paginatedCustomers.map((customer) => (
                   <tr key={customer.id} className="border-b border-gray-50 odd:bg-white even:bg-gray-50/40 hover:bg-white transition-colors">
                     <td className="py-4 px-4 text-sm font-medium text-gray-900">{customer.id}</td>
                     <td className="py-4 px-4">
@@ -1270,6 +1300,100 @@ export default function CustomerListContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Pagination Controls */}
+      {filteredCustomers.length > 0 && (
+        <div className="mt-6 flex items-center justify-between bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">Show</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <span className="text-sm text-gray-700">entries</span>
+            </div>
+            <div className="text-sm text-gray-700">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredCustomers.length)} of {filteredCustomers.length} entries
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* First Page */}
+            <button
+              onClick={goToFirstPage}
+              disabled={currentPage === 1}
+              className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              First
+            </button>
+
+            {/* Previous Page */}
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+
+            {/* Page Numbers */}
+            <div className="flex items-center gap-1">
+              {(() => {
+                const pages = [];
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => handlePageChange(i)}
+                      className={`px-3 py-1 text-sm border rounded ${
+                        i === currentPage
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                return pages;
+              })()}
+            </div>
+
+            {/* Next Page */}
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+
+            {/* Last Page */}
+            <button
+              onClick={goToLastPage}
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Last
+            </button>
+          </div>
+        </div>
+      )}
       {viewingCustomer && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-0">
