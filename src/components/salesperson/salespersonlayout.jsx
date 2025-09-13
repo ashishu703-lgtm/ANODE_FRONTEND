@@ -4,6 +4,7 @@ import DashboardContent from './salespersondashboard.jsx'
 import CustomerListContent from './salespersonleads.jsx'
 import StockManagement from './salespersonstock.jsx'
 import ProductsPage from './salespersonproducts.jsx'
+import FixedHeader from '../../Header.jsx'
 
 // Follow Up Components
 import ConnectedFollowUps from './FollowUp/ConnectedFollowUps';
@@ -50,15 +51,18 @@ export default function SalespersonLayout({ onLogout }) {
         setSidebarOpen={setSidebarOpen} 
       />
       <div className={sidebarOpen ? "flex-1 ml-64 transition-all duration-300" : "flex-1 ml-16 transition-all duration-300"}>
-        {currentPage === 'dashboard' && <DashboardContent />}
-        {currentPage === 'customers' && <CustomerListContent />}
-        {currentPage === 'stock' && <StockManagement />}
-        {currentPage === 'products' && <ProductsPage />}
-        
-        {/* Render the appropriate follow-up component */}
-        {Object.entries(followUpPages).map(([key, Component]) => (
-          currentPage === key && <Component key={key} />
-        ))}
+        <FixedHeader userType="salesperson" />
+        <div className="flex-1">
+          {currentPage === 'dashboard' && <DashboardContent />}
+          {currentPage === 'customers' && <CustomerListContent />}
+          {currentPage === 'stock' && <StockManagement />}
+          {currentPage === 'products' && <ProductsPage />}
+          
+          {/* Render the appropriate follow-up component */}
+          {Object.entries(followUpPages).map(([key, Component]) => (
+            currentPage === key && <Component key={key} />
+          ))}
+        </div>
       </div>
     </div>
   )

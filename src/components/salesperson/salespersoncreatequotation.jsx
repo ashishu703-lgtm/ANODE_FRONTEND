@@ -47,143 +47,319 @@ function Button({ children, onClick, type = "button", variant = "default", size 
 
 // Preview Component
 function QuotationPreview({ data, onEdit }) {
-  // Format date to DD/MM/YYYY
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
-  };
-
-  // Calculate CGST and SGST (half of total tax each)
-  const cgst = (data.taxAmount / 2).toFixed(2);
-  const sgst = (data.taxAmount / 2).toFixed(2);
-
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            {/* Logo Placeholder - Replace with your actual logo */}
-            <div className="mr-4 flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
-              <span className="text-blue-600 font-bold text-lg">AC</span>
+    <div className="max-w-4xl mx-auto bg-white font-sans text-sm">        
+      {/* Quotation Content */}
+      <div className="p-6">
+        {/* Header */}
+        <div className="border-2 border-black mb-4">
+          <div className="p-2 flex justify-between items-center">
+            <div>
+              <h1 className="text-xl font-bold">ANODE ELECTRIC PVT. LTD.</h1>
+              <p className="text-xs">MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES</p>
+            </div>
+            <div className="text-right">
+              <img
+                src="https://res.cloudinary.com/drpbrn2ax/image/upload/v1757416761/logo2_kpbkwm-removebg-preview_jteu6d.png"
+                alt="Anode Electric Logo"
+                className="h-12 w-auto bg-white p-1 rounded"
+              />
+            </div>
+          </div>
+    
+          <div className="p-3 bg-gray-50">
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <p>
+                  <strong>KHASRA NO. 805/5, PLOT NO. 10, IT PARK</strong>
+                </p>
+                <p>BARGI HILLS, JABALPUR - 482003</p>
+                <p>MADHYA PRADESH, INDIA</p>
+              </div>
+              <div className="text-right">
+                <p>Tel: 6262002116, 6262002113</p>
+                <p>Web: www.anocab.com</p>
+                <p>Email: info@anocab.com</p>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        {/* Quotation Details */}
+        <div className="border border-black mb-4">
+          <div className="bg-gray-100 p-2 text-center font-bold">
+            <h2>Quotation Details</h2>
+          </div>
+          <div className="grid grid-cols-4 gap-2 p-2 text-xs border-b">
+            <div>
+              <strong>Quotation Date</strong>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">ANOCAB CONDUCTORS</h1>
-              <p className="text-xs text-gray-500">QUOTATION</p>
+              <strong>Quotation Number</strong>
+            </div>
+            <div>
+              <strong>Valid Upto</strong>
+            </div>
+            <div>
+              <strong>Voucher Number</strong>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm"><span className="font-medium">Date:</span> {formatDate(data.quotationDate)}</p>
-            <p className="text-sm"><span className="font-medium">Quotation #:</span> {data.quotationNumber}</p>
+          <div className="grid grid-cols-4 gap-2 p-2 text-xs">
+            <div>{data?.quotationDate || new Date().toLocaleDateString()}</div>
+            <div>{data?.quotationNumber || `ANO/${new Date().getFullYear().toString().slice(-2)}-${(new Date().getFullYear() + 1).toString().slice(-2)}/${Math.floor(1000 + Math.random() * 9000)}`}</div>
+            <div>{data?.validUpto || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</div>
+            <div>{`VOUCH-${Math.floor(1000 + Math.random() * 9000)}`}</div>
           </div>
         </div>
-      </div>
-
-      {/* Company & Bill To */}
-      <div className="p-4 border-b">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h2 className="text-sm font-semibold mb-1">ANOCAB CONDUCTORS</h2>
-            <p className="text-xs text-gray-600">Manufacturer of All Types of Aluminium & Copper Conductors</p>
-            <p className="text-xs text-gray-600">GSTIN: 23AACCA0000A1Z5</p>
-            <p className="text-xs text-gray-600">Jabalpur, Madhya Pradesh, 482002</p>
-          </div>
-          <div className="bg-gray-50 p-3 rounded">
-            <p className="text-xs font-medium text-gray-700 mb-1">Bill To:</p>
-            <p className="text-sm font-medium">{data.billTo.business}</p>
-            <p className="text-xs text-gray-600">{data.billTo.address}</p>
-            <p className="text-xs text-gray-600">GST: {data.billTo.gstNo}</p>
-            <p className="text-xs text-gray-600">State: {data.billTo.state}</p>
-            <p className="text-xs text-gray-600">Phone: {data.billTo.phone}</p>
+    
+        {/* Customer Information */}
+        <div className="border border-black mb-4">
+          <div className="grid grid-cols-2 gap-4 p-3 text-xs">
+            <div>
+              <h3 className="font-bold mb-2">BILL TO:</h3>
+              <p>
+                <strong>{data?.billTo?.business || 'Das Industrial Controls'}</strong>
+              </p>
+              <p>{data?.billTo?.address || 'Panvel, Maharashtra, India'}</p>
+              <p>
+                <strong>PHONE:</strong> {data?.billTo?.phone || '7039542259'}
+              </p>
+              <p>
+                <strong>GSTIN:</strong> {data?.billTo?.gstNo || '27DVTPS2973B1Z0'}
+              </p>
+              <p>
+                <strong>State:</strong> {data?.billTo?.state || 'Maharashtra'}
+              </p>
+            </div>
+            <div>
+              <p>
+                <strong>L.R. No:</strong> -
+              </p>
+              <p>
+                <strong>Transport:</strong> STAR TRANSPORTS
+              </p>
+              <p>
+                <strong>Transport ID:</strong> 562345
+              </p>
+              <p>
+                <strong>Vehicle Number:</strong> GJ01HJ2520
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Items Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-              <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-              <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
-              <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate (₹)</th>
-              <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount (₹)</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {data.items.map((item, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                <td className="px-3 py-2 text-sm text-gray-900">{item.productName}</td>
-                <td className="px-3 py-2 text-right text-sm text-gray-500">{item.quantity}</td>
-                <td className="px-3 py-2 text-right text-sm text-gray-500">{item.unit}</td>
-                <td className="px-3 py-2 text-right text-sm text-gray-900">{parseFloat(item.buyerRate).toFixed(2)}</td>
-                <td className="px-3 py-2 text-right text-sm font-medium text-gray-900">
-                  {(item.quantity * item.buyerRate).toFixed(2)}
-                </td>
+    
+        {/* Product Details Table */}
+        <div className="border border-black mb-4">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 p-1 text-center w-10">Sr.</th>
+                <th className="border border-gray-300 p-2 text-left w-2/3">Name of Product / Service</th>
+                <th className="border border-gray-300 p-1 text-center w-16">HSN / SAC</th>
+                <th className="border border-gray-300 p-1 text-center w-12">Qty</th>
+                <th className="border border-gray-300 p-1 text-center w-12">Unit</th>
+                <th className="border border-gray-300 p-1 text-right w-20">Taxable Value</th>
+                <th className="border border-gray-300 p-0.5 text-center w-8 text-[10px] whitespace-nowrap">GST%</th>
+                <th className="border border-gray-300 p-1 text-right w-24">Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Totals */}
-      <div className="p-4">
-        <div className="flex justify-end">
-          <div className="w-64">
-            <div className="flex justify-between py-1">
-              <span className="text-sm text-gray-700">Subtotal:</span>
-              <span className="text-sm text-gray-700">₹{parseFloat(data.subtotal).toFixed(2)}</span>
+            </thead>
+            <tbody>
+              {data?.items?.length > 0 ? (
+                data.items.map((item, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-300 p-1 text-center">{index + 1}</td>
+                    <td className="border border-gray-300 p-2">{item.productName}</td>
+                    <td className="border border-gray-300 p-1 text-center">85446090</td>
+                    <td className="border border-gray-300 p-1 text-center">{item.quantity}</td>
+                    <td className="border border-gray-300 p-1 text-center">{item.unit}</td>
+                    <td className="border border-gray-300 p-1 text-right">{parseFloat(item.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td className="border border-gray-300 p-0 text-center text-xs">18%</td>
+                    <td className="border border-gray-300 p-1 text-right">{parseFloat(item.amount * 1.18).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                  </tr>
+                ))
+              ) : (
+                <>
+                  <tr>
+                    <td className="border border-gray-300 p-1 text-center">1</td>
+                    <td className="border border-gray-300 p-2">ACSR Dog Conductor</td>
+                    <td className="border border-gray-300 p-1 text-center">76042910</td>
+                    <td className="border border-gray-300 p-1 text-center">120,000</td>
+                    <td className="border border-gray-300 p-1 text-center">MTR</td>
+                    <td className="border border-gray-300 p-1 text-right">9,840,000.00</td>
+                    <td className="border border-gray-300 p-0 text-center text-xs">18%</td>
+                    <td className="border border-gray-300 p-1 text-right">11,612,400.00</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-1 text-center">2</td>
+                    <td className="border border-gray-300 p-2">AAAC Panther 232 SQMM</td>
+                    <td className="border border-gray-300 p-1 text-center">85446090</td>
+                    <td className="border border-gray-300 p-1 text-center">120,000</td>
+                    <td className="border border-gray-300 p-1 text-center">MTR</td>
+                    <td className="border border-gray-300 p-1 text-right">24,600,000.00</td>
+                    <td className="border border-gray-300 p-0 text-center text-xs">18%</td>
+                    <td className="border border-gray-300 p-1 text-right">29,028,000.00</td>
+                  </tr>
+                </>
+              )}
+              {/* Empty rows for spacing */}
+              {[...Array(8)].map((_, i) => (
+                <tr key={i} className="h-8">
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                  <td className="border border-gray-300 p-2"></td>
+                </tr>
+              ))}
+              <tr className="bg-gray-100 font-bold">
+                <td className="border border-gray-300 p-2" colSpan="5">
+                  Total
+                </td>
+                <td className="border border-gray-300 p-2">{data?.subtotal?.toFixed(2) || '34,440,000'}</td>
+                <td className="border border-gray-300 p-2">{data?.taxAmount?.toFixed(2) || '6,200,400'}</td>
+                <td className="border border-gray-300 p-2">{data?.total?.toFixed(2) || '40,640,400'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+    
+        {/* Amount Summary */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="border border-black p-3">
+            <h3 className="font-bold text-xs mb-2">Bank Details</h3>
+            <div className="text-xs space-y-1">
+              <p>
+                <strong>Bank Name:</strong> ICICI Bank
+              </p>
+              <p>
+                <strong>Branch Name:</strong> WRIGHT TOWN JABALPUR
+              </p>
+              <p>
+                <strong>Bank Account Number:</strong> 657605601783
+              </p>
+              <p>
+                <strong>Bank Branch IFSC:</strong> ICIC0006576
+              </p>
             </div>
-            <div className="flex justify-between py-1">
-              <span className="text-sm text-gray-700">CGST (9%):</span>
-              <span className="text-sm text-gray-700">₹{cgst}</span>
-            </div>
-            <div className="flex justify-between py-1">
-              <span className="text-sm text-gray-700">SGST (9%):</span>
-              <span className="text-sm text-gray-700">₹{sgst}</span>
-            </div>
-            <div className="flex justify-between py-2 border-t border-gray-200 mt-1">
-              <span className="text-sm font-semibold">Total:</span>
-              <span className="text-sm font-semibold">₹{parseFloat(data.total).toFixed(2)}</span>
+          </div>
+          <div className="border border-black p-3">
+            <div className="text-xs space-y-1">
+              <div className="flex justify-between">
+                <span>Taxable Amount</span>
+                <span>{data?.subtotal?.toFixed(2) || '34,440,000'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Add: Total GST (18%)</span>
+                <span>{data?.taxAmount?.toFixed(2) || '6,200,400'}</span>
+              </div>
+              <div className="flex justify-between font-bold border-t pt-1">
+                <span>Total Amount After Tax</span>
+                <span>₹ {data?.total?.toFixed(2) || '40,640,400'}</span>
+              </div>
+              <div className="text-center mt-2">
+                <span className="text-xs">(Rupees Four Crore Six Lakh Forty Thousand Four Hundred Only)</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Terms and Conditions */}
-      <div className="p-4 border-t">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Terms & Conditions:</h3>
-        <div className="text-xs text-gray-600 whitespace-pre-line">
-          {data.terms || 'No terms and conditions specified.'}
+    
+        {/* Terms and Conditions */}
+        <div className="border border-black mb-4">
+          <div className="bg-gray-100 p-2 font-bold text-xs">
+            <h3>Terms and Conditions</h3>
+          </div>
+          <div className="p-3 text-xs space-y-2">
+            <div>
+              <h4 className="font-bold">PRICING & VALIDITY</h4>
+              <p>
+                • Prices are valid for 3 days only from the date of the final quotation/PI unless otherwise specified
+                terms.
+              </p>
+              <p>• The order will be considered confirmed only upon receipt of the advance payment.</p>
+            </div>
+            <div>
+              <h4 className="font-bold">PAYMENT TERMS</h4>
+              <p>• 30% advance payment upon order confirmation</p>
+              <p>• Remaining Balance at time of final dispatch / against LC / Bank Guarantee (if applicable).</p>
+              <p>
+                • Liquidated Damages @ 0.5% to 1% per WEEK will be charged on delayed payments beyond the agreed terms.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold">DELIVERY & DISPATCH</h4>
+              <p>• Standard delivery period as per the telecommunication with customer.</p>
+              <p>
+                • Any delays due to unforeseen circumstances (force majeure, strikes, and transportation issues) will be
+                communicated.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold">QUALITY & WARRANTY</h4>
+              <p>
+                • Cables will be supplied as per IS and other applicable BIS standards/or as per the agreed specifications
+                mentioned/special demand by the customer.
+              </p>
+              <p>• Any manufacturing defects should be reported immediately, within 3 working days of receipt.</p>
+              <p>• Warranty: 12 months from the date of dispatch for manufacturing defects only in ISI mark products.</p>
+            </div>
+          </div>
+        </div>
+    
+        {/* Footer */}
+        <div className="text-right text-xs">
+          <p className="mb-4">
+            For <strong>ANODE ELECTRIC PRIVATE LIMITED</strong>
+          </p>
+          <p className="mb-8">This is computer generated invoice no signature required.</p>
+          <p className="font-bold">Authorized Signatory</p>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="bg-gray-50 p-4 border-t">
-        <div className="flex justify-between items-center">
-          <div className="text-xs text-gray-500">
-            <p>Thank you for your business!</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs font-medium text-gray-700">Valid Until: {formatDate(data.validUpto)}</p>
-          </div>
-        </div>
-      </div>
-
+      
       {/* Action Buttons */}
-      <div className="bg-white p-4 border-t flex justify-end space-x-3">
+      <div className="flex justify-end mt-4 space-x-3">
         <button
-          onClick={onEdit}
-          className="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-        >
-          Edit Quotation
-        </button>
-        <button
-          onClick={() => window.print()}
+          onClick={async () => {
+            try {
+              // Import html2pdf dynamically
+              const html2pdf = (await import('html2pdf.js')).default;
+              
+              // Create a temporary div with the quotation content
+              const tempDiv = document.createElement('div');
+              tempDiv.style.position = 'absolute';
+              tempDiv.style.left = '-9999px';
+              tempDiv.innerHTML = document.querySelector('.max-w-4xl').innerHTML;
+              document.body.appendChild(tempDiv);
+              
+              // Generate PDF
+              const opt = {
+                margin: 0.5,
+                filename: `quotation-${data?.quotationNumber || 'quotation'}-${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                  scale: 2,
+                  useCORS: true,
+                  logging: false,
+                  letterRendering: true
+                },
+                jsPDF: { 
+                  unit: 'in', 
+                  format: 'letter', 
+                  orientation: 'portrait' 
+                }
+              };
+              
+              await html2pdf().set(opt).from(tempDiv).save();
+              
+              // Clean up
+              document.body.removeChild(tempDiv);
+            } catch (error) {
+              console.error('Error generating PDF:', error);
+              alert('Failed to generate PDF. Please try again.');
+            }
+          }}
           className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
         >
           Print / Save as PDF
@@ -328,20 +504,21 @@ export default function CreateQuotationForm({ customer, onClose, onSave }) {
   if (showPreview) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto relative">
+          {/* Close button */}
+          <button
+            onClick={togglePreview}
+            className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
+            title="Close Preview"
+          >
+            <X className="h-5 w-5 text-gray-600" />
+          </button>
+          
           <QuotationPreview 
             data={previewData} 
             onEdit={togglePreview} 
           />
           <div className="mt-4 flex justify-end gap-3">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={togglePreview}
-            >
-              <Edit className="h-4 w-4 mr-1" />
-              Edit Quotation
-            </Button>
             <Button 
               type="button" 
               onClick={() => onSave(previewData)}
@@ -637,16 +814,7 @@ export default function CreateQuotationForm({ customer, onClose, onSave }) {
             </div>
 
             {/* Form Actions */}
-            <div className="flex items-center justify-between pt-6 border-t">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={togglePreview}
-                className="flex items-center"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                Preview Quotation
-              </Button>
+            <div className="flex items-center justify-end pt-6 border-t">
               <div className="flex gap-3">
                 <Button 
                   type="button" 
