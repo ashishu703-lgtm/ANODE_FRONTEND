@@ -51,7 +51,7 @@ export default function SalespersonLayout({ onLogout }) {
         setSidebarOpen={setSidebarOpen} 
       />
       <div className={sidebarOpen ? "flex-1 ml-64 transition-all duration-300" : "flex-1 ml-16 transition-all duration-300"}>
-        <FixedHeader userType="salesperson" />
+        <FixedHeader userType="salesperson" currentPage={currentPage} />
         <div className="flex-1">
           {currentPage === 'dashboard' && <DashboardContent />}
           {currentPage === 'customers' && <CustomerListContent />}

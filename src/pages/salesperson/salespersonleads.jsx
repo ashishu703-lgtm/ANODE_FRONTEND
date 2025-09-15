@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Download, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X, Clock, Check, Clock as ClockIcon, ArrowRightLeft } from "lucide-react"
+import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Download, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X, Clock, Check, Clock as ClockIcon, ArrowRightLeft, Upload } from "lucide-react"
 import html2pdf from 'html2pdf.js'
 import Quotation from './salespersonquotation.jsx'
 import AddCustomerForm from './salespersonaddcustomer.jsx'
@@ -36,63 +36,11 @@ export default function CustomerListContent() {
   const [selectedCustomer, setSelectedCustomer] = React.useState(null)
   const [paymentHistory, setPaymentHistory] = React.useState([])
   const [totalAmount, setTotalAmount] = React.useState(0)
+  const [showImportModal, setShowImportModal] = React.useState(false)
+  const [importFile, setImportFile] = React.useState(null)
   
-  // Quotations data
-  const [quotations, setQuotations] = React.useState([
-    {
-      id: 'QTN-2025-001',
-      date: '2025-09-10T14:30:00',
-      amount: 15000,
-      status: 'sent',
-      remarks: 'Initial quotation for 100m cable',
-      documentUrl: '/quotation-1.pdf',
-      items: [
-        { description: '100m Copper Cable', quantity: 100, rate: 100, amount: 10000 },
-        { description: 'Installation Charges', quantity: 1, rate: 5000, amount: 5000 }
-      ],
-      total: 15000,
-      customerNotes: 'Customer requested discount on bulk order',
-      validity: '2025-10-10',
-      terms: '50% advance, 50% on delivery',
-      preparedBy: 'John Doe'
-    },
-    {
-      id: 'QTN-2025-002',
-      date: '2025-09-15T11:20:00',
-      amount: 25000,
-      status: 'revised',
-      remarks: 'Revised quotation with additional items',
-      documentUrl: '/quotation-2.pdf',
-      items: [
-        { description: '150m Copper Cable', quantity: 150, rate: 100, amount: 15000 },
-        { description: 'Installation Charges', quantity: 1, rate: 5000, amount: 5000 },
-        { description: 'Additional Wiring', quantity: 1, rate: 5000, amount: 5000 }
-      ],
-      total: 25000,
-      customerNotes: 'Customer approved the revised quote',
-      validity: '2025-10-15',
-      terms: '30% advance, 70% on completion',
-      preparedBy: 'John Doe',
-      revisionOf: 'QTN-2025-001'
-    },
-    {
-      id: 'QTN-2025-003',
-      date: '2025-09-20T16:45:00',
-      amount: 12000,
-      status: 'accepted',
-      remarks: 'Follow-up quotation for additional work',
-      documentUrl: '/quotation-3.pdf',
-      items: [
-        { description: 'Additional Wiring', quantity: 1, rate: 7000, amount: 7000 },
-        { description: 'Labor Charges', quantity: 1, rate: 5000, amount: 5000 }
-      ],
-      total: 12000,
-      customerNotes: 'Customer requested urgent completion',
-      validity: '2025-10-20',
-      terms: 'Full payment on completion',
-      preparedBy: 'John Doe'
-    }
-  ])
+  // Quotations data - empty array ready for real data
+  const [quotations, setQuotations] = React.useState([])
   const [showPdfViewer, setShowPdfViewer] = React.useState(false)
   const [currentPdfUrl, setCurrentPdfUrl] = React.useState('')
   // Available options for dropdowns
@@ -154,203 +102,7 @@ export default function CustomerListContent() {
       finalStatus: ''
     });
   };
-  const [customers, setCustomers] = React.useState([
-    {
-      id: 1,
-      name: "Raj Koshta",
-      phone: "9340662655",
-      email: "telesalesuser@gmail.com",
-      business: "Tech Team",
-      location: "Jabalpur",
-      gstNo: "27ABCDE1234F1Z5",
-      address: "KHASRA NO. 805/5, IT PARK, BARGI HILLS",
-      state: "Madhya Pradesh",
-      enquiryBy: "Phone",
-      productType: "Conductor",
-      customerType: "Business",
-      date: "2025-09-10",
-      connected: { status: "Connected", remark: "Spoke with Raj, requested quote", datetime: "2025-09-10 11:15 AM" },
-      finalStatus: "Hot",
-      finalInfo: { status: "next_meeting", datetime: "2025-09-12 03:30 PM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 0,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+919340662655",
-      transferredLeads: 2,
-    },
-    {
-      id: 2,
-      name: "Ankit",
-      phone: "7879431560",
-      email: "telesalesuser@gmail.com",
-      business: "Anit MBG",
-      location: "Jabalpur, MP",
-      gstNo: "27AABCU9603R1ZV",
-      address: "Anit MBG Campus, Jabalpur",
-      state: "Madhya Pradesh",
-      enquiryBy: "Marketing",
-      productType: "Cable",
-      customerType: "Corporate",
-      date: "2025-09-09",
-      connected: { status: "Follow Up", remark: "Call back tomorrow", datetime: "2025-09-09 05:30 PM" },
-      finalStatus: "Warm",
-      finalInfo: { status: "next_meeting", datetime: "2025-09-11 11:00 AM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 1,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+917879431560",
-      transferredLeads: 0,
-    },
-    {
-      id: 3,
-      name: "Mohit Patel",
-      phone: "7879431560",
-      email: "telesalesuser@gmail.com",
-      business: "Mbg Card",
-      location: "Jabalpur, MP",
-      gstNo: "27BBBCU9603R2ZA",
-      address: "Mbg Card Office, Jabalpur",
-      state: "Madhya Pradesh",
-      enquiryBy: "FB Ads",
-      productType: "AAAC",
-      customerType: "Individual",
-      date: "2025-09-08",
-      connected: { status: "Not Connected", remark: "No answer", datetime: "2025-09-08 02:10 PM" },
-      finalStatus: "Cold",
-      finalInfo: { status: "next_meeting", datetime: "2025-09-13 02:00 PM", remark: "Not Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 0,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+917879431560",
-      transferredLeads: 1,
-    },
-    {
-      id: 4,
-      name: "Ankit",
-      phone: "7879431560",
-      email: "telesalesuser@gmail.com",
-      business: "Anit MBG",
-      location: "Jabalpur, MP",
-      gstNo: "27ABCDE1234F1Z5",
-      address: "Street 12, Jabalpur",
-      state: "Madhya Pradesh",
-      enquiryBy: "Marketing",
-      productType: "Aluminium",
-      connected: { status: "Connected", remark: "Negotiation in progress", datetime: "2025-09-07 03:45 PM" },
-      finalStatus: "Hot",
-      finalInfo: { status: "closed", datetime: "2025-09-07 04:00 PM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 2,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+917879431560",
-      transferredLeads: 0,
-    },
-    {
-      id: 5,
-      name: "Mohit Patel Test Name",
-      phone: "7879431560",
-      email: "test@gmail.com",
-      business: "Test Business MBG Card ndia PVT LTD Jabalpur",
-      location: "Jabalpur, MP",
-      gstNo: "27TEST1234F1Z5",
-      address: "Industrial Area, Jabalpur",
-      state: "Madhya Pradesh",
-      enquiryBy: "Referral",
-      productType: "Copper",
-      connected: { status: "Connected", remark: "Sent brochure via email", datetime: "2025-09-06 10:00 AM" },
-      finalStatus: "Warm",
-      finalInfo: { status: "next_meeting", datetime: "2025-09-15 10:30 AM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 3,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+917879431560",
-      transferredLeads: 0,
-    },
-    {
-      id: 6,
-      name: "Mohit Patel Test Name",
-      phone: "7879431560",
-      email: "test@gmail.com",
-      business: "Test Business MBG Card ndia PVT LTD Jabalpur",
-      location: "Jabalpur, MP",
-      gstNo: "27TEST5678F1Z5",
-      address: "Industrial Park, Jabalpur",
-      state: "Madhya Pradesh",
-      enquiryBy: "Marketing",
-      productType: "PVC",
-      connected: { status: "Follow Up", remark: "Awaiting requirement list", datetime: "2025-09-05 01:20 PM" },
-      finalStatus: "Warm",
-      finalInfo: { status: "next_meeting", datetime: "2025-09-14 05:00 PM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 0,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+917879431560",
-      transferredLeads: 0,
-    },
-    {
-      id: 7,
-      name: "Abid",
-      phone: "7845416535",
-      email: "N/A",
-      business: "MBG SALES",
-      location: "Pune",
-      gstNo: "27ABIDA1234F1Z5",
-      address: "MG Road, Pune",
-      state: "Maharashtra",
-      enquiryBy: "Google Ads",
-      productType: "Cable",
-      connected: { status: "Connected", remark: "Shared price list", datetime: "2025-09-04 04:00 PM" },
-      finalStatus: "Hot",
-      finalInfo: { status: "closed", datetime: "2025-09-04 04:30 PM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 1,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+917845416535",
-      transferredLeads: 3,
-    },
-    {
-      id: 8,
-      name: "Naman",
-      phone: "9340662655",
-      email: "N/A",
-      business: "FINANCE",
-      location: "Delhi",
-      gstNo: "07NAMAN1234F1Z5",
-      address: "Connaught Place, Delhi",
-      state: "Delhi",
-      enquiryBy: "Webinar",
-      productType: "Wire",
-      connected: { status: "Not Interested", remark: "Budget constraints", datetime: "2025-09-03 12:30 PM" },
-      finalStatus: "Lost",
-      finalInfo: { status: "closed", datetime: "2025-09-03 01:00 PM", remark: "Not Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 0,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+919340662655",
-      transferredLeads: 0,
-    },
-    {
-      id: 9,
-      name: "Gourav",
-      phone: "9340662655",
-      email: "N/A",
-      business: "MBG SALES",
-      location: "Pune",
-      gstNo: "27GOURA1234F1Z5",
-      address: "Baner, Pune",
-      state: "Maharashtra",
-      enquiryBy: "Facebook",
-      productType: "Conductor",
-      connected: { status: "Connected", remark: "Site visit scheduled", datetime: "2025-09-02 09:45 AM" },
-      finalStatus: "Warm",
-      finalInfo: { status: "next_meeting", datetime: "2025-09-16 09:45 AM", remark: "Interested" },
-      latestQuotationUrl: "#",
-      quotationsSent: 0,
-      followUpLink: "https://calendar.google.com/",
-      whatsapp: "+919340662655",
-      transferredLeads: 0,
-    },
-  ])
+  const [customers, setCustomers] = React.useState([])
 
   const handleEdit = (customer) => {
     setEditingCustomer(customer)
@@ -413,30 +165,11 @@ export default function CustomerListContent() {
   }
 
   const handleWalletClick = async (customer) => {
-    // Sample payment history data
-    const sampleHistory = [
-      {
-        id: 1,
-        date: '2025-09-10',
-        amount: 12500.00,
-        receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
-        paymentMethod: 'Bank Transfer',
-        status: 'Completed',
-        description: 'Final Payment for Order #ORD-2025-0098'
-      },
-      {
-        id: 2,
-        date: '2025-08-25',
-        amount: 8750.00,
-        receiptNo: 'RCPT-' + Math.floor(100000 + Math.random() * 900000),
-        paymentMethod: 'UPI',
-        status: 'Completed',
-        description: 'Advance Payment for Order #ORD-2025-0098'
-      }
-    ]
+    // Empty payment history - ready for real data
+    const sampleHistory = []
     
-    // Calculate total amount (in a real app, this would come from the order/quote)
-    const customerTotal = 30000.00 // Example total amount
+    // Default total amount
+    const customerTotal = 0.00
     
     setPaymentHistory(sampleHistory)
     setTotalAmount(customerTotal)
@@ -473,6 +206,311 @@ export default function CustomerListContent() {
     document.body.appendChild(element)
     element.click()
     document.body.removeChild(element)
+  }
+
+  const handleDownloadTemplate = () => {
+    // Create CSV template with headers
+    const headers = [
+      'Name', 'Phone', 'Email', 'Business', 'Address', 'GST No', 
+      'Product Type', 'State', 'Lead Source', 'Customer Type', 'Date', 
+      'Connected Status', 'Final Status', 'WhatsApp'
+    ]
+    
+    // Create sample data row with empty values
+    const sampleData = [
+      '', '', '', '', 
+      '', '', '', '', 
+      '', '', '', '', '', ''
+    ]
+    
+    const csvContent = [headers, sampleData].map(row => 
+      row.map(field => `"${field}"`).join(',')
+    ).join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'leads_template.csv')
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleImportLeads = () => {
+    setShowImportModal(true)
+  }
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0]
+    if (file && file.type === 'text/csv') {
+      setImportFile(file)
+    } else {
+      alert('Please select a valid CSV file')
+    }
+  }
+
+  const processCSVImport = () => {
+    if (!importFile) {
+      alert('Please select a CSV file first')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const csv = e.target.result
+        const lines = csv.split('\n').filter(line => line.trim()) // Remove empty lines
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim())
+        
+        // Expected headers for validation
+        const expectedHeaders = [
+          'Name', 'Phone', 'Email', 'Business', 'Address', 'GST No', 
+          'Product Type', 'State', 'Lead Source', 'Customer Type', 'Date', 
+          'Connected Status', 'Final Status', 'WhatsApp'
+        ]
+        
+        // Validate headers
+        const headerValidation = validateHeaders(headers, expectedHeaders)
+        if (!headerValidation.isValid) {
+          alert(`CSV header validation failed:\n${headerValidation.errors.join('\n')}\n\nPlease use the correct template format.`)
+          return
+        }
+        
+        const importedCustomers = []
+        const errors = []
+        
+        for (let i = 1; i < lines.length; i++) {
+          if (lines[i].trim()) {
+            const values = parseCSVLine(lines[i])
+            
+            if (values.length >= headers.length) {
+              // Validate and clean data
+              const validatedData = validateCustomerData(values, headers, i + 1)
+              
+              if (validatedData.isValid) {
+                const newCustomer = {
+                  id: customers.length + importedCustomers.length + 1,
+                  name: validatedData.data.name,
+                  phone: validatedData.data.phone,
+                  email: validatedData.data.email,
+                  business: validatedData.data.business,
+                  address: validatedData.data.address,
+                  gstNo: validatedData.data.gstNo,
+                  productType: validatedData.data.productType,
+                  state: validatedData.data.state,
+                  enquiryBy: validatedData.data.enquiryBy,
+                  customerType: validatedData.data.customerType,
+                  date: validatedData.data.date,
+                  connected: { 
+                    status: validatedData.data.connectedStatus, 
+                    remark: 'Imported from CSV', 
+                    datetime: new Date().toLocaleString() 
+                  },
+                  finalStatus: validatedData.data.finalStatus,
+                  finalInfo: { 
+                    status: 'next_meeting', 
+                    datetime: '', 
+                    remark: validatedData.data.finalStatus 
+                  },
+                  latestQuotationUrl: "#",
+                  quotationsSent: 0,
+                  followUpLink: "https://calendar.google.com/",
+                  whatsapp: validatedData.data.whatsapp ? `+91${validatedData.data.whatsapp}` : null,
+                  transferredLeads: 0,
+                }
+                importedCustomers.push(newCustomer)
+              } else {
+                errors.push(`Row ${i + 1}: ${validatedData.errors.join(', ')}`)
+              }
+            } else {
+              errors.push(`Row ${i + 1}: Insufficient data columns`)
+            }
+          }
+        }
+        
+        if (importedCustomers.length > 0) {
+          setCustomers(prev => [...prev, ...importedCustomers])
+          const successMessage = errors.length > 0 
+            ? `Successfully imported ${importedCustomers.length} leads. ${errors.length} rows had errors and were skipped.`
+            : `Successfully imported ${importedCustomers.length} leads`
+          alert(successMessage)
+          setShowImportModal(false)
+          setImportFile(null)
+        } else {
+          alert('No valid data found in CSV file. Please check the format and try again.')
+        }
+      } catch (error) {
+        console.error('Error processing CSV:', error)
+        alert('Error processing CSV file. Please check the format.')
+      }
+    }
+    reader.readAsText(importFile)
+  }
+
+  // Helper function to parse CSV line properly (handles commas in quoted fields)
+  const parseCSVLine = (line) => {
+    const result = []
+    let current = ''
+    let inQuotes = false
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i]
+      
+      if (char === '"') {
+        inQuotes = !inQuotes
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += char
+      }
+    }
+    
+    result.push(current.trim())
+    return result.map(v => v.replace(/"/g, '').trim())
+  }
+
+  // Helper function to validate headers
+  const validateHeaders = (actualHeaders, expectedHeaders) => {
+    const errors = []
+    
+    if (actualHeaders.length !== expectedHeaders.length) {
+      errors.push(`Expected ${expectedHeaders.length} columns, found ${actualHeaders.length}`)
+    }
+    
+    expectedHeaders.forEach((expected, index) => {
+      if (actualHeaders[index] !== expected) {
+        errors.push(`Column ${index + 1}: Expected "${expected}", found "${actualHeaders[index] || 'empty'}"`)
+      }
+    })
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    }
+  }
+
+  // Helper function to validate customer data
+  const validateCustomerData = (values, headers, rowNumber) => {
+    const errors = []
+    const data = {}
+    
+    // Map values to field names
+    headers.forEach((header, index) => {
+      const value = values[index] || ''
+      
+      switch (header) {
+        case 'Name':
+          if (!value || value.length < 2) {
+            errors.push('Name is required and must be at least 2 characters')
+          }
+          data.name = value
+          break
+          
+        case 'Phone':
+          const phoneRegex = /^[6-9]\d{9}$/
+          if (!value || !phoneRegex.test(value)) {
+            errors.push('Phone must be a valid 10-digit Indian mobile number')
+          }
+          data.phone = value
+          break
+          
+        case 'Email':
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (value && !emailRegex.test(value)) {
+            errors.push('Email must be a valid email address')
+          }
+          data.email = value || 'N/A'
+          break
+          
+        case 'Business':
+          data.business = value || 'N/A'
+          break
+          
+        case 'Address':
+          data.address = value || 'N/A'
+          break
+          
+        case 'GST No':
+          const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/
+          if (value && !gstRegex.test(value)) {
+            errors.push('GST No must be a valid GST number format')
+          }
+          data.gstNo = value || 'N/A'
+          break
+          
+        case 'Product Type':
+          if (value && !productTypes.includes(value)) {
+            errors.push(`Product Type must be one of: ${productTypes.join(', ')}`)
+          }
+          data.productType = value || 'N/A'
+          break
+          
+        case 'State':
+          if (value && !states.includes(value)) {
+            errors.push(`State must be one of: ${states.join(', ')}`)
+          }
+          data.state = value || 'N/A'
+          break
+          
+        case 'Lead Source':
+          if (value && !leadSources.includes(value)) {
+            errors.push(`Lead Source must be one of: ${leadSources.join(', ')}`)
+          }
+          data.enquiryBy = value || 'N/A'
+          break
+          
+        case 'Customer Type':
+          if (value && !customerTypes.includes(value)) {
+            errors.push(`Customer Type must be one of: ${customerTypes.join(', ')}`)
+          }
+          data.customerType = value || 'N/A'
+          break
+          
+        case 'Date':
+          const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+          if (value && !dateRegex.test(value)) {
+            errors.push('Date must be in YYYY-MM-DD format')
+          }
+          data.date = value || new Date().toISOString().split('T')[0]
+          break
+          
+        case 'Connected Status':
+          const validConnectedStatuses = ['Connected', 'Not Connected', 'Follow Up', 'Not Interested']
+          if (value && !validConnectedStatuses.includes(value)) {
+            errors.push(`Connected Status must be one of: ${validConnectedStatuses.join(', ')}`)
+          }
+          data.connectedStatus = value || 'Not Connected'
+          break
+          
+        case 'Final Status':
+          const validFinalStatuses = ['Hot', 'Warm', 'Cold', 'Lost', 'Won', 'New']
+          if (value && !validFinalStatuses.includes(value)) {
+            errors.push(`Final Status must be one of: ${validFinalStatuses.join(', ')}`)
+          }
+          data.finalStatus = value || 'New'
+          break
+          
+        case 'WhatsApp':
+          const whatsappRegex = /^[6-9]\d{9}$/
+          if (value && !whatsappRegex.test(value)) {
+            errors.push('WhatsApp must be a valid 10-digit Indian mobile number')
+          }
+          data.whatsapp = value
+          break
+          
+        default:
+          data[header.toLowerCase().replace(/\s+/g, '')] = value
+      }
+    })
+    
+    return {
+      isValid: errors.length === 0,
+      data,
+      errors
+    }
   }
 
   const handleExportLeads = async () => {
@@ -926,17 +964,25 @@ export default function CustomerListContent() {
   return (
     <main className="flex-1 overflow-auto p-6">
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-            <User className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Leads</h1>
-            <p className="text-sm text-gray-600">Manage and track your sales leads</p>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-end gap-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Search Box */}
+          <div className="flex items-center gap-3">
+            <div className="flex">
+              <input
+                type="text"
+                placeholder="Search items..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="px-4 py-2 border border-blue-300 rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+              />
+              <button className="px-3 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <Search className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex items-center gap-3">
             <button 
               onClick={toggleFilters}
@@ -958,11 +1004,11 @@ export default function CustomerListContent() {
               Add Customer
             </button>
             <button 
-              onClick={handleExportLeads}
-              className="px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 inline-flex items-center gap-2"
+              onClick={handleImportLeads}
+              className="px-3 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 inline-flex items-center gap-2"
             >
-              <Download className="h-4 w-4" />
-              Export
+              <Upload className="h-4 w-4" />
+              Import
             </button>
             <button 
               onClick={handleRefresh}
@@ -1735,6 +1781,83 @@ export default function CustomerListContent() {
               >
                 Add Payment
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Import Leads</h3>
+                <button 
+                  onClick={() => {
+                    setShowImportModal(false)
+                    setImportFile(null)
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm text-gray-600">
+                    Upload a CSV file with lead data. Make sure the format matches the template.
+                  </p>
+                  <button
+                    onClick={handleDownloadTemplate}
+                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-flex items-center gap-1"
+                  >
+                    <Download className="h-3 w-3" />
+                    Download Template
+                  </button>
+                </div>
+                
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-2">
+                    <label htmlFor="csv-upload" className="cursor-pointer">
+                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                        {importFile ? importFile.name : 'Click to upload CSV file'}
+                      </span>
+                      <span className="mt-1 block text-sm text-gray-500">
+                        or drag and drop
+                      </span>
+                    </label>
+                    <input
+                      id="csv-upload"
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowImportModal(false)
+                    setImportFile(null)
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={processCSVImport}
+                  disabled={!importFile}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Import Leads
+                </button>
+              </div>
             </div>
           </div>
         </div>

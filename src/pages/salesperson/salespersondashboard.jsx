@@ -139,32 +139,32 @@ export default function DashboardContent() {
 
   // Generate performance data based on selected date
   const getPerformanceData = (selectedDate) => {
-    // Base performance data
+    // Base performance data - empty structure ready for real data
     const baseData = {
       targets: {
-        monthlyLeads: { current: 45, target: 100, label: "Monthly Leads" },
-        conversionRate: { current: 12, target: 25, label: "Conversion Rate (%)" },
-        revenue: { current: 125000, target: 300000, label: "Monthly Revenue (₹)" },
-        calls: { current: 180, target: 300, label: "Daily Calls" }
+        monthlyLeads: { current: 0, target: 100, label: "Monthly Leads" },
+        conversionRate: { current: 0, target: 25, label: "Conversion Rate (%)" },
+        revenue: { current: 0, target: 300000, label: "Monthly Revenue (₹)" },
+        calls: { current: 0, target: 300, label: "Daily Calls" }
       },
       leadStatusData: [
-        { label: "Hot", value: 15, color: "#ef4444" },
-        { label: "Warm", value: 25, color: "#f97316" },
-        { label: "Cold", value: 35, color: "#6b7280" },
-        { label: "Converted", value: 12, color: "#22c55e" }
+        { label: "Hot", value: 0, color: "#ef4444" },
+        { label: "Warm", value: 0, color: "#f97316" },
+        { label: "Cold", value: 0, color: "#6b7280" },
+        { label: "Converted", value: 0, color: "#22c55e" }
       ],
       monthlyPerformance: [
-        { label: "Jan", value: 85, color: "#3b82f6" },
-        { label: "Feb", value: 92, color: "#3b82f6" },
-        { label: "Mar", value: 78, color: "#3b82f6" },
-        { label: "Apr", value: 95, color: "#3b82f6" },
-        { label: "May", value: 88, color: "#3b82f6" },
-        { label: "Jun", value: 100, color: "#3b82f6" }
+        { label: "Jan", value: 0, color: "#3b82f6" },
+        { label: "Feb", value: 0, color: "#3b82f6" },
+        { label: "Mar", value: 0, color: "#3b82f6" },
+        { label: "Apr", value: 0, color: "#3b82f6" },
+        { label: "May", value: 0, color: "#3b82f6" },
+        { label: "Jun", value: 0, color: "#3b82f6" }
       ],
       kpis: [
         {
           title: "Lead Response Time",
-          value: "2.3 hrs",
+          value: "0 hrs",
           target: "< 1 hr",
           status: "warning",
           icon: Clock,
@@ -172,7 +172,7 @@ export default function DashboardContent() {
         },
         {
           title: "Follow-up Rate",
-          value: "78%",
+          value: "0%",
           target: "> 85%",
           status: "warning",
           icon: ArrowUp,
@@ -180,7 +180,7 @@ export default function DashboardContent() {
         },
         {
           title: "Customer Satisfaction",
-          value: "4.2/5",
+          value: "0/5",
           target: "> 4.5",
           status: "warning",
           icon: Award,
@@ -188,7 +188,7 @@ export default function DashboardContent() {
         },
         {
           title: "Quotation Success",
-          value: "65%",
+          value: "0%",
           target: "> 70%",
           status: "warning",
           icon: CheckCircle,
@@ -196,7 +196,7 @@ export default function DashboardContent() {
         },
         {
           title: "Transfer Leads",
-          value: "15",
+          value: "0",
           target: "< 20",
           status: "success",
           icon: ArrowRightLeft,
@@ -210,142 +210,77 @@ export default function DashboardContent() {
       return baseData
     }
 
-    // Simulate different performance data based on selected date
-    const selectedDateObj = new Date(selectedDate)
-    const dayOfWeek = selectedDateObj.getDay() // 0 = Sunday, 1 = Monday, etc.
-    const dayOfMonth = selectedDateObj.getDate()
-    const month = selectedDateObj.getMonth() + 1 // 1-12
-
-    // Generate date-specific performance variations
-    const dateMultiplier = 0.8 + (dayOfMonth % 10) * 0.04 // 0.8 to 1.16
-    const dayMultiplier = dayOfWeek === 0 || dayOfWeek === 6 ? 0.6 : 1.0 // Weekend vs weekday
-    const monthMultiplier = month <= 3 ? 0.9 : month <= 6 ? 1.0 : month <= 9 ? 1.1 : 1.2 // Seasonal variation
-
-    const totalMultiplier = dateMultiplier * dayMultiplier * monthMultiplier
-
-    return {
-      targets: {
-        monthlyLeads: { 
-          current: Math.round(45 * totalMultiplier), 
-          target: 100, 
-          label: "Monthly Leads" 
-        },
-        conversionRate: { 
-          current: Math.round(12 * totalMultiplier), 
-          target: 25, 
-          label: "Conversion Rate (%)" 
-        },
-        revenue: { 
-          current: Math.round(125000 * totalMultiplier), 
-          target: 300000, 
-          label: "Monthly Revenue (₹)" 
-        },
-        calls: { 
-          current: Math.round(180 * totalMultiplier), 
-          target: 300, 
-          label: "Daily Calls" 
-        }
-      },
-      leadStatusData: [
-        { label: "Hot", value: Math.round(15 * totalMultiplier), color: "#ef4444" },
-        { label: "Warm", value: Math.round(25 * totalMultiplier), color: "#f97316" },
-        { label: "Cold", value: Math.round(35 * totalMultiplier), color: "#6b7280" },
-        { label: "Converted", value: Math.round(12 * totalMultiplier), color: "#22c55e" }
-      ],
-      monthlyPerformance: baseData.monthlyPerformance.map(item => ({
-        ...item,
-        value: Math.round(item.value * totalMultiplier)
-      })),
-      kpis: baseData.kpis.map(kpi => {
-        let newValue = kpi.value
-        if (kpi.title === "Lead Response Time") {
-          const hours = parseFloat(kpi.value)
-          newValue = `${(hours / totalMultiplier).toFixed(1)} hrs`
-        } else if (kpi.title === "Follow-up Rate") {
-          const rate = parseInt(kpi.value)
-          newValue = `${Math.round(rate * totalMultiplier)}%`
-        } else if (kpi.title === "Customer Satisfaction") {
-          const rating = parseFloat(kpi.value)
-          newValue = `${(rating * totalMultiplier).toFixed(1)}/5`
-        } else if (kpi.title === "Quotation Success") {
-          const rate = parseInt(kpi.value)
-          newValue = `${Math.round(rate * totalMultiplier)}%`
-        } else if (kpi.title === "Transfer Leads") {
-          const count = parseInt(kpi.value)
-          newValue = `${Math.round(count * totalMultiplier)}`
-        }
-        return { ...kpi, value: newValue }
-      })
-    }
+    // Return base data for any selected date (no dummy variations)
+    return baseData
   }
 
   // Get filtered performance data
   const performanceData = getPerformanceData(dateFilter)
 
-  // Overview Data with dummy values
+  // Overview Data - empty structure ready for real data
   const overviewData = {
     metrics: [
       {
         title: "Total Leads",
-        value: "156",
-        subtitle: "Assigned to ankit@gmail.com",
+        value: "0",
+        subtitle: "No leads assigned yet",
         icon: UserPlus,
         color: "bg-blue-50 text-blue-600 border-blue-200",
-        trend: "+12%",
+        trend: "0%",
         trendUp: true
       },
       {
         title: "Conversion Rate",
-        value: "57.1%",
-        subtitle: "89 completed leads",
+        value: "0%",
+        subtitle: "No conversions yet",
         icon: CheckCircle,
         color: "bg-green-50 text-green-600 border-green-200",
-        trend: "+5.2%",
+        trend: "0%",
         trendUp: true
       },
       {
         title: "Pending Rate",
-        value: "23.4%",
-        subtitle: "36 pending leads",
+        value: "0%",
+        subtitle: "No pending leads",
         icon: Clock,
         color: "bg-orange-50 text-orange-600 border-orange-200",
-        trend: "-8.1%",
+        trend: "0%",
         trendUp: false
       },
       {
         title: "Total Revenue",
-        value: "₹2,45,000",
-        subtitle: "Current Month: ₹1,85,000",
+        value: "₹0",
+        subtitle: "No revenue generated yet",
         icon: CreditCard,
         color: "bg-purple-50 text-purple-600 border-purple-200",
-        trend: "+18.5%",
+        trend: "0%",
         trendUp: true
       },
     ],
     weeklyLeads: [
-      { label: "Mon", value: 12, color: "#3b82f6" },
-      { label: "Tue", value: 18, color: "#3b82f6" },
-      { label: "Wed", value: 15, color: "#3b82f6" },
-      { label: "Thu", value: 22, color: "#3b82f6" },
-      { label: "Fri", value: 28, color: "#3b82f6" },
-      { label: "Sat", value: 8, color: "#3b82f6" },
-      { label: "Sun", value: 5, color: "#3b82f6" }
+      { label: "Mon", value: 0, color: "#3b82f6" },
+      { label: "Tue", value: 0, color: "#3b82f6" },
+      { label: "Wed", value: 0, color: "#3b82f6" },
+      { label: "Thu", value: 0, color: "#3b82f6" },
+      { label: "Fri", value: 0, color: "#3b82f6" },
+      { label: "Sat", value: 0, color: "#3b82f6" },
+      { label: "Sun", value: 0, color: "#3b82f6" }
     ],
     leadSourceData: [
-      { label: "Website", value: 45, color: "#3b82f6" },
-      { label: "Referrals", value: 32, color: "#10b981" },
-      { label: "Social Media", value: 28, color: "#f59e0b" },
-      { label: "Cold Calls", value: 25, color: "#ef4444" },
-      { label: "Email Campaign", value: 18, color: "#8b5cf6" },
-      { label: "Other", value: 8, color: "#6b7280" }
+      { label: "Website", value: 0, color: "#3b82f6" },
+      { label: "Referrals", value: 0, color: "#10b981" },
+      { label: "Social Media", value: 0, color: "#f59e0b" },
+      { label: "Cold Calls", value: 0, color: "#ef4444" },
+      { label: "Email Campaign", value: 0, color: "#8b5cf6" },
+      { label: "Other", value: 0, color: "#6b7280" }
     ],
     monthlyRevenue: [
-      { label: "Jan", value: 180000, color: "#3b82f6" },
-      { label: "Feb", value: 195000, color: "#3b82f6" },
-      { label: "Mar", value: 220000, color: "#3b82f6" },
-      { label: "Apr", value: 210000, color: "#3b82f6" },
-      { label: "May", value: 235000, color: "#3b82f6" },
-      { label: "Jun", value: 245000, color: "#3b82f6" }
+      { label: "Jan", value: 0, color: "#3b82f6" },
+      { label: "Feb", value: 0, color: "#3b82f6" },
+      { label: "Mar", value: 0, color: "#3b82f6" },
+      { label: "Apr", value: 0, color: "#3b82f6" },
+      { label: "May", value: 0, color: "#3b82f6" },
+      { label: "Jun", value: 0, color: "#3b82f6" }
     ]
   }
 
@@ -354,50 +289,50 @@ export default function DashboardContent() {
   const leadStatuses = [
     {
       title: "Pending",
-      count: "36",
-      subtitle: "Awaiting initial contact",
+      count: "0",
+      subtitle: "No pending leads",
       icon: Clock,
       color: "bg-orange-50 text-orange-600 border-orange-200",
     },
     {
       title: "Meeting scheduled",
-      count: "24",
-      subtitle: "Meeting date confirmed",
+      count: "0",
+      subtitle: "No meetings scheduled",
       icon: CalendarCheck,
       color: "bg-purple-50 text-purple-600 border-purple-200",
     },
     {
       title: "Follow Up",
-      count: "31",
-      subtitle: "Requires additional contact",
+      count: "0",
+      subtitle: "No follow-ups required",
       icon: ArrowUp,
       color: "bg-blue-50 text-blue-600 border-blue-200",
     },
     {
       title: "Win Leads",
-      count: "89",
-      subtitle: "Successfully converted",
+      count: "0",
+      subtitle: "No successful conversions",
       icon: CheckCircle,
       color: "bg-green-50 text-green-600 border-green-200",
     },
     {
       title: "Not Interested",
-      count: "12",
-      subtitle: "Declined to proceed",
+      count: "0",
+      subtitle: "No declined leads",
       icon: XCircle,
       color: "bg-red-50 text-red-600 border-red-200",
     },
     {
       title: "Loose Leads",
-      count: "8",
-      subtitle: "Unable to reach",
+      count: "0",
+      subtitle: "No unreachable leads",
       icon: PhoneOff,
       color: "bg-gray-50 text-gray-600 border-gray-200",
     },
     {
       title: "Transfer Leads",
-      count: "15",
-      subtitle: "Transferred to other teams",
+      count: "0",
+      subtitle: "No transferred leads",
       icon: ArrowRightLeft,
       color: "bg-indigo-50 text-indigo-600 border-indigo-200",
     },
@@ -742,15 +677,15 @@ export default function DashboardContent() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">45%</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">0%</div>
                   <div className="text-sm text-gray-600">Overall Target Achievement</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600 mb-2">3</div>
+                  <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
                   <div className="text-sm text-gray-600">Areas Need Improvement</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">1</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">0</div>
                   <div className="text-sm text-gray-600">Area Exceeding Target</div>
                 </div>
               </div>

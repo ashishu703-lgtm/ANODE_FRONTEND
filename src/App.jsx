@@ -6,9 +6,9 @@ import MainDashboard from './pages/MainDashboard.jsx'
 import SalesDepartmentHeadLayout from './pages/SalesDepartmentHead/SalesDepartmentHeadLayout.jsx'
 import SalesDepartmentHeadDashboard from './pages/SalesDepartmentHead/SalesDepartmentHeadDashboard.jsx'
 import SalespersonLayout from './pages/salesperson/salespersonlayout.jsx'
-import MarketingSalespersonLayout from './components/MarketingSalesperson/MarketingSalespersonLayout.jsx'
-import TeleSalesLayout from './components/TeleSales/TeleSalesLayout.jsx'
-import OfficeSalesPersonLayout from './components/OfficeSalesPerson/OfficeSalesPersonLayout.jsx'
+import MarketingSalespersonLayout from './pages/MarketingSalesperson/MarketingSalespersonLayout.jsx'
+import TeleSalesLayout from './pages/TeleSales/TeleSalesLayout.jsx'
+import OfficeSalesPersonLayout from './pages/OfficeSalesPerson/OfficeSalesPersonLayout.jsx'
 import { getUserTypeForRole } from './constants/auth'
 
 function AppContent() {

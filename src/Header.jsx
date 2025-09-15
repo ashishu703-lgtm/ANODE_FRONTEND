@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, Users, X, Phone, Mail, MapPin, MessageCircle, TrendingUp, Award, Calendar, CheckCircle } from 'lucide-react';
+import { useAuth } from './context/AuthContext';
 
-const FixedHeader = ({ userType = "superadmin" }) => {
+const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => {
+  const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNotificationHistory, setShowNotificationHistory] = useState(false);
@@ -169,35 +171,41 @@ const FixedHeader = ({ userType = "superadmin" }) => {
     }
   ];
 
-  // Sample user profile data based on user type
-  const userProfile = userType === "salesperson" ? {
-    name: "Ankit Sharma",
-    email: "ankit@mbg.com",
-    phone: "+91 98765 43210",
-    whatsapp: "+91 98765 43210",
-    state: "Maharashtra",
-    city: "Mumbai",
-    designation: "Senior Sales Executive",
-    department: "Sales",
-    joinDate: "January 15, 2023",
-    totalLeads: 156,
-    convertedLeads: 89,
-    conversionRate: "57.1%",
-    totalRevenue: "₹2,45,000",
-    monthlyTarget: "₹3,00,000",
-    targetAchievement: "81.7%",
-    performanceRating: "4.2/5",
-    lastLogin: "Today at 9:30 AM"
+  // Get user profile data from auth context
+  const userProfile = user ? {
+    name: user.username || 'User',
+    email: user.email || '',
+    phone: user.phone || 'N/A',
+    whatsapp: user.whatsapp || 'N/A',
+    state: user.state || 'N/A',
+    city: user.city || 'N/A',
+    designation: user.role === 'superadmin' ? 'Super Administrator' : 
+                 user.role === 'salesperson' ? 'Sales Executive' :
+                 user.role === 'sales_head' ? 'Sales Department Head' :
+                 user.role === 'marketing_salesperson' ? 'Marketing Salesperson' :
+                 user.role === 'office_salesperson' ? 'Office Salesperson' :
+                 user.role === 'telesales' ? 'Tele Sales Executive' : 'User',
+    department: user.departmentType || user.role || 'N/A',
+    companyName: user.companyName || 'N/A',
+    joinDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',
+    totalLeads: user.totalLeads || 0,
+    convertedLeads: user.convertedLeads || 0,
+    conversionRate: user.conversionRate || "0%",
+    totalRevenue: user.totalRevenue || "₹0",
+    monthlyTarget: user.monthlyTarget || "₹0",
+    targetAchievement: user.targetAchievement || "0%",
+    performanceRating: user.performanceRating || "N/A",
+    lastLogin: user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Today at 9:30 AM'
   } : {
-    name: "Admin User",
-    email: "admin@mbg.com",
-    phone: "+91 98765 43210",
-    whatsapp: "+91 98765 43210",
-    state: "Maharashtra",
-    city: "Mumbai",
-    designation: "System Administrator",
-    department: "IT",
-    joinDate: "January 1, 2023",
+    name: 'Guest User',
+    email: 'guest@example.com',
+    phone: 'N/A',
+    whatsapp: 'N/A',
+    state: 'N/A',
+    city: 'N/A',
+    designation: 'Guest',
+    department: 'N/A',
+    joinDate: 'N/A',
     totalLeads: 0,
     convertedLeads: 0,
     conversionRate: "0%",
@@ -205,7 +213,7 @@ const FixedHeader = ({ userType = "superadmin" }) => {
     monthlyTarget: "₹0",
     targetAchievement: "0%",
     performanceRating: "N/A",
-    lastLogin: "Today at 9:30 AM"
+    lastLogin: 'N/A'
   };
 
   // Close popups when clicking outside
@@ -238,17 +246,65 @@ const FixedHeader = ({ userType = "superadmin" }) => {
     }
   };
 
+  // Page-specific header content
+  const getPageHeaderContent = () => {
+    switch (currentPage) {
+      case 'customers':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Leads",
+          subtitle: "Manage and track your sales leads"
+        };
+      case 'dashboard':
+        return {
+          icon: <TrendingUp className="w-6 h-6 text-white" />,
+          title: "Sales Overview",
+          subtitle: "Monitor sales performance and metrics"
+        };
+      case 'stock':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Available Stock",
+          subtitle: "Manage inventory and stock levels"
+        };
+      case 'products':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Products",
+          subtitle: "Browse and manage product catalog"
+        };
+      case 'followup-connected':
+      case 'followup-not-connected':
+      case 'followup-pending':
+      case 'followup-next-meeting':
+      case 'followup-closed':
+        return {
+          icon: <Calendar className="w-6 h-6 text-white" />,
+          title: "Follow Up",
+          subtitle: "Manage customer follow-ups and meetings"
+        };
+      default:
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Sales Overview",
+          subtitle: "Monitor sales performance and metrics"
+        };
+    }
+  };
+
+  const pageContent = getPageHeaderContent();
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
-        {/* Left Section - Sales Overview */}
+        {/* Left Section - Dynamic Page Header */}
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 bg-blue-400 rounded-xl flex items-center justify-center">
-            <Users className="w-6 h-6 text-white" />
+            {pageContent.icon}
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">Sales Overview</h1>
-            <p className="text-sm text-gray-500">Monitor sales performance and metrics</p>
+            <h1 className="text-xl font-semibold text-gray-900">{pageContent.title}</h1>
+            <p className="text-sm text-gray-500">{pageContent.subtitle}</p>
           </div>
         </div>
 
@@ -333,8 +389,15 @@ const FixedHeader = ({ userType = "superadmin" }) => {
                 <span className="text-white font-medium text-sm">{userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{userProfile.email.split('@')[0]}@mbg.c...</p>
-                <p className="text-xs text-gray-500">{userType === "salesperson" ? "SALESPERSON" : "SUPERADMIN"}</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {userProfile.email.includes('@') ? 
+                    `${userProfile.email.split('@')[0]}@${userProfile.email.split('@')[1].substring(0, 3)}...` : 
+                    userProfile.email
+                  }
+                </p>
+                <p className="text-xs text-gray-500">
+                  {user?.role ? user.role.toUpperCase().replace('_', ' ') : userType.toUpperCase()}
+                </p>
               </div>
             </button>
 
@@ -452,6 +515,29 @@ const FixedHeader = ({ userType = "superadmin" }) => {
                       <span className="text-sm text-gray-600">Last Login:</span>
                       <span className="text-sm text-gray-900">{userProfile.lastLogin}</span>
                     </div>
+                    {userProfile.companyName !== 'N/A' && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Company:</span>
+                        <span className="text-sm text-gray-900">{userProfile.companyName}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Logout Button */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={async () => {
+                        try {
+                          await logout();
+                          window.location.href = '/login';
+                        } catch (error) {
+                          console.error('Logout error:', error);
+                        }
+                      }}
+                      className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
               </div>
