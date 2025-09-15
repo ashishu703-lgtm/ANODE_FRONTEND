@@ -27,11 +27,11 @@ const SalesDepartmentHeadDashboard = ({ activeView, setActiveView }) => {
         return <PaymentInfo />;
       case 'sales-department-users':
         return <SalesDepartmentUser />;
-      case 'marketing-salesperson':
+      case 'marketing-salesperson-dashboard':
         return <MarketingSalespersonDashboard />;
-      case 'tele-sales':
+      case 'tele-sales-dashboard':
         return <TeleSalesDashboard />;
-      case 'office-sales-person':
+      case 'office-sales-person-dashboard':
         return <OfficeSalesPersonDashboard />;
       default:
         return <SalesHeadDashboard setActiveView={setActiveView} />;

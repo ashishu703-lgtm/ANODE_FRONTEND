@@ -80,6 +80,28 @@ const UserManagementTable = () => {
       achievedTarget: '28/35',
       remainingTarget: '7/35',
       createdAt: 'Mon, May 26, 2025'
+    },
+    {
+      id: 8,
+      username: 'MarketingUser',
+      email: 'marketing@example.com',
+      role: 'DEPARTMENT USER',
+      department: 'MARKETING DEPARTMENT',
+      target: 'Not specified',
+      achievedTarget: '15/20',
+      remainingTarget: '5/20',
+      createdAt: 'Tue, May 27, 2025'
+    },
+    {
+      id: 9,
+      username: 'OfficeSales',
+      email: 'office@example.com',
+      role: 'DEPARTMENT USER',
+      department: 'OFFICE SALES DEPARTMENT',
+      target: 'Not specified',
+      achievedTarget: '22/25',
+      remainingTarget: '3/25',
+      createdAt: 'Wed, May 28, 2025'
     }
   ]);
 
@@ -117,7 +139,20 @@ const UserManagementTable = () => {
   };
 
   const handleLogout = (userId) => {
-    const url = `${window.location.origin}?userType=salesperson&login=true&userId=${encodeURIComponent(userId)}`;
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    
+    // Map department types to user types
+    let userType = 'salesperson'; // default
+    if (user.department === 'SALES DEPARTMENT') {
+      userType = 'marketing-salesperson';
+    } else if (user.department === 'TELESALES DEPARTMENT') {
+      userType = 'tele-sales';
+    } else if (user.department === 'OFFICE SALES DEPARTMENT') {
+      userType = 'office-sales-person';
+    }
+    
+    const url = `${window.location.origin}?userType=${userType}&login=true&userId=${encodeURIComponent(userId)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -185,7 +220,11 @@ const UserManagementTable = () => {
       case 'SALES DEPARTMENT':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'TELESALES DEPARTMENT':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'MARKETING DEPARTMENT':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'OFFICE SALES DEPARTMENT':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -448,6 +487,8 @@ const UserManagementTable = () => {
                     >
                       <option>SALES DEPARTMENT</option>
                       <option>TELESALES DEPARTMENT</option>
+                      <option>MARKETING DEPARTMENT</option>
+                      <option>OFFICE SALES DEPARTMENT</option>
                     </select>
                   </div>
                   <div>
@@ -579,6 +620,8 @@ const UserManagementTable = () => {
                     >
                       <option>SALES DEPARTMENT</option>
                       <option>TELESALES DEPARTMENT</option>
+                      <option>MARKETING DEPARTMENT</option>
+                      <option>OFFICE SALES DEPARTMENT</option>
                     </select>
                   </div>
                   <div>
