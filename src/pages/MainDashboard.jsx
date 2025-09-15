@@ -6,7 +6,7 @@ import AllLeads from './SuperAdmin/AllLeads';
 import Configuration from './SuperAdmin/Configuration';
 import Performance from './SuperAdmin/Performance';
 
-const MainDashboard = ({ activeView, setActiveView, onSalesDepartmentHeadLogin }) => {
+const MainDashboard = ({ activeView, setActiveView }) => {
   const renderContent = () => {
     switch (activeView) {
       case 'dashboard':
@@ -14,7 +14,7 @@ const MainDashboard = ({ activeView, setActiveView, onSalesDepartmentHeadLogin }
       case 'customer-list':
         return <AllcustomerList />;
       case 'department':
-        return <SuperAdminDepartmentList onSalesDepartmentHeadLogin={onSalesDepartmentHeadLogin} />;
+        return <SuperAdminDepartmentList />;
       case 'leads':
         return <AllLeads />;
       case 'configuration':

@@ -1,34 +1,26 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Users, BarChart3, Award, Zap, Settings, Grid3x3 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { validateForm, LOGIN_VALIDATION_RULES } from '../../utils/validation';
 
 // Left Login Component (Light Theme)
-const LoginSection = ({ onLogin, isLoading }) => {
+const LoginSection = ({ onLogin, isLoading, error }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!username) {
-      newErrors.username = 'Username is required';
-    }
-    
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleValidateForm = () => {
+    const formData = { email, password };
+    const validation = validateForm(formData, LOGIN_VALIDATION_RULES);
+    setErrors(validation.errors);
+    return validation.isValid;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      onLogin(username, password);
+    if (handleValidateForm()) {
+      onLogin(email, password);
     }
   };
 
@@ -55,24 +47,24 @@ const LoginSection = ({ onLogin, isLoading }) => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username Field */}
+          {/* Email Field */}
           <div>
             <div className="flex items-center mb-2">
               <Users className="w-4 h-4 text-blue-600 mr-2" />
-              <label className="text-gray-700 text-sm font-medium">Username</label>
+              <label className="text-gray-700 text-sm font-medium">Email</label>
             </div>
             <input
-              type="text"
-              placeholder="Enter your email or username, phone number"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 text-gray-700 placeholder-gray-400 bg-gray-50 transition-all duration-200 ${
-                errors.username 
+                errors.email 
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-200' 
                   : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
               }`}
             />
-            {errors.username && <span className="text-red-500 text-sm mt-1 block">{errors.username}</span>}
+            {errors.email && <span className="text-red-500 text-sm mt-1 block">{errors.email}</span>}
           </div>
 
           {/* Password Field */}
@@ -82,9 +74,6 @@ const LoginSection = ({ onLogin, isLoading }) => {
                 <div className="w-4 h-4 border-2 border-blue-600 rounded-full mr-2" />
                 <label className="text-gray-700 text-sm font-medium">Password</label>
               </div>
-              <button className="text-blue-600 text-sm hover:underline transition-all duration-200">
-                Forgot password?
-              </button>
             </div>
             <div className="relative">
               <input
@@ -108,6 +97,13 @@ const LoginSection = ({ onLogin, isLoading }) => {
             </div>
             {errors.password && <span className="text-red-500 text-sm mt-1 block">{errors.password}</span>}
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="text-center">
+              <span className="text-red-600 text-sm font-medium">{error}</span>
+            </div>
+          )}
 
           {/* Sign In Button */}
           <button 
@@ -237,11 +233,27 @@ const BusinessHubSection = () => {
   );
 };
 
+
 // Main Login Page Component
-const LoginPage = ({ onLogin, isLoading }) => {
+const LoginPage = () => {
+  const { login, isLoading, error, clearError } = useAuth();
+
+  const handleLogin = async (email, password) => {
+    clearError(); // Clear any previous errors
+    const result = await login(email, password);
+    
+    if (result.success) {
+      // Redirect to dashboard or handle successful login
+      console.log('Login successful:', result.user);
+      // You can add navigation logic here
+      // navigate('/dashboard');
+    }
+    // Error handling is done in the context
+  };
+
   return (
     <div className="min-h-screen flex">
-      <LoginSection onLogin={onLogin} isLoading={isLoading} />
+      <LoginSection onLogin={handleLogin} isLoading={isLoading} error={error} />
       <BusinessHubSection />
     </div>
   );

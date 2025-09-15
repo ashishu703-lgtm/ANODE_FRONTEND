@@ -66,7 +66,7 @@ const SalesDashboard = () => {
       borderColor: 'border-red-200'
     },
     {
-      title: 'Completed Leads',
+      title: 'Win Leads',
       value: '0',
       description: 'Converted leads',
       icon: <CheckCircle className="w-5 h-5" />,
@@ -76,7 +76,7 @@ const SalesDashboard = () => {
       borderColor: 'border-green-200'
     },
     {
-      title: 'Not Connected',
+      title: 'Loose Leads',
       value: '0',
       description: 'Unreached Leads',
       icon: <XCircle className="w-5 h-5" />,
