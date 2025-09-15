@@ -11,7 +11,8 @@ import {
   X,
   LogOut,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Package
 } from 'lucide-react';
 
 const SalesDepartmentHeadSidebar = ({ onLogout, activeView, setActiveView }) => {
@@ -58,6 +59,12 @@ const SalesDepartmentHeadSidebar = ({ onLogout, activeView, setActiveView }) => 
       id: 'sales-department-users',
       label: 'Department Users',
       icon: <Users className="w-5 h-5" />,
+      hasDropdown: false
+    },
+    {
+      id: 'stock-update',
+      label: 'Stock Update',
+      icon: <Package className="w-5 h-5" />,
       hasDropdown: false
     }
   ];

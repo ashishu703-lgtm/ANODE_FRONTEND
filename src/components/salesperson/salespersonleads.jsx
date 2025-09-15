@@ -176,7 +176,10 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+919340662655",
-      transferredLeads: 2,
+      transferredLeads: [
+        { from: "John Doe", to: "Sarah Wilson", date: "2025-09-08", reason: "Geographic reassignment" },
+        { from: "John Doe", to: "Mike Johnson", date: "2025-09-09", reason: "Product specialization" }
+      ],
     },
     {
       id: 2,
@@ -199,7 +202,7 @@ export default function CustomerListContent() {
       quotationsSent: 1,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
-      transferredLeads: 0,
+      transferredLeads: [],
     },
     {
       id: 3,
@@ -222,7 +225,9 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
-      transferredLeads: 1,
+      transferredLeads: [
+        { from: "Alex Brown", to: "Mohit Patel", date: "2025-09-07", reason: "Workload distribution" }
+      ],
     },
     {
       id: 4,
@@ -243,7 +248,7 @@ export default function CustomerListContent() {
       quotationsSent: 2,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
-      transferredLeads: 0,
+      transferredLeads: [],
     },
     {
       id: 5,
@@ -264,7 +269,7 @@ export default function CustomerListContent() {
       quotationsSent: 3,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
-      transferredLeads: 0,
+      transferredLeads: [],
     },
     {
       id: 6,
@@ -285,7 +290,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917879431560",
-      transferredLeads: 0,
+      transferredLeads: [],
     },
     {
       id: 7,
@@ -306,7 +311,11 @@ export default function CustomerListContent() {
       quotationsSent: 1,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+917845416535",
-      transferredLeads: 3,
+      transferredLeads: [
+        { from: "David Lee", to: "Abid", date: "2025-09-03", reason: "Regional expertise" },
+        { from: "Emma Davis", to: "Abid", date: "2025-09-04", reason: "Product knowledge" },
+        { from: "Tom Wilson", to: "Abid", date: "2025-09-05", reason: "Customer relationship" }
+      ],
     },
     {
       id: 8,
@@ -327,7 +336,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+919340662655",
-      transferredLeads: 0,
+      transferredLeads: [],
     },
     {
       id: 9,
@@ -348,7 +357,7 @@ export default function CustomerListContent() {
       quotationsSent: 0,
       followUpLink: "https://calendar.google.com/",
       whatsapp: "+919340662655",
-      transferredLeads: 0,
+      transferredLeads: [],
     },
   ])
 
@@ -977,16 +986,16 @@ export default function CustomerListContent() {
         </div>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-sm max-w-7xl mx-auto">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="text-left py-4 px-4 font-medium text-gray-600 text-sm">#</th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">#</th>
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-indigo-500" />
+                      <User className="h-3 w-3 text-indigo-500" />
                       Name & Phone
                     </div>
                     {showFilters && (
@@ -999,9 +1008,9 @@ export default function CustomerListContent() {
                       />
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-blue-500" />
+                      <MapPin className="h-3 w-3 text-blue-500" />
                       Address
                     </div>
                     {showFilters && (
@@ -1014,9 +1023,9 @@ export default function CustomerListContent() {
                       />
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-purple-500" />
+                      <FileText className="h-3 w-3 text-purple-500" />
                       GST No.
                     </div>
                     {showFilters && (
@@ -1029,9 +1038,9 @@ export default function CustomerListContent() {
                       />
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-64">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs w-48">
                     <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-violet-500" />
+                      <Package className="h-3 w-3 text-violet-500" />
                       Product Type
                     </div>
                     {showFilters && (
@@ -1047,9 +1056,9 @@ export default function CustomerListContent() {
                       </select>
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <Map className="h-4 w-4 text-indigo-500" />
+                      <Map className="h-3 w-3 text-indigo-500" />
                       State
                     </div>
                     {showFilters && (
@@ -1065,9 +1074,9 @@ export default function CustomerListContent() {
                       </select>
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-orange-500" />
+                      <Globe className="h-3 w-3 text-orange-500" />
                       Lead Source
                     </div>
                     {showFilters && (
@@ -1083,9 +1092,9 @@ export default function CustomerListContent() {
                       </select>
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-purple-500" />
+                      <User className="h-3 w-3 text-purple-500" />
                       Customer Type
                     </div>
                     {showFilters && (
@@ -1101,9 +1110,9 @@ export default function CustomerListContent() {
                       </select>
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-32">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs w-28">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-indigo-500" />
+                      <FileText className="h-3 w-3 text-indigo-500" />
                       Date
                     </div>
                     {showFilters && (
@@ -1115,9 +1124,9 @@ export default function CustomerListContent() {
                       />
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <BadgeCheck className="h-4 w-4 text-emerald-600" />
+                      <BadgeCheck className="h-3 w-3 text-emerald-600" />
                       Connected Status
                     </div>
                     {showFilters && (
@@ -1134,9 +1143,9 @@ export default function CustomerListContent() {
                       </select>
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <BadgeCheck className="h-4 w-4 text-blue-600" />
+                      <BadgeCheck className="h-3 w-3 text-blue-600" />
                       Final Status
                     </div>
                     {showFilters && (
@@ -1154,15 +1163,15 @@ export default function CustomerListContent() {
                       </select>
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <ArrowRightLeft className="h-4 w-4 text-indigo-500" />
+                      <ArrowRightLeft className="h-3 w-3 text-indigo-500" />
                       Transferred Leads
                     </div>
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm">
+                  <th className="text-left py-3 px-6 font-medium text-gray-600 text-xs">
                     <div className="flex items-center gap-2">
-                      <Pencil className="h-4 w-4 text-gray-500" />
+                      <Pencil className="h-3 w-3 text-gray-500" />
                       Action
                     </div>
                   </th>
@@ -1191,10 +1200,10 @@ export default function CustomerListContent() {
                 ) : (
                   paginatedCustomers.map((customer) => (
                   <tr key={customer.id} className="border-b border-gray-50 odd:bg-white even:bg-gray-50/40 hover:bg-white transition-colors">
-                    <td className="py-4 px-4 text-sm font-medium text-gray-900">{customer.id}</td>
-                    <td className="py-4 px-4">
+                    <td className="py-3 px-6 text-xs font-medium text-gray-900">{customer.id}</td>
+                    <td className="py-3 px-6">
                       <div>
-                        <div className="font-medium text-gray-900 text-sm">{customer.name}</div>
+                        <div className="font-medium text-gray-900 text-xs">{customer.name}</div>
                         <div className="text-xs text-gray-500">{customer.phone}</div>
                         {customer.whatsapp && (
                           <div className="text-xs text-green-600 mt-1">
@@ -1216,28 +1225,28 @@ export default function CustomerListContent() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="font-medium">{customer.address}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="font-medium">{customer.gstNo}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="font-medium">{customer.productType}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="font-medium">{customer.state}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="font-medium">{customer.enquiryBy}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="font-medium">{customer.customerType || 'N/A'}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700 w-32">
+                    <td className="py-3 px-6 text-xs text-gray-700 w-28">
                       <div className="font-medium whitespace-nowrap">{customer.date}</div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="flex flex-col">
                         <span className={
                           customer.connected?.status === 'Connected'
@@ -1252,7 +1261,7 @@ export default function CustomerListContent() {
                         <span className="text-xs text-gray-400">{customer.connected?.datetime || ''}</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-700">
+                    <td className="py-3 px-6 text-xs text-gray-700">
                       <div className="flex flex-col">
                         <span className={
                           customer.finalInfo?.status === 'closed'
@@ -1275,28 +1284,40 @@ export default function CustomerListContent() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          customer.transferredLeads > 0 
-                            ? 'bg-indigo-100 text-indigo-800' 
-                            : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          <ArrowRightLeft className="h-3 w-3 mr-1" />
-                          {customer.transferredLeads || 0}
-                        </span>
+                    <td className="py-3 px-6">
+                      <div className="flex flex-col gap-1">
+                        {customer.transferredLeads && customer.transferredLeads.length > 0 ? (
+                          customer.transferredLeads.map((transfer, index) => (
+                            <div key={index} className="text-xs">
+                              <div className="flex items-center gap-1 mb-1">
+                                <ArrowRightLeft className="h-3 w-3 text-indigo-500" />
+                                <span className="font-medium text-indigo-800">
+                                  {transfer.from} → {transfer.to}
+                                </span>
+                              </div>
+                              <div className="text-gray-500 ml-4">
+                                {transfer.date} • {transfer.reason}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                            <ArrowRightLeft className="h-3 w-3 mr-1" />
+                            No transfers
+                          </span>
+                        )}
                       </div>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-3 px-6">
                       <div className="flex flex-col gap-2">
                         <button onClick={() => handleEdit(customer)} className="p-1.5 rounded-md hover:bg-gray-100 relative group" title="Edit Customer">
-                          <Pencil className="h-4 w-4 text-gray-600" />
+                          <Pencil className="h-3 w-3 text-gray-600" />
                           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                             Edit Customer
                           </span>
                         </button>
                         <button onClick={() => handleView(customer)} className="p-1.5 rounded-md hover:bg-gray-100 relative group" title="View Details">
-                          <Eye className="h-4 w-4 text-gray-600" />
+                          <Eye className="h-3 w-3 text-gray-600" />
                           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                             View Details
                           </span>
@@ -1306,13 +1327,13 @@ export default function CustomerListContent() {
                           className="p-1.5 rounded-md hover:bg-green-50 text-green-600 relative group" 
                           title="View Payment Receipt"
                         >
-                          <Wallet className="h-4 w-4" />
+                          <Wallet className="h-3 w-3" />
                           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                             Last Payment
                           </span>
                         </button>
                         <button onClick={() => handleQuotation(customer)} className="p-1.5 rounded-md hover:bg-purple-50 text-purple-600 relative group" title="Quotation">
-                          <FileText className="h-4 w-4" />
+                          <FileText className="h-3 w-3" />
                           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                             Quotation
                           </span>
