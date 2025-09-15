@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { X, User, Phone, MessageCircle, Mail, Building2, FileText, MapPin, Globe, Zap, CheckCircle } from "lucide-react"
+import { X, User, Phone, MessageCircle, Mail, Building2, FileText, MapPin, Globe, Zap, CheckCircle, Package } from "lucide-react"
 
 function Card({ className, children }) {
   return <div className={`rounded-lg border bg-white shadow-sm ${className || ''}`}>{children}</div>
@@ -50,7 +50,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     mobileNumber: editingCustomer?.phone || "",
     whatsappNumber: editingCustomer?.whatsapp?.replace('+91', '') || "",
     email: editingCustomer?.email === "N/A" ? "" : editingCustomer?.email || "",
-    businessType: editingCustomer?.business || "",
+    productName: editingCustomer?.productName || "",
     gstNumber: editingCustomer?.gstNo === "N/A" ? "" : editingCustomer?.gstNo || "",
     address: editingCustomer?.address || "",
     state: editingCustomer?.state || "",
@@ -59,7 +59,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     finalStatus: editingCustomer?.finalInfo?.remark || "",
     customerType: editingCustomer?.customerType || "",
     leadSource: editingCustomer?.enquiryBy || "",
-    date: editingCustomer?.date || new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0],
   })
 
   const handleInputChange = (field, value) => {
@@ -187,16 +187,16 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-purple-500" />
-                  Business Type *
+                  <Package className="h-4 w-4 text-purple-500" />
+                  Product Name *
                 </label>
                 <input
                   type="text"
                   required
-                  value={formData.businessType}
-                  onChange={(e) => handleInputChange("businessType", e.target.value)}
+                  value={formData.productName}
+                  onChange={(e) => handleInputChange("productName", e.target.value)}
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter business type"
+                  placeholder="Enter product name"
                 />
               </div>
 
@@ -366,8 +366,10 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
                   required
                   value={formData.date}
                   onChange={(e) => handleInputChange("date", e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  readOnly={true}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-100 cursor-not-allowed"
                 />
+                <p className="text-xs text-gray-500">Date is auto-detected</p>
               </div>
             </div>
 
