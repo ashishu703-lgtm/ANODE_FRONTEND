@@ -451,59 +451,6 @@ const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => 
                     </div>
                   </div>
 
-                  {/* Performance Metrics */}
-                  <div className="space-y-3">
-                    <h5 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1">Performance Overview</h5>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-blue-50 p-3 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4 text-blue-600" />
-                          <span className="text-xs text-blue-600 font-medium">Total Leads</span>
-                        </div>
-                        <p className="text-lg font-bold text-blue-700 mt-1">{userProfile.totalLeads}</p>
-                      </div>
-                      <div className="bg-green-50 p-3 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          <span className="text-xs text-green-600 font-medium">Converted</span>
-                        </div>
-                        <p className="text-lg font-bold text-green-700 mt-1">{userProfile.convertedLeads}</p>
-                      </div>
-                      <div className="bg-purple-50 p-3 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <TrendingUp className="w-4 h-4 text-purple-600" />
-                          <span className="text-xs text-purple-600 font-medium">Conversion Rate</span>
-                        </div>
-                        <p className="text-lg font-bold text-purple-700 mt-1">{userProfile.conversionRate}</p>
-                      </div>
-                      <div className="bg-orange-50 p-3 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <Award className="w-4 h-4 text-orange-600" />
-                          <span className="text-xs text-orange-600 font-medium">Rating</span>
-                        </div>
-                        <p className="text-lg font-bold text-orange-700 mt-1">{userProfile.performanceRating}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Revenue Information */}
-                  <div className="space-y-3">
-                    <h5 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1">Revenue & Targets</h5>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total Revenue:</span>
-                        <span className="text-sm font-semibold text-gray-900">{userProfile.totalRevenue}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Monthly Target:</span>
-                        <span className="text-sm font-semibold text-gray-900">{userProfile.monthlyTarget}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Target Achievement:</span>
-                        <span className="text-sm font-semibold text-green-600">{userProfile.targetAchievement}</span>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Additional Info */}
                   <div className="space-y-2 pt-2 border-t border-gray-200">

@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Calendar, Users, MessageSquare, Clock, CheckCircle, XCircle, TrendingDown, Filter, BarChart3, PieChart, RefreshCw } from 'lucide-react';
 import { PieChart as RechartsPieChart, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import MarketingSalespersonDashboard from '../SuperAdmin/MarketingSalespersonDashboard';
+import TeleSalesDashboard from '../SuperAdmin/TeleSalesDashboard';
+import OfficeSalesPersonDashboard from '../SuperAdmin/OfficeSalesPersonDashboard';
 
 const SalesDashboard = ({ setActiveView }) => {
   const [selectedSalesperson, setSelectedSalesperson] = useState('All Salespersons');
@@ -84,50 +87,11 @@ const SalesDashboard = ({ setActiveView }) => {
   const renderSalespersonContent = () => {
     switch (selectedSalesperson) {
       case 'Marketing Salesperson':
-        return (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">Marketing Salesperson Dashboard</h3>
-            <p className="text-blue-600">Click below to open the dedicated Marketing Salesperson dashboard in a new tab.</p>
-            <div className="mt-4 flex space-x-4">
-              <button 
-                onClick={() => window.open('?userType=marketing-salesperson&login=true', '_blank')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Open Marketing Dashboard (New Tab)
-              </button>
-            </div>
-          </div>
-        );
+        return <MarketingSalespersonDashboard />;
       case 'Tele Sales':
-        return (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-semibold text-green-800 mb-2">Tele Sales Dashboard</h3>
-            <p className="text-green-600">Click below to open the dedicated Tele Sales dashboard in a new tab.</p>
-            <div className="mt-4 flex space-x-4">
-              <button 
-                onClick={() => window.open('?userType=tele-sales&login=true', '_blank')}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Open Tele Sales Dashboard (New Tab)
-              </button>
-            </div>
-          </div>
-        );
+        return <TeleSalesDashboard />;
       case 'Office Sales Person':
-        return (
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-semibold text-purple-800 mb-2">Office Sales Person Dashboard</h3>
-            <p className="text-purple-600">Click below to open the dedicated Office Sales Person dashboard in a new tab.</p>
-            <div className="mt-4 flex space-x-4">
-              <button 
-                onClick={() => window.open('?userType=office-sales-person&login=true', '_blank')}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Open Office Sales Dashboard (New Tab)
-              </button>
-            </div>
-          </div>
-        );
+        return <OfficeSalesPersonDashboard />;
       default:
         return null;
     }
@@ -196,7 +160,9 @@ const SalesDashboard = ({ setActiveView }) => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-4 mb-2">
-            <h1 className="text-3xl font-bold text-purple-600">Sales Dashboard</h1>
+            <h1 className="text-3xl font-bold text-purple-600">
+              {selectedSalesperson === 'All Salespersons' ? 'Sales Dashboard' : selectedSalesperson + ' Dashboard'}
+            </h1>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span className="text-sm text-gray-600">Live Updates</span>
@@ -204,7 +170,9 @@ const SalesDashboard = ({ setActiveView }) => {
               <span className="text-sm text-gray-600">Connected</span>
             </div>
           </div>
-          <p className="text-gray-600">Sales Department Performance Overview</p>
+          <p className="text-gray-600">
+            {selectedSalesperson === 'All Salespersons' ? 'Sales Department Performance Overview' : selectedSalesperson + ' Performance Overview'}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -251,6 +219,9 @@ const SalesDashboard = ({ setActiveView }) => {
       {/* Salesperson Specific Content */}
       {renderSalespersonContent()}
 
+      {/* Default Content - Only show when All Salespersons is selected */}
+      {selectedSalesperson === 'All Salespersons' && (
+        <>
       {showCharts ? (
         /* Charts View */
         <div className="space-y-6">
@@ -498,6 +469,8 @@ const SalesDashboard = ({ setActiveView }) => {
               <span>Lower pending rates indicate more efficient processing</span>
             </div>
           </div>
+        </>
+      )}
         </>
       )}
     </div>

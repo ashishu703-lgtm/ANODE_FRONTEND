@@ -619,53 +619,53 @@ const PaymentsDashboard = () => {
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Customer ID</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Customer ID</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Customer</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Customer</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center space-x-2">
                       <DollarSign className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Amount</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Amount</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center space-x-2">
                       <DollarSign className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Paid / Total</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Paid / Total</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center space-x-2">
                       <DollarSign className="w-4 h-4 text-red-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Due / Total</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Due / Total</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="w-4 h-4 text-orange-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Status</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Status</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left">
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-purple-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Created</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Created</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center space-x-2">
                       <Download className="w-4 h-4 text-cyan-600" />
-                      <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Invoice</span>
+                      <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Invoice</span>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center">
-                    <span className="text-sm font-medium text-gray-700 uppercase tracking-wider">Actions</span>
+                    <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</span>
                   </th>
                 </tr>
               </thead>
@@ -673,35 +673,35 @@ const PaymentsDashboard = () => {
                 {filteredPayments.map((payment, index) => (
                   <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">
+                      <span className="text-xs text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">
                         {payment.customerId}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <div className="font-medium text-gray-900 mb-1">{payment.customer.name}</div>
-                        <div className="flex items-center gap-1 text-sm text-gray-600 mb-1">
+                        <div className="font-medium text-gray-900 mb-1 text-xs">{payment.customer.name}</div>
+                        <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
                           <span>✉</span>
                           <span className="truncate max-w-[200px]">{payment.customer.email}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
                           <span>📞</span>
                           <span>{payment.customer.phone}</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-green-600 font-semibold text-lg">
+                      <span className="text-green-600 font-semibold text-sm bg-green-50 px-2 py-1 rounded">
                         {formatCurrency(payment.amount)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="text-green-600 font-semibold text-lg">
+                      <span className="text-green-600 font-semibold text-sm bg-green-50 px-2 py-1 rounded">
                         {formatCurrency(payment.amount)} / {formatCurrency(payment.totalAmount)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="text-red-600 font-semibold text-lg">
+                      <span className="text-red-600 font-semibold text-sm bg-red-50 px-2 py-1 rounded">
                         {formatCurrency(payment.dueAmount)} / {formatCurrency(payment.totalAmount)}
                       </span>
                     </td>
@@ -716,13 +716,13 @@ const PaymentsDashboard = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-gray-700">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>{payment.created}</span>
+                        <span className="text-xs">{payment.created}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => handleDownloadInvoice(payment)}
-                        className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
                       >
                         <Download className="w-4 h-4" />
                         Download

@@ -162,41 +162,6 @@ const MarketingSalespersonDashboard = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-600 mb-2">Marketing Salesperson Dashboard</h1>
-            <p className="text-gray-600">Marketing team performance and lead management</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Live Updates</span>
-            </div>
-            <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium flex items-center space-x-2 hover:bg-blue-200 transition-colors">
-              <BarChart3 className="w-4 h-4" />
-              <span>Export Report</span>
-            </button>
-            <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-              <RefreshCw className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
-        </div>
-
-        {/* Date Filter */}
-        <div className="flex items-center space-x-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-        </div>
-      </div>
 
       {/* Marketing Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
