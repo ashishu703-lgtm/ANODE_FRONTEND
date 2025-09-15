@@ -10,6 +10,6 @@ services:
     # Local machine ke port 80 ko container ke port 80 se jodo
     # Aap browser mein server ki IP daal kar access kar payenge
     ports:
-      - "80:80"
+      - "80:8080"
     # Agar container fail ho to automatically restart karo
     restart: unless-stopped
