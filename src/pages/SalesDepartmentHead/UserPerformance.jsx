@@ -113,7 +113,7 @@ const SalesDashboard = () => {
       username: 'tele_agent_01',
       email: 'teleagent01@company.com',
       department: 'Telesales Department',
-      role: 'Tele Sales Agent',
+      role: 'Office Sales Agent',
       associatedEmail: 'telehead@company.com',
       date: 'Mon, May 13, 2025',
       pending: { count: 45, total: 80 },
@@ -130,7 +130,7 @@ const SalesDashboard = () => {
       username: 'tele_agent_02',
       email: 'teleagent02@company.com',
       department: 'Telesales Department',
-      role: 'Tele Sales Agent',
+      role: 'Office Sales Agent',
       associatedEmail: 'telehead@company.com',
       date: 'Tue, May 14, 2025',
       pending: { count: 38, total: 70 },
@@ -147,7 +147,7 @@ const SalesDashboard = () => {
       username: 'tele_agent_03',
       email: 'teleagent03@company.com',
       department: 'Telesales Department',
-      role: 'Tele Sales Agent',
+      role: 'Office Sales Agent',
       associatedEmail: 'telehead@company.com',
       date: 'Wed, May 15, 2025',
       pending: { count: 52, total: 90 },
@@ -164,7 +164,7 @@ const SalesDashboard = () => {
       username: 'tele_agent_04',
       email: 'teleagent04@company.com',
       department: 'Telesales Department',
-      role: 'Tele Sales Agent',
+      role: 'Office Sales Agent',
       associatedEmail: 'telehead@company.com',
       date: 'Thu, May 16, 2025',
       pending: { count: 42, total: 75 },
@@ -181,7 +181,7 @@ const SalesDashboard = () => {
       username: 'tele_agent_05',
       email: 'teleagent05@company.com',
       department: 'Telesales Department',
-      role: 'Tele Sales Agent',
+      role: 'Office Sales Agent',
       associatedEmail: 'telehead@company.com',
       date: 'Fri, May 17, 2025',
       pending: { count: 35, total: 65 },
@@ -340,7 +340,7 @@ const SalesDashboard = () => {
             }`}
           >
             <BarChart3 className="w-4 h-4 mr-2" />
-            Tele Sales User
+            Office Sales User
           </button>
         </div>
 
@@ -644,7 +644,7 @@ const SalesDashboard = () => {
                       >
                         <option value="Sales Head">Sales Head</option>
                         <option value="Sales Rep">Sales Rep</option>
-                        <option value="Tele Sales Agent">Tele Sales Agent</option>
+                        <option value="Office Sales Agent">Office Sales Agent</option>
                         <option value="Automation System">Automation System</option>
                       </select>
                     </div>

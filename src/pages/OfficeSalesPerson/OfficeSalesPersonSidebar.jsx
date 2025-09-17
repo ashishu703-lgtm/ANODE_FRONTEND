@@ -9,7 +9,9 @@ import {
   LogOut,
   UserCheck,
   FileSignature,
-  Monitor
+  Monitor,
+  Phone,
+  Activity
 } from 'lucide-react';
 
 const OfficeSalesPersonSidebar = ({ activeView, setActiveView }) => {
@@ -24,6 +26,12 @@ const OfficeSalesPersonSidebar = ({ activeView, setActiveView }) => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: <BarChart3 className="w-5 h-5" />,
+      hasDropdown: false
+    },
+    {
+      id: 'calls',
+      label: 'Calls',
+      icon: <Phone className="w-5 h-5" />,
       hasDropdown: false
     },
     {
@@ -45,9 +53,9 @@ const OfficeSalesPersonSidebar = ({ activeView, setActiveView }) => {
       hasDropdown: false
     },
     {
-      id: 'presentations',
-      label: 'Presentations',
-      icon: <Monitor className="w-5 h-5" />,
+      id: 'performance',
+      label: 'Performance',
+      icon: <Activity className="w-5 h-5" />,
       hasDropdown: false
     }
   ];
@@ -67,7 +75,7 @@ const OfficeSalesPersonSidebar = ({ activeView, setActiveView }) => {
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-800">ANOCAB</h1>
-              <p className="text-xs text-gray-500">Office Sales Person</p>
+              <p className="text-xs text-gray-500">Office Sales Department</p>
             </div>
           </div>
         )}

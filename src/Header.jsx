@@ -183,8 +183,7 @@ const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => 
                  user.role === 'salesperson' ? 'Sales Executive' :
                  user.role === 'sales_head' ? 'Sales Department Head' :
                  user.role === 'marketing_salesperson' ? 'Marketing Salesperson' :
-                 user.role === 'office_salesperson' ? 'Office Salesperson' :
-                 user.role === 'telesales' ? 'Tele Sales Executive' : 'User',
+                 user.role === 'office_salesperson' ? 'Office Sales Executive' : 'User',
     department: user.departmentType || user.role || 'N/A',
     companyName: user.companyName || 'N/A',
     joinDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',

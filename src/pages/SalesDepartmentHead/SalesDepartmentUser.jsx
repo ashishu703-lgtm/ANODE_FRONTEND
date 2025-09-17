@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search, UserPlus, Upload, Edit, LogOut, Trash2, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal, TrendingUp, AlertTriangle } from 'lucide-react';
 
-const UserManagementTable = () => {
+const UserManagementTable = ({ setActiveView }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([
     {
@@ -20,7 +20,7 @@ const UserManagementTable = () => {
       username: 'TeleSales',
       email: 'telesalesuser@gmail.com',
       role: 'DEPARTMENT USER',
-      department: 'TELESALES DEPARTMENT',
+      department: 'OFFICE SALES DEPARTMENT',
       target: 'Not specified',
       achievedTarget: '38/40',
       remainingTarget: '2/40',
@@ -31,7 +31,7 @@ const UserManagementTable = () => {
       username: 'TeleUser',
       email: 'teleuser@gmail.com',
       role: 'DEPARTMENT USER',
-      department: 'TELESALES DEPARTMENT',
+      department: 'OFFICE SALES DEPARTMENT',
       target: 'Not specified',
       achievedTarget: '25/30',
       remainingTarget: '5/30',
@@ -131,6 +131,7 @@ const UserManagementTable = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
 
+
   const handleEdit = (userId) => {
     const user = users.find(u => u.id === userId);
     if (!user) return;
@@ -142,14 +143,14 @@ const UserManagementTable = () => {
     const user = users.find(u => u.id === userId);
     if (!user) return;
     
-    // Map department types to user types
-    let userType = 'salesperson'; // default
-    if (user.department === 'SALES DEPARTMENT') {
+    // Open the same department's dashboard in new browser tab
+    let userType = 'salesperson'; // default for SALES DEPARTMENT
+    if (user.department === 'MARKETING DEPARTMENT') {
       userType = 'marketing-salesperson';
-    } else if (user.department === 'TELESALES DEPARTMENT') {
-      userType = 'tele-sales';
     } else if (user.department === 'OFFICE SALES DEPARTMENT') {
       userType = 'office-sales-person';
+    } else if (user.department === 'SALES DEPARTMENT') {
+      userType = 'salesperson';
     }
     
     const url = `${window.location.origin}?userType=${userType}&login=true&userId=${encodeURIComponent(userId)}`;
@@ -219,12 +220,10 @@ const UserManagementTable = () => {
     switch (department) {
       case 'SALES DEPARTMENT':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'TELESALES DEPARTMENT':
+      case 'OFFICE SALES DEPARTMENT':
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'MARKETING DEPARTMENT':
         return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'OFFICE SALES DEPARTMENT':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -388,7 +387,7 @@ const UserManagementTable = () => {
                       <button
                         onClick={() => handleLogout(user.id)}
                         className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                        title="Logout"
+                        title="Open Dashboard"
                       >
                         <LogOut className="w-4 h-4" />
                       </button>
@@ -486,7 +485,7 @@ const UserManagementTable = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                     >
                       <option>SALES DEPARTMENT</option>
-                      <option>TELESALES DEPARTMENT</option>
+                      <option>OFFICE SALES DEPARTMENT</option>
                       <option>MARKETING DEPARTMENT</option>
                       <option>OFFICE SALES DEPARTMENT</option>
                     </select>
@@ -619,7 +618,7 @@ const UserManagementTable = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                     >
                       <option>SALES DEPARTMENT</option>
-                      <option>TELESALES DEPARTMENT</option>
+                      <option>OFFICE SALES DEPARTMENT</option>
                       <option>MARKETING DEPARTMENT</option>
                       <option>OFFICE SALES DEPARTMENT</option>
                     </select>

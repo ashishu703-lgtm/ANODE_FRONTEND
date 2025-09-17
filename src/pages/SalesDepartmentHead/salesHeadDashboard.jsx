@@ -42,41 +42,26 @@ const SalesDashboard = ({ setActiveView }) => {
       meetingConversion: 66.7,
       pendingRate: 16.9
     },
-    'Tele Sales': {
-      totalLeads: 45,
-      pendingLeads: 8,
-      followUpLeads: 5,
-      meetingScheduled: 3,
-      completedLeads: 25,
+    'Office Sales Department': {
+      totalLeads: 67,
+      pendingLeads: 9,
+      followUpLeads: 6,
+      meetingScheduled: 4,
+      completedLeads: 44,
       notConnected: 4,
-      overallRevenue: 450000,
-      totalRevenue: 75000,
-      currentMonthEarnings: 350000,
-      monthGrowth: -25.3,
-      conversionRate: 55.6,
-      meetingConversion: 83.3,
-      pendingRate: 17.8
-    },
-    'Office Sales Person': {
-      totalLeads: 22,
-      pendingLeads: 1,
-      followUpLeads: 1,
-      meetingScheduled: 1,
-      completedLeads: 19,
-      notConnected: 0,
-      overallRevenue: 207727,
-      totalRevenue: 45000,
-      currentMonthEarnings: 110064,
-      monthGrowth: -12.1,
-      conversionRate: 86.4,
-      meetingConversion: 100.0,
-      pendingRate: 4.5
+      overallRevenue: 657727,
+      totalRevenue: 120000,
+      currentMonthEarnings: 460064,
+      monthGrowth: -18.7,
+      conversionRate: 65.7,
+      meetingConversion: 87.5,
+      pendingRate: 13.4
     }
   };
 
   const [currentData, setCurrentData] = useState(sampleData['All Salespersons']);
 
-  const salespersons = ['All Salespersons', 'Marketing Salesperson', 'Tele Sales', 'Office Sales Person'];
+  const salespersons = ['All Salespersons', 'Marketing Salesperson', 'Office Sales Department'];
 
   const handleSalespersonChange = (salesperson) => {
     setSelectedSalesperson(salesperson);
@@ -88,9 +73,7 @@ const SalesDashboard = ({ setActiveView }) => {
     switch (selectedSalesperson) {
       case 'Marketing Salesperson':
         return <MarketingSalespersonDashboard />;
-      case 'Tele Sales':
-        return <TeleSalesDashboard />;
-      case 'Office Sales Person':
+      case 'Office Sales Department':
         return <OfficeSalesPersonDashboard />;
       default:
         return null;

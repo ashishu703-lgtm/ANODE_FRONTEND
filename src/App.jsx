@@ -14,16 +14,33 @@ import { getUserTypeForRole } from './constants/auth'
 function AppContent() {
   const { isAuthenticated, user, logout } = useAuth()
   const [activeView, setActiveView] = useState('dashboard')
-  const userType = user ? getUserTypeForRole(user.role) : 'superadmin'
+  
+  // Get userType from URL parameters or user role
+  const getCurrentUserType = () => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlUserType = urlParams.get('userType')
+    const isLogin = urlParams.get('login')
+    
+    if (isLogin === 'true' && urlUserType) {
+      return urlUserType
+    }
+    
+    return user ? getUserTypeForRole(user.role) : 'superadmin'
+  }
+  
+  const userType = getCurrentUserType()
 
   const handleLogout = async () => {
     await logout()
     setActiveView('dashboard')
   }
 
+  // Check if we should show dashboard based on URL parameters even if not authenticated
+  const shouldShowDashboard = isAuthenticated || (new URLSearchParams(window.location.search).get('login') === 'true')
+  
   return (
     <div className="App">
-      {isAuthenticated ? (
+      {shouldShowDashboard ? (
         userType === 'salesdepartmenthead' ? (
           <SalesDepartmentHeadLayout onLogout={handleLogout} activeView={activeView} setActiveView={setActiveView}>
             <SalesDepartmentHeadDashboard activeView={activeView} setActiveView={setActiveView} />

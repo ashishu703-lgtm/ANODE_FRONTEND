@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Users, 
   Clock, 
@@ -18,22 +18,30 @@ import {
   Target,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  UserPlus,
+  CalendarDays,
+  DollarSign,
+  TrendingUp as TrendingUpIcon
 } from 'lucide-react';
+import AllLeads from './AllLeads';
+import Visits from './Visits';
 
 const MarketingSalespersonDashboard = ({ activeView }) => {
+  const [selectedTab, setSelectedTab] = useState('overview');
+
   const renderContent = () => {
     switch (activeView) {
       case 'dashboard':
-        return <MarketingDashboardContent />;
+        return <MarketingDashboardContent selectedTab={selectedTab} setSelectedTab={setSelectedTab} />;
       case 'all-leads':
-        return <AllLeadsContent />;
+        return <AllLeads />;
       case 'visits':
-        return <VisitsContent />;
+        return <Visits />;
       case 'toolbox':
         return <ToolboxContent />;
       default:
-        return <MarketingDashboardContent />;
+        return <MarketingDashboardContent selectedTab={selectedTab} setSelectedTab={setSelectedTab} />;
     }
   };
 
@@ -45,241 +53,280 @@ const MarketingSalespersonDashboard = ({ activeView }) => {
 };
 
 // Marketing Dashboard Content
-const MarketingDashboardContent = () => {
-  const marketingCards = [
-    {
-      title: 'Total Marketing Leads',
-      value: '156',
-      description: 'All marketing leads generated',
-      icon: <Users className="w-5 h-5" />,
-      color: 'blue',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
-      borderColor: 'border-blue-200'
-    },
-    {
-      title: 'Active Campaigns',
-      value: '8',
-      description: 'Currently running campaigns',
-      icon: <Activity className="w-5 h-5" />,
-      color: 'green',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
-      borderColor: 'border-green-200'
-    },
-    {
-      title: 'Today\'s Visits',
-      value: '12',
-      description: 'Scheduled visits for today',
-      icon: <Calendar className="w-5 h-5" />,
-      color: 'purple',
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600',
-      borderColor: 'border-purple-200'
-    },
-    {
-      title: 'Conversion Rate',
-      value: '24.5%',
-      description: 'Lead to customer conversion',
-      icon: <Percent className="w-5 h-5" />,
-      color: 'orange',
-      bgColor: 'bg-orange-50',
-      textColor: 'text-orange-600',
-      borderColor: 'border-orange-200'
-    }
-  ];
-
+const MarketingDashboardContent = ({ selectedTab, setSelectedTab }) => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <BarChart3 className="w-6 h-6 text-blue-600" />
+          </div>
           <div>
-            <h1 className="text-3xl font-bold text-blue-600 mb-2">Marketing Salesperson Dashboard</h1>
-            <p className="text-gray-600">Marketing team performance and lead management</p>
+            <h1 className="text-2xl font-bold text-gray-800">Marketing Dashboard</h1>
+            <p className="text-sm text-gray-600">Track your marketing performance and activities.</p>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Live Updates</span>
-            </div>
-            <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-              <RefreshCw className="w-4 h-4 text-gray-600" />
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setSelectedTab('overview')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                selectedTab === 'overview'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Overview
             </button>
+            <button
+              onClick={() => setSelectedTab('performance')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                selectedTab === 'performance'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Performance
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {selectedTab === 'overview' && <OverviewContent />}
+      {selectedTab === 'performance' && <PerformanceContent />}
+    </div>
+  );
+};
+
+// Overview Content
+const OverviewContent = () => {
+  return (
+    <div className="space-y-6">
+      {/* Key Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Leads</p>
+              <p className="text-2xl font-bold text-gray-900">156</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+            <span className="text-sm text-green-600">+12% from last month</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Conversion Rate</p>
+              <p className="text-2xl font-bold text-gray-900">68.5%</p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <Percent className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+            <span className="text-sm text-green-600">+5.2% from last month</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Pending Rate</p>
+              <p className="text-2xl font-bold text-gray-900">23.1%</p>
+            </div>
+            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <Clock className="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+            <span className="text-sm text-red-600">-2.1% from last month</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+              <p className="text-2xl font-bold text-gray-900">₹2.4M</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <IndianRupee className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+            <span className="text-sm text-green-600">+18.3% from last month</span>
           </div>
         </div>
       </div>
 
-      {/* Marketing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {marketingCards.map((card, index) => (
-          <div key={index} className={`${card.bgColor} ${card.borderColor} border rounded-xl p-4 hover:shadow-md transition-shadow`}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className={`text-sm font-medium ${card.textColor}`}>{card.title}</h3>
-              <div className={card.textColor}>
-                {card.icon}
-              </div>
-            </div>
-            <div className={`text-2xl font-bold ${card.textColor} mb-1`}>
-              {card.value}
-            </div>
-            <p className="text-xs text-gray-500">{card.description}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
+      {/* Lead Status Summary */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-            <UserCheck className="w-6 h-6 text-blue-600" />
-            <div className="text-left">
-              <h3 className="font-medium text-blue-800">Add New Lead</h3>
-              <p className="text-sm text-blue-600">Create a new marketing lead</p>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Lead Status Summary</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex items-center p-4 bg-yellow-50 rounded-lg">
+            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+              <Clock className="w-5 h-5 text-yellow-600" />
             </div>
-          </button>
-          <button className="flex items-center space-x-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-            <Calendar className="w-6 h-6 text-green-600" />
-            <div className="text-left">
-              <h3 className="font-medium text-green-800">Schedule Visit</h3>
-              <p className="text-sm text-green-600">Plan a customer visit</p>
+            <div>
+              <p className="text-sm font-medium text-gray-600">Pending</p>
+              <p className="text-xl font-bold text-gray-900">36</p>
             </div>
-          </button>
-          <button className="flex items-center space-x-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
-            <Activity className="w-6 h-6 text-purple-600" />
-            <div className="text-left">
-              <h3 className="font-medium text-purple-800">View Reports</h3>
-              <p className="text-sm text-purple-600">Check performance metrics</p>
+          </div>
+          
+          <div className="flex items-center p-4 bg-blue-50 rounded-lg">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <UserCheck className="w-5 h-5 text-blue-600" />
             </div>
-          </button>
+            <div>
+              <p className="text-sm font-medium text-gray-600">Meeting Done</p>
+              <p className="text-xl font-bold text-gray-900">89</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center p-4 bg-green-50 rounded-lg">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+              <CalendarCheck className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600">Today's Visit</p>
+              <p className="text-xl font-bold text-gray-900">12</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center p-4 bg-emerald-50 rounded-lg">
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+              <CheckCircle className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600">Win Leads</p>
+              <p className="text-xl font-bold text-gray-900">107</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center p-4 bg-red-50 rounded-lg">
+            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+              <XCircle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600">Loose Leads</p>
+              <p className="text-xl font-bold text-gray-900">31</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center p-4 bg-orange-50 rounded-lg">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+              <RefreshCw className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600">Follow Up</p>
+              <p className="text-xl font-bold text-gray-900">18</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// All Leads Content
-const AllLeadsContent = () => {
-  const leads = [
-    { id: 1, name: 'Tech Solutions Inc', status: 'New', priority: 'High', date: '2025-01-13' },
-    { id: 2, name: 'Marketing Agency', status: 'Contacted', priority: 'Medium', date: '2025-01-12' },
-    { id: 3, name: 'Startup Ventures', status: 'Qualified', priority: 'High', date: '2025-01-11' },
-    { id: 4, name: 'Enterprise Solutions', status: 'Proposal Sent', priority: 'Low', date: '2025-01-10' }
-  ];
-
+// Performance Content
+const PerformanceContent = () => {
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">All Leads</h1>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          Add New Lead
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {leads.map((lead) => (
-                <tr key={lead.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {lead.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      lead.status === 'New' ? 'bg-blue-100 text-blue-800' :
-                      lead.status === 'Contacted' ? 'bg-yellow-100 text-yellow-800' :
-                      lead.status === 'Qualified' ? 'bg-green-100 text-green-800' :
-                      'bg-purple-100 text-purple-800'
-                    }`}>
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {lead.priority}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {lead.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button className="text-blue-600 hover:text-blue-900">View</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="space-y-6">
+      {/* Performance Metrics */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Performance Metrics</h3>
+        <div className="space-y-6">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-600">Monthly Target</span>
+              <span className="text-sm text-gray-900">85%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-600">Lead Conversion</span>
+              <span className="text-sm text-gray-900">68.5%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-green-600 h-2 rounded-full" style={{ width: '68.5%' }}></div>
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-600">Meeting Success Rate</span>
+              <span className="text-sm text-gray-900">72%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '72%' }}></div>
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-600">Follow-up Response</span>
+              <span className="text-sm text-gray-900">45%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-orange-600 h-2 rounded-full" style={{ width: '45%' }}></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-// Visits Content
-const VisitsContent = () => {
-  const visits = [
-    { id: 1, customer: 'Tech Solutions Inc', time: '09:00 AM', address: '123 Business St, City', status: 'Scheduled' },
-    { id: 2, customer: 'Marketing Agency', time: '11:30 AM', address: '456 Corporate Ave, City', status: 'In Progress' },
-    { id: 3, customer: 'Startup Ventures', time: '02:00 PM', address: '789 Innovation Dr, City', status: 'Completed' }
-  ];
-
-  return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Visits</h1>
-        <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-          Schedule Visit
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {visits.map((visit) => (
-                <tr key={visit.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {visit.customer}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {visit.time}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {visit.address}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      visit.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                      visit.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {visit.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Recent Activities */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Activities</h3>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Successfully converted lead from TechCorp</p>
+              <p className="text-xs text-gray-500">2 hours ago</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Scheduled meeting with InnovateLabs</p>
+              <p className="text-xs text-gray-500">4 hours ago</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-4 h-4 text-yellow-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Follow-up required for StartupXYZ</p>
+              <p className="text-xs text-gray-500">6 hours ago</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -297,27 +344,30 @@ const ToolboxContent = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Toolbox</h1>
-        <p className="text-gray-600">Essential tools for marketing salesperson</p>
+      <div className="flex items-center mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Target className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Marketing Toolbox</h1>
+            <p className="text-sm text-gray-600">Tools and resources to boost your marketing efforts.</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tools.map((tool, index) => (
           <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <div className="text-blue-600">
-                  {tool.icon}
-                </div>
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                {tool.icon}
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{tool.name}</h3>
-                <p className="text-sm text-gray-600">{tool.description}</p>
-              </div>
+              <h3 className="text-lg font-semibold text-gray-800">{tool.name}</h3>
             </div>
+            <p className="text-sm text-gray-600 mb-4">{tool.description}</p>
             <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              Open Tool
+              Use Tool
             </button>
           </div>
         ))}

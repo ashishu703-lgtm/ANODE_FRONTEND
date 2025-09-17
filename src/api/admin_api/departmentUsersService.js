@@ -3,9 +3,8 @@ import { API_ENDPOINTS } from './api';
 
 // Domain enums and mapping helpers
 export const DepartmentType = {
-  TELESALES: 'telesales',
-  MARKETING_SALES: 'marketing_sales',
   OFFICE_SALES: 'office_sales',
+  MARKETING_SALES: 'marketing_sales',
 };
 
 export const CompanyName = {
@@ -21,18 +20,16 @@ export const Role = {
 
 export const uiToApiDepartment = (uiValue) => {
   const map = {
-    'Sales Department': DepartmentType.OFFICE_SALES,
+    'Office Sales Department': DepartmentType.OFFICE_SALES,
     'Marketing Department': DepartmentType.MARKETING_SALES,
-    'Telesales Department': DepartmentType.TELESALES,
   };
   return map[uiValue] || uiValue;
 };
 
 export const apiToUiDepartment = (apiValue) => {
   const map = {
-    [DepartmentType.OFFICE_SALES]: 'Sales Department',
+    [DepartmentType.OFFICE_SALES]: 'Office Sales Department',
     [DepartmentType.MARKETING_SALES]: 'Marketing Department',
-    [DepartmentType.TELESALES]: 'Telesales Department',
   };
   return map[apiValue] || apiValue;
 };

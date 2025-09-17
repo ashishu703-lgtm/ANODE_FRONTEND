@@ -169,9 +169,7 @@ const SalesDashboard = ({ setActiveView }) => {
     switch (selectedSalesperson) {
       case 'Marketing Salesperson':
         return <MarketingSalespersonDashboard />;
-      case 'Tele Sales':
-        return <TeleSalesDashboard />;
-      case 'Office Sales Person':
+      case 'Office Sales Department':
         return <OfficeSalesPersonDashboard />;
       default:
         return null;
@@ -225,8 +223,7 @@ const SalesDashboard = ({ setActiveView }) => {
               >
                 <option>All Salespersons</option>
                 <option>Marketing Salesperson</option>
-                <option>Tele Sales</option>
-                <option>Office Sales Person</option>
+                <option>Office Sales Department</option>
               </select>
               <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
