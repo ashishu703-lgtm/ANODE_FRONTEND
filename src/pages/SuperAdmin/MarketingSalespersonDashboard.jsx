@@ -29,7 +29,7 @@ const MarketingSalespersonDashboard = () => {
   const marketingCards = [
     {
       title: 'Total Marketing Leads',
-      value: '156',
+      value: '0',
       description: 'All marketing leads generated',
       icon: <Users className="w-5 h-5" />,
       color: 'blue',
@@ -39,7 +39,7 @@ const MarketingSalespersonDashboard = () => {
     },
     {
       title: 'Active Campaigns',
-      value: '8',
+      value: '0',
       description: 'Currently running campaigns',
       icon: <Activity className="w-5 h-5" />,
       color: 'green',
@@ -49,7 +49,7 @@ const MarketingSalespersonDashboard = () => {
     },
     {
       title: 'Today\'s Visits',
-      value: '12',
+      value: '0',
       description: 'Scheduled visits for today',
       icon: <Calendar className="w-5 h-5" />,
       color: 'purple',
@@ -59,7 +59,7 @@ const MarketingSalespersonDashboard = () => {
     },
     {
       title: 'Conversion Rate',
-      value: '24.5%',
+      value: '0%',
       description: 'Lead to customer conversion',
       icon: <Percent className="w-5 h-5" />,
       color: 'orange',
@@ -69,7 +69,7 @@ const MarketingSalespersonDashboard = () => {
     },
     {
       title: 'Revenue Generated',
-      value: '₹2,45,000',
+      value: '₹0',
       description: 'This month\'s revenue',
       icon: <IndianRupee className="w-5 h-5" />,
       color: 'green',
@@ -79,7 +79,7 @@ const MarketingSalespersonDashboard = () => {
     },
     {
       title: 'Pending Follow-ups',
-      value: '23',
+      value: '0',
       description: 'Leads requiring follow-up',
       icon: <Clock className="w-5 h-5" />,
       color: 'red',
@@ -89,76 +89,9 @@ const MarketingSalespersonDashboard = () => {
     }
   ];
 
-  const marketingTeam = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@anocab.com',
-      phone: '+1 (555) 123-4567',
-      role: 'Senior Marketing Executive',
-      status: 'Active',
-      leads: 45,
-      conversions: 12,
-      revenue: '₹85,000'
-    },
-    {
-      id: 2,
-      name: 'Mike Wilson',
-      email: 'mike.wilson@anocab.com',
-      phone: '+1 (555) 234-5678',
-      role: 'Marketing Specialist',
-      status: 'Active',
-      leads: 38,
-      conversions: 9,
-      revenue: '₹72,000'
-    },
-    {
-      id: 3,
-      name: 'Lisa Chen',
-      email: 'lisa.chen@anocab.com',
-      phone: '+1 (555) 345-6789',
-      role: 'Digital Marketing Lead',
-      status: 'Active',
-      leads: 52,
-      conversions: 15,
-      revenue: '₹98,000'
-    }
-  ];
+  const marketingTeam = [];
 
-  const todayVisits = [
-    {
-      id: 1,
-      customer: 'Tech Solutions Inc',
-      time: '09:00 AM',
-      address: '123 Business St, City',
-      status: 'Scheduled',
-      salesperson: 'Sarah Johnson'
-    },
-    {
-      id: 2,
-      customer: 'Marketing Agency',
-      time: '11:30 AM',
-      address: '456 Corporate Ave, City',
-      status: 'In Progress',
-      salesperson: 'Mike Wilson'
-    },
-    {
-      id: 3,
-      customer: 'Startup Ventures',
-      time: '02:00 PM',
-      address: '789 Innovation Dr, City',
-      status: 'Completed',
-      salesperson: 'Lisa Chen'
-    },
-    {
-      id: 4,
-      customer: 'Enterprise Solutions',
-      time: '04:30 PM',
-      address: '321 Enterprise Way, City',
-      status: 'Scheduled',
-      salesperson: 'Sarah Johnson'
-    }
-  ];
+  const todayVisits = [];
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">

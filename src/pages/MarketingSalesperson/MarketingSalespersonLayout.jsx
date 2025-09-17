@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MarketingSalespersonSidebar from './MarketingSalespersonSidebar';
 import MarketingSalespersonDashboard from './MarketingSalespersonDashboard';
+import FixedHeader from '../../Header';
 
 const MarketingSalespersonLayout = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -12,6 +13,7 @@ const MarketingSalespersonLayout = () => {
         setActiveView={setActiveView}
       />
       <div className="flex-1 overflow-hidden">
+        <FixedHeader userType="marketing-salesperson" currentPage={activeView} />
         <MarketingSalespersonDashboard activeView={activeView} />
       </div>
     </div>

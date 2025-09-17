@@ -1,10 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus, Download, ChevronDown } from 'lucide-react';
+import { Search, Filter, Upload, RefreshCw, User, Mail, Building, Shield, Tag, Clock, Calendar, Phone, CheckCircle, XCircle, Hash, MapPin, Info, Plus, Download, ChevronDown, Edit } from 'lucide-react';
 import AddCustomerForm from '../salesperson/salespersonaddcustomer.jsx';
 
 const AllLeads = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLeads, setSelectedLeads] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewLead, setPreviewLead] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'paymentQuotation' | 'meetings'
@@ -13,6 +12,21 @@ const AllLeads = () => {
   const [showColumnFilters, setShowColumnFilters] = useState(false);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [showImportDropdown, setShowImportDropdown] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingLead, setEditingLead] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    customerId: '',
+    customer: '',
+    email: '',
+    business: '',
+    leadType: '',
+    category: '',
+    salesStatus: '',
+    assigned: '',
+    telecaller: '',
+    telecallerStatus: '',
+    paymentStatus: ''
+  });
   const [columnFilters, setColumnFilters] = useState({
     customerId: '',
     customer: '',
@@ -111,25 +125,53 @@ const AllLeads = () => {
     }
   ];
 
-  const handleSelectAll = () => {
-    if (selectedLeads.length === leads.length) {
-      setSelectedLeads([]);
-    } else {
-      setSelectedLeads(leads.map(lead => lead.id));
-    }
-  };
-
-  const handleSelectLead = (leadId) => {
-    if (selectedLeads.includes(leadId)) {
-      setSelectedLeads(selectedLeads.filter(id => id !== leadId));
-    } else {
-      setSelectedLeads([...selectedLeads, leadId]);
-    }
-  };
 
   const openPreview = (lead) => {
     setPreviewLead(lead);
     setShowPreview(true);
+  };
+
+  const handleEditLead = (lead) => {
+    setEditingLead(lead);
+    setEditFormData({
+      customerId: lead.customerId,
+      customer: lead.customer,
+      email: lead.email,
+      business: lead.business,
+      leadType: lead.leadType,
+      category: lead.category,
+      salesStatus: lead.salesStatus,
+      assigned: lead.assigned,
+      telecaller: lead.telecaller,
+      telecallerStatus: lead.telecallerStatus,
+      paymentStatus: lead.paymentStatus
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    const updatedLeads = importedLeads.map(lead => 
+      lead.id === editingLead.id 
+        ? { ...lead, ...editFormData }
+        : lead
+    );
+    
+    if (leadsData) {
+      setLeadsData(updatedLeads);
+    } else {
+      // Update the original leads array
+      leads.splice(leads.findIndex(l => l.id === editingLead.id), 1, { ...editingLead, ...editFormData });
+    }
+    
+    setShowEditModal(false);
+    setEditingLead(null);
   };
 
   useEffect(() => {
@@ -371,10 +413,6 @@ const AllLeads = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">All Leads</h1>
-      </div>
 
       {/* Search and Action Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -451,7 +489,6 @@ const AllLeads = () => {
                 // Reset all data and filters
                 setLeadsData(null);
                 setSearchTerm('');
-                setSelectedLeads([]);
                 setColumnFilters({
                   customerId: '',
                   customer: '',
@@ -489,14 +526,6 @@ const AllLeads = () => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedLeads.length === leads.length && leads.length > 0}
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
                     <Hash className="w-4 h-4 text-purple-600" />
@@ -524,7 +553,7 @@ const AllLeads = () => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center space-x-2">
                     <Shield className="w-4 h-4 text-orange-600" />
-                    <span>Lead Type</span>
+                    <span>Lead Source</span>
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -575,7 +604,6 @@ const AllLeads = () => {
               </tr>
               {showColumnFilters && (
                 <tr className="border-t border-gray-200 bg-white/70">
-                  <th className="px-4 py-2"></th>
                   <th className="px-2 py-2">
                     <input value={columnFilters.customerId} onChange={e => setColumnFilters({ ...columnFilters, customerId: e.target.value })} placeholder="Filter" className={filterControlClass} />
                   </th>
@@ -637,14 +665,6 @@ const AllLeads = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLeads.map((lead) => (
                 <tr key={lead.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedLeads.includes(lead.id)}
-                      onChange={() => handleSelectLead(lead.id)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                  </td>
                   <td className="px-4 py-4 text-sm text-gray-700">{lead.customerId}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">{lead.customer}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">
@@ -686,6 +706,14 @@ const AllLeads = () => {
                         onClick={() => openPreview(lead)}
                       >
                         i
+                      </button>
+                      <button
+                        className="w-6 h-6 flex items-center justify-center text-blue-600 border border-blue-200 rounded-full hover:bg-blue-50 transition-colors"
+                        title="Edit"
+                        aria-label="Edit"
+                        onClick={() => handleEditLead(lead)}
+                      >
+                        <Edit className="w-3 h-3" />
                       </button>
                     </div>
                   </td>
@@ -764,7 +792,7 @@ const AllLeads = () => {
                         <div className="text-sm text-gray-900">{previewLead.business || 'N/A'}</div>
                       </div>
                       <div>
-                        <div className="text-xs font-medium text-gray-500">Lead Type</div>
+                        <div className="text-xs font-medium text-gray-500">Lead Source</div>
                         <div className="text-sm text-gray-900">{previewLead.leadType || 'N/A'}</div>
                       </div>
                       <div>
@@ -923,6 +951,153 @@ const AllLeads = () => {
           onClose={() => setShowAddCustomer(false)}
           onSave={handleCustomerSave}
         />
+      )}
+
+      {/* Edit Lead Modal */}
+      {showEditModal && editingLead && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Edit Lead</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                  <input
+                    type="text"
+                    value={editFormData.customerId}
+                    onChange={(e) => handleEditFormChange('customerId', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                  <input
+                    type="text"
+                    value={editFormData.customer}
+                    onChange={(e) => handleEditFormChange('customer', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={editFormData.email}
+                    onChange={(e) => handleEditFormChange('email', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Business</label>
+                  <input
+                    type="text"
+                    value={editFormData.business}
+                    onChange={(e) => handleEditFormChange('business', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Lead Source</label>
+                  <input
+                    type="text"
+                    value={editFormData.leadType}
+                    onChange={(e) => handleEditFormChange('leadType', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <input
+                    type="text"
+                    value={editFormData.category}
+                    onChange={(e) => handleEditFormChange('category', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sales Status</label>
+                  <select
+                    value={editFormData.salesStatus}
+                    onChange={(e) => handleEditFormChange('salesStatus', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="PENDING">PENDING</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+                  <input
+                    type="text"
+                    value={editFormData.assigned}
+                    onChange={(e) => handleEditFormChange('assigned', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Telecaller</label>
+                  <input
+                    type="text"
+                    value={editFormData.telecaller}
+                    onChange={(e) => handleEditFormChange('telecaller', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Telecaller Status</label>
+                  <select
+                    value={editFormData.telecallerStatus}
+                    onChange={(e) => handleEditFormChange('telecallerStatus', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                  <select
+                    value={editFormData.paymentStatus}
+                    onChange={(e) => handleEditFormChange('paymentStatus', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="PENDING">PENDING</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Pagination or Empty State */}

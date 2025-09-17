@@ -21,4 +21,4 @@ jobs:
 
       - name: Deploy on VPS
         run: |
-          ssh -i ~/.ssh/id_ed25519 deploy@62.72.12.249 "cd /home/deploy/app && git pull origin main && docker compose up -d --build"
+          ssh -i ~/.ssh/id_ed25519 deploy@62.72.12.249 "cd /home/deploy/app && git fetch origin main && git reset --hard origin/main && docker compose up -d --build"

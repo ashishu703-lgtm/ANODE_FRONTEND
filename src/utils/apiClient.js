@@ -20,6 +20,9 @@ class ApiClient {
    * Set authentication token in localStorage
    */
   setAuthToken(token) {
+    // Only set in this tab. We still use localStorage to keep compatibility,
+    // but set ALSO a session-scoped copy and prefer that for reads.
+    try { sessionStorage.setItem('authToken', token); } catch {}
     localStorage.setItem('authToken', token);
   }
 
@@ -34,7 +37,8 @@ class ApiClient {
    * Get headers with authentication token if available
    */
   getHeaders() {
-    const token = this.getAuthToken();
+    // Prefer session token (per-tab) if available, fallback to localStorage
+    const token = sessionStorage.getItem('authToken') || this.getAuthToken();
     return {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
