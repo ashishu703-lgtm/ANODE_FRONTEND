@@ -1,109 +1,18 @@
-import React, { useState, useRef } from 'react';
-import { Search, UserPlus, Upload, Edit, LogOut, Trash2, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal, TrendingUp, AlertTriangle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, Hash, User, Mail, Shield, Building, Target, Calendar, MoreHorizontal, TrendingUp, AlertTriangle, UserPlus, Upload, Edit, LogOut, Trash2, LogIn } from 'lucide-react';
+import departmentUsersService, { apiToUiDepartment } from '../../api/admin_api/departmentUsersService';
+import { useAuth } from '../../context/AuthContext';
 
 const UserManagementTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      username: 'Ankit MBG',
-      email: 'ankit@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'SALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '45/50',
-      remainingTarget: '5/50',
-      createdAt: 'Thu, May 15, 2025'
-    },
-    {
-      id: 2,
-      username: 'TeleSales',
-      email: 'telesalesuser@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'TELESALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '38/40',
-      remainingTarget: '2/40',
-      createdAt: 'Tue, May 20, 2025'
-    },
-    {
-      id: 3,
-      username: 'TeleUser',
-      email: 'teleuser@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'TELESALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '25/30',
-      remainingTarget: '5/30',
-      createdAt: 'Tue, May 20, 2025'
-    },
-    {
-      id: 4,
-      username: 'MohitPatel',
-      email: 'mohitpa021@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'SALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '52/50',
-      remainingTarget: '0/50',
-      createdAt: 'Wed, May 21, 2025'
-    },
-    {
-      id: 5,
-      username: 'Saurabh',
-      email: 'saurabhmg18@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'SALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '30/45',
-      remainingTarget: '15/45',
-      createdAt: 'Thu, May 22, 2025'
-    },
-    {
-      id: 6,
-      username: 'Anjali',
-      email: 'Any738959730@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'SALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '42/50',
-      remainingTarget: '8/50',
-      createdAt: 'Sat, May 24, 2025'
-    },
-    {
-      id: 7,
-      username: 'ekta',
-      email: 'ektakushwahal20@gmail.com',
-      role: 'DEPARTMENT USER',
-      department: 'SALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '28/35',
-      remainingTarget: '7/35',
-      createdAt: 'Mon, May 26, 2025'
-    },
-    {
-      id: 8,
-      username: 'MarketingUser',
-      email: 'marketing@example.com',
-      role: 'DEPARTMENT USER',
-      department: 'MARKETING DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '15/20',
-      remainingTarget: '5/20',
-      createdAt: 'Tue, May 27, 2025'
-    },
-    {
-      id: 9,
-      username: 'OfficeSales',
-      email: 'office@example.com',
-      role: 'DEPARTMENT USER',
-      department: 'OFFICE SALES DEPARTMENT',
-      target: 'Not specified',
-      achievedTarget: '22/25',
-      remainingTarget: '3/25',
-      createdAt: 'Wed, May 28, 2025'
-    }
-  ]);
+  const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [pages, setPages] = useState(0);
 
   const filteredUsers = users.filter(user =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,106 +23,108 @@ const UserManagementTable = () => {
     user.achievedTarget.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.remainingTarget.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  // UI state (to preserve previous experience)
   const [showAddModal, setShowAddModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
     password: '',
-    role: 'DEPARTMENT USER',
-    department: 'SALES DEPARTMENT',
-    target: 'Not specified',
-    achievedTarget: '0/0',
-    remainingTarget: '0/0'
+    target: ''
   });
-
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
 
+  const handleAddUser = () => setShowAddModal(true);
   const handleEdit = (userId) => {
-    const user = users.find(u => u.id === userId);
-    if (!user) return;
-    setEditingUser({ ...user });
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+    setEditingUser({ ...u });
     setShowEditModal(true);
   };
-
-  const handleLogout = (userId) => {
-    const user = users.find(u => u.id === userId);
-    if (!user) return;
-    
-    // Map department types to user types
-    let userType = 'salesperson'; // default
-    if (user.department === 'SALES DEPARTMENT') {
-      userType = 'marketing-salesperson';
-    } else if (user.department === 'TELESALES DEPARTMENT') {
-      userType = 'tele-sales';
-    } else if (user.department === 'OFFICE SALES DEPARTMENT') {
-      userType = 'office-sales-person';
-    }
-    
-    const url = `${window.location.origin}?userType=${userType}&login=true&userId=${encodeURIComponent(userId)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleDelete = (userId) => {
-    setUsers(users.filter(user => user.id !== userId));
-  };
-
-  const fileInputRef = useRef(null);
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleLogout = () => {};
+  const { impersonate } = useAuth();
+  const handleDelete = async (userId) => {
     try {
+      await departmentUsersService.deleteUser(userId);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+    } catch (err) {
+      setError(err.message || 'Failed to delete user');
+    }
+  };
+
+  const fileInputRef = React.useRef(null);
+  const handleImportClick = () => fileInputRef.current?.click();
+  const handleFileChange = async (e) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
       const text = await file.text();
       const rows = text.split(/\r?\n/).filter(Boolean);
-      if (rows.length === 0) return;
+      if (rows.length <= 1) return;
       const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
-      const getIndex = (name) => headers.indexOf(name);
+      const getIndex = (n) => headers.indexOf(n);
       const idx = {
         username: getIndex('username'),
         email: getIndex('email'),
-        role: getIndex('role'),
-        department: getIndex('department'),
         target: getIndex('target'),
-        achievedtarget: getIndex('achievedtarget'),
-        remainingtarget: getIndex('remainingtarget'),
-        createdAt: getIndex('createdat')
+        createdAt: getIndex('createdat'),
       };
-      const nextIdStart = (users.at(-1)?.id ?? 0) + 1;
       const parsed = rows.slice(1).map((line, i) => {
         const cols = line.split(',');
-        const createdAtVal = idx.createdAt >= 0 ? cols[idx.createdAt]?.trim() : new Date().toDateString();
         return {
-          id: nextIdStart + i,
+          id: (users.at(-1)?.id ?? 0) + i + 1,
           username: idx.username >= 0 ? cols[idx.username]?.trim() : '',
           email: idx.email >= 0 ? cols[idx.email]?.trim() : '',
-          role: (idx.role >= 0 ? cols[idx.role]?.trim() : 'DEPARTMENT USER') || 'DEPARTMENT USER',
-          department: (idx.department >= 0 ? cols[idx.department]?.trim() : 'SALES DEPARTMENT') || 'SALES DEPARTMENT',
-          target: (idx.target >= 0 ? cols[idx.target]?.trim() : 'Not specified') || 'Not specified',
-          achievedTarget: (idx.achievedtarget >= 0 ? cols[idx.achievedtarget]?.trim() : '0/0') || '0/0',
-          remainingTarget: (idx.remainingtarget >= 0 ? cols[idx.remainingtarget]?.trim() : '0/0') || '0/0',
-          createdAt: createdAtVal || new Date().toDateString()
+          target: idx.target >= 0 ? cols[idx.target]?.trim() : '',
+          achievedTarget: '0',
+          remainingTarget: '',
+          createdAt: idx.createdAt >= 0 ? cols[idx.createdAt]?.trim() : new Date().toDateString(),
         };
       }).filter(u => u.username || u.email);
-      if (parsed.length > 0) {
-        setUsers(prev => [...parsed, ...prev]);
-      }
+      if (parsed.length) setUsers(prev => [...parsed, ...prev]);
     } catch (err) {
-      console.error('Import failed:', err);
+      console.warn('Import failed', err);
     } finally {
       e.target.value = '';
     }
   };
 
-  const handleAddUser = () => {
-    setShowAddModal(true);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params = { page, limit };
+      if (searchTerm.trim()) params.search = searchTerm.trim();
+      const res = await departmentUsersService.listUsers(params);
+      const payload = res.data || res;
+      const items = (payload.users || []).map(u => ({
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        role: 'DEPARTMENT USER',
+        department: apiToUiDepartment(u.departmentType || u.department_type),
+        target: typeof u.target === 'number' ? String(u.target) : (u.target || ''),
+        achievedTarget: typeof u.achievedTarget === 'number' ? String(u.achievedTarget) : (u.achievedTarget || '0'),
+        remainingTarget: (u.remainingTarget ?? u.remaining_target) !== undefined ? String(u.remainingTarget ?? u.remaining_target) : (u.target && u.achievedTarget ? String((+u.target) - (+u.achievedTarget)) : ''),
+        createdAt: u.createdAt || u.created_at ? new Date(u.createdAt || u.created_at).toDateString() : ''
+      }));
+      setUsers(items);
+      const pagination = payload.pagination || {};
+      setTotal(pagination.total || 0);
+      setPages(pagination.pages || 0);
+    } catch (err) {
+      setError(err.message || 'Failed to load users');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit, searchTerm]);
 
   const getDepartmentBadgeColor = (department) => {
     switch (department) {
@@ -262,13 +173,7 @@ const UserManagementTable = () => {
               <Upload className="w-4 h-4" />
               Import
             </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleFileChange}
-            />
+            <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
           </div>
         </div>
 
@@ -340,7 +245,13 @@ const UserManagementTable = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {loading && (
+                <tr><td className="py-8 px-4 text-center text-gray-500" colSpan={10}>Loading...</td></tr>
+              )}
+              {!loading && filteredUsers.length === 0 && (
+                <tr><td className="py-8 px-4 text-center text-gray-500" colSpan={10}>{error || 'No users found'}</td></tr>
+              )}
+              {!loading && filteredUsers.map((user) => (
                 <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-4 px-4">
                     <span className="text-gray-700 font-medium">{user.id}</span>
@@ -386,11 +297,24 @@ const UserManagementTable = () => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleLogout(user.id)}
+                        onClick={async () => {
+                          try {
+                            const result = await impersonate(user.email);
+                            if (result.success) {
+                              const token = result.token || result?.user?.token || '';
+                              const url = `${window.location.origin}/?impersonateToken=${encodeURIComponent(token)}`;
+                              window.open(url, '_blank');
+                            } else {
+                              alert(result.error || 'Failed to switch user');
+                            }
+                          } catch (err) {
+                            alert('Failed to switch user');
+                          }
+                        }}
                         className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                        title="Logout"
+                        title="Login as this user"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <LogIn className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(user.id)}
@@ -407,274 +331,6 @@ const UserManagementTable = () => {
           </table>
         </div>
 
-        {/* Add User Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h3 className="text-base font-semibold text-gray-900">Add User</h3>
-                <button
-                  className="p-2 text-gray-500 hover:text-gray-700"
-                  onClick={() => setShowAddModal(false)}
-                  aria-label="Close"
-                >
-                  ✕
-                </button>
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSaving(true);
-                  const nextId = (users.at(-1)?.id ?? 0) + 1;
-                  const record = { id: nextId, createdAt: new Date().toDateString(), ...newUser };
-                  setUsers((prev) => [record, ...prev]);
-                  setSaving(false);
-                  setShowAddModal(false);
-                  setNewUser({ username: '', email: '', password: '', role: 'DEPARTMENT USER', department: 'SALES DEPARTMENT', target: 'Not specified', achievedTarget: '0/0', remainingTarget: '0/0' });
-                }}
-              >
-                <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Username</label>
-                    <input
-                      type="text"
-                      required
-                      value={newUser.username}
-                      onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. John Doe"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Email</label>
-                    <input
-                      type="email"
-                      required
-                      value={newUser.email}
-                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="name@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Password</label>
-                    <input
-                      type="password"
-                      required
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter password"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Role</label>
-                    <select
-                      value={newUser.role}
-                      onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      <option>DEPARTMENT USER</option>
-                      <option>DEPARTMENT HEAD</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Department</label>
-                    <select
-                      value={newUser.department}
-                      onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      <option>SALES DEPARTMENT</option>
-                      <option>TELESALES DEPARTMENT</option>
-                      <option>MARKETING DEPARTMENT</option>
-                      <option>OFFICE SALES DEPARTMENT</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Target</label>
-                    <input
-                      type="text"
-                      value={newUser.target}
-                      onChange={(e) => setNewUser({ ...newUser, target: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. 50 customers/month"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Achieved Target</label>
-                    <input
-                      type="text"
-                      value={newUser.achievedTarget}
-                      onChange={(e) => setNewUser({ ...newUser, achievedTarget: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. 45/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Remaining Target</label>
-                    <input
-                      type="text"
-                      value={newUser.remainingTarget}
-                      onChange={(e) => setNewUser({ ...newUser, remainingTarget: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. 5/50"
-                    />
-                  </div>
-                </div>
-                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                    onClick={() => setShowAddModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
-                  >
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* No results message */}
-        {filteredUsers.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-2">
-              <Search className="w-12 h-12 mx-auto mb-4" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-            <p className="text-gray-500">Try adjusting your search criteria</p>
-          </div>
-        )}
-
-        {/* Edit User Modal */}
-        {showEditModal && editingUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h3 className="text-base font-semibold text-gray-900">Edit User</h3>
-                <button
-                  className="p-2 text-gray-500 hover:text-gray-700"
-                  onClick={() => setShowEditModal(false)}
-                  aria-label="Close"
-                >
-                  ✕
-                </button>
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSavingEdit(true);
-                  setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
-                  setSavingEdit(false);
-                  setShowEditModal(false);
-                }}
-              >
-                <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Username</label>
-                    <input
-                      type="text"
-                      required
-                      value={editingUser.username}
-                      onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. John Doe"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Email</label>
-                    <input
-                      type="email"
-                      required
-                      value={editingUser.email}
-                      onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="name@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Role</label>
-                    <select
-                      value={editingUser.role}
-                      onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      <option>DEPARTMENT USER</option>
-                      <option>DEPARTMENT HEAD</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Department</label>
-                    <select
-                      value={editingUser.department}
-                      onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      <option>SALES DEPARTMENT</option>
-                      <option>TELESALES DEPARTMENT</option>
-                      <option>MARKETING DEPARTMENT</option>
-                      <option>OFFICE SALES DEPARTMENT</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Target</label>
-                    <input
-                      type="text"
-                      value={editingUser.target}
-                      onChange={(e) => setEditingUser({ ...editingUser, target: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. 50 customers/month"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Achieved Target</label>
-                    <input
-                      type="text"
-                      value={editingUser.achievedTarget}
-                      onChange={(e) => setEditingUser({ ...editingUser, achievedTarget: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. 45/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Remaining Target</label>
-                    <input
-                      type="text"
-                      value={editingUser.remainingTarget}
-                      onChange={(e) => setEditingUser({ ...editingUser, remainingTarget: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. 5/50"
-                    />
-                  </div>
-                </div>
-                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                    onClick={() => setShowEditModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={savingEdit}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
-                  >
-                    {savingEdit ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
         {/* Table Footer */}
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
@@ -692,6 +348,110 @@ const UserManagementTable = () => {
           </div>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-gray-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-base font-semibold text-gray-900">Add User</h3>
+              <button
+                className="p-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowAddModal(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setSaving(true);
+                try {
+                  const payload = {
+                    username: newUser.username,
+                    email: newUser.email,
+                    password: newUser.password,
+                    headUserEmail: currentUser?.email,
+                    target: Number(newUser.target || 0)
+                  };
+                  await departmentUsersService.createUser(payload);
+                  await fetchUsers();
+                  setShowAddModal(false);
+                  setNewUser({ username: '', email: '', password: '', target: '' });
+                } catch (err) {
+                  setError(err.message || 'Failed to create user');
+                } finally {
+                  setSaving(false);
+                }
+              }}
+            >
+              <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Username</label>
+                  <input
+                    type="text"
+                    required
+                    value={newUser.username}
+                    onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g. John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="name@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter password"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Target (Rs)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newUser.target}
+                    onChange={(e) => setNewUser({ ...newUser, target: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter target to assign"
+                  />
+                </div>
+                
+              </div>
+              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

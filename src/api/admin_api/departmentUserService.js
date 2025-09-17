@@ -3,7 +3,6 @@ import { API_ENDPOINTS } from './api';
 
 // Domain enums and mapping helpers
 export const DepartmentType = {
-  TELESALES: 'telesales',
   MARKETING_SALES: 'marketing_sales',
   OFFICE_SALES: 'office_sales',
 };
@@ -14,16 +13,10 @@ export const CompanyName = {
   SAMRRIDHI: 'Samrridhi Industries',
 };
 
-export const Role = {
-  DEPARTMENT_USER: 'department_user',
-  DEPARTMENT_HEAD: 'department_head',
-};
-
 export const uiToApiDepartment = (uiValue) => {
   const map = {
     'Sales Department': DepartmentType.OFFICE_SALES,
     'Marketing Department': DepartmentType.MARKETING_SALES,
-    'Telesales Department': DepartmentType.TELESALES,
   };
   return map[uiValue] || uiValue;
 };
@@ -32,29 +25,12 @@ export const apiToUiDepartment = (apiValue) => {
   const map = {
     [DepartmentType.OFFICE_SALES]: 'Sales Department',
     [DepartmentType.MARKETING_SALES]: 'Marketing Department',
-    [DepartmentType.TELESALES]: 'Telesales Department',
-  };
-  return map[apiValue] || apiValue;
-};
-
-export const uiToApiRole = (uiValue) => {
-  const map = {
-    'Department User': Role.DEPARTMENT_USER,
-    'Department Head': Role.DEPARTMENT_HEAD,
-  };
-  return map[uiValue] || uiValue;
-};
-
-export const apiToUiRole = (apiValue) => {
-  const map = {
-    [Role.DEPARTMENT_USER]: 'Department User',
-    [Role.DEPARTMENT_HEAD]: 'Department Head',
   };
   return map[apiValue] || apiValue;
 };
 
 // Service class encapsulating endpoints
-class DepartmentUsersService {
+class DepartmentUserService {
   async createUser(payload) {
     return apiClient.post(API_ENDPOINTS.DEPARTMENT_USERS_CREATE(), payload);
   }
@@ -73,12 +49,8 @@ class DepartmentUsersService {
     return apiClient.get(API_ENDPOINTS.DEPARTMENT_USERS_STATS());
   }
 
-  async getHeads(companyName, departmentType) {
-    return apiClient.get(API_ENDPOINTS.DEPARTMENT_USERS_BY_HEAD(companyName, departmentType));
-  }
-
-  async getUsersUnderHead(headEmail) {
-    return apiClient.get(API_ENDPOINTS.DEPARTMENT_USERS_BY_HEAD(headEmail));
+  async getByHeadId(headUserId) {
+    return apiClient.get(API_ENDPOINTS.DEPARTMENT_USERS_BY_HEAD(headUserId));
   }
 
   async getUserById(id) {
@@ -98,7 +70,5 @@ class DepartmentUsersService {
   }
 }
 
-const departmentUsersService = new DepartmentUsersService();
-export default departmentUsersService;
-
-
+const departmentUserService = new DepartmentUserService();
+export default departmentUserService;

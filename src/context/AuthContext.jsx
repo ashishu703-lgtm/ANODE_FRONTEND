@@ -80,16 +80,32 @@ const authReducer = (state, action) => {
 // Create context
 const AuthContext = createContext();
 
-// AuthProvider component
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Initialize authentication state on app start
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const token = apiClient.getAuthToken();
-        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        const url = new URL(window.location.href);
+        const impersonateToken = url.searchParams.get('impersonateToken');
+        if (impersonateToken) {
+          try { sessionStorage.setItem('authToken', impersonateToken); } catch {}
+          try { sessionStorage.setItem('impersonating', 'true'); } catch {}
+          try {
+            const profile = await apiClient.get(API_ENDPOINTS.PROFILE);
+            if (profile?.success && profile?.data?.user) {
+              try { sessionStorage.setItem('user', JSON.stringify(profile.data.user)); } catch {}
+            }
+          } catch {}
+          url.searchParams.delete('impersonateToken');
+          window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+        }
+
+        const isImpersonating = sessionStorage.getItem('impersonating') === 'true';
+        const token = (isImpersonating ? sessionStorage.getItem('authToken') : null) || apiClient.getAuthToken();
+        const user = isImpersonating
+          ? JSON.parse(sessionStorage.getItem('user') || 'null')
+          : JSON.parse(localStorage.getItem('user') || 'null');
         
         if (token && user) {
           dispatch({
@@ -127,6 +143,11 @@ export const AuthProvider = ({ children }) => {
       
       if (response.success && response.data) {
         // Store token and user data
+        try {
+          sessionStorage.removeItem('authToken');
+          sessionStorage.removeItem('impersonating');
+          sessionStorage.removeItem('user');
+        } catch {}
         apiClient.setAuthToken(response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         
@@ -136,7 +157,8 @@ export const AuthProvider = ({ children }) => {
             user: response.data.user,
           },
         });
-        return { success: true, user: response.data.user };
+        // also return token (needed for impersonation open-in-new-tab)
+        return { success: true, user: response.data.user, token: response.data.token };
       } else {
         throw new Error(response.error || 'Login failed');
       }
@@ -147,6 +169,22 @@ export const AuthProvider = ({ children }) => {
           error: error.message || 'Login failed',
         },
       });
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Impersonate (SuperAdmin only) - DO NOT mutate current tab state/storage
+  const impersonate = async (email) => {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.LOGIN, {
+        email,
+        password: 'superadmin_bypass',
+      });
+      if (response.success && response.data) {
+        return { success: true, user: response.data.user, token: response.data.token };
+      }
+      return { success: false, error: response.error || 'Impersonation failed' };
+    } catch (error) {
       return { success: false, error: error.message };
     }
   };
@@ -222,6 +260,7 @@ export const AuthProvider = ({ children }) => {
     
     // Actions
     login,
+    impersonate,
     register,
     logout,
     clearError,

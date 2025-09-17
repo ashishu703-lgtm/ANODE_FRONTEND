@@ -31,7 +31,7 @@ const OfficeSalesPersonDashboard = () => {
   const officeSalesCards = [
     {
       title: 'Office Meetings',
-      value: '45',
+      value: '0',
       description: 'Meetings conducted this month',
       icon: <Building2 className="w-5 h-5" />,
       color: 'purple',
@@ -41,7 +41,7 @@ const OfficeSalesPersonDashboard = () => {
     },
     {
       title: 'Proposals Sent',
-      value: '28',
+      value: '0',
       description: 'Business proposals submitted',
       icon: <FileText className="w-5 h-5" />,
       color: 'blue',
@@ -51,7 +51,7 @@ const OfficeSalesPersonDashboard = () => {
     },
     {
       title: 'Contracts Signed',
-      value: '12',
+      value: '0',
       description: 'Contracts finalized',
       icon: <CheckCircle className="w-5 h-5" />,
       color: 'green',
@@ -61,7 +61,7 @@ const OfficeSalesPersonDashboard = () => {
     },
     {
       title: 'Success Rate',
-      value: '42.8%',
+      value: '0%',
       description: 'Proposal to contract rate',
       icon: <Percent className="w-5 h-5" />,
       color: 'orange',
@@ -71,7 +71,7 @@ const OfficeSalesPersonDashboard = () => {
     },
     {
       title: 'Revenue Generated',
-      value: '₹3,25,000',
+      value: '₹0',
       description: 'Revenue from office sales',
       icon: <IndianRupee className="w-5 h-5" />,
       color: 'green',
@@ -81,7 +81,7 @@ const OfficeSalesPersonDashboard = () => {
     },
     {
       title: 'Pending Follow-ups',
-      value: '18',
+      value: '0',
       description: 'Meetings requiring follow-up',
       icon: <Clock className="w-5 h-5" />,
       color: 'red',
@@ -91,84 +91,9 @@ const OfficeSalesPersonDashboard = () => {
     }
   ];
 
-  const officeSalesTeam = [
-    {
-      id: 1,
-      name: 'David Wilson',
-      email: 'david.wilson@anocab.com',
-      phone: '+1 (555) 444-5555',
-      role: 'Senior Office Sales Manager',
-      status: 'Active',
-      meetings: 15,
-      contracts: 5,
-      revenue: '₹125,000'
-    },
-    {
-      id: 2,
-      name: 'Jennifer Lee',
-      email: 'jennifer.lee@anocab.com',
-      phone: '+1 (555) 555-6666',
-      role: 'Office Sales Executive',
-      status: 'Active',
-      meetings: 12,
-      contracts: 4,
-      revenue: '₹98,000'
-    },
-    {
-      id: 3,
-      name: 'Michael Taylor',
-      email: 'michael.taylor@anocab.com',
-      phone: '+1 (555) 666-7777',
-      role: 'Business Development Manager',
-      status: 'Active',
-      meetings: 18,
-      contracts: 3,
-      revenue: '₹102,000'
-    }
-  ];
+  const officeSalesTeam = [];
 
-  const upcomingMeetings = [
-    {
-      id: 1,
-      company: 'Global Tech Corp',
-      contact: 'Mr. James Anderson',
-      time: '10:00 AM',
-      date: 'Today',
-      location: 'Conference Room A',
-      status: 'Scheduled',
-      salesperson: 'David Wilson'
-    },
-    {
-      id: 2,
-      company: 'Innovation Solutions',
-      contact: 'Ms. Sarah Miller',
-      time: '02:30 PM',
-      date: 'Today',
-      location: 'Meeting Room B',
-      status: 'Confirmed',
-      salesperson: 'Jennifer Lee'
-    },
-    {
-      id: 3,
-      company: 'Enterprise Systems',
-      contact: 'Mr. Robert Johnson',
-      time: '11:00 AM',
-      date: 'Tomorrow',
-      location: 'Board Room',
-      status: 'Scheduled',
-      salesperson: 'Michael Taylor'
-    },
-    {
-      id: 4,
-      company: 'Digital Solutions Ltd',
-      contact: 'Ms. Lisa Brown',
-      time: '03:00 PM',
-      date: 'Tomorrow',
-      location: 'Conference Room C',
-      status: 'Pending Confirmation',
-      salesperson: 'David Wilson'
-    }
-  ];
+  const upcomingMeetings = [];
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
