@@ -1,34 +1,40 @@
 import React from 'react';
-import SalesHeadDashboard from './salesHeadDashboard';
-import Leads from './Leads';
+import MarketingHeadDashboard from './marketingHeadDashboard';
+import MarketingLeads from './MarketingLeads';
 import UserPerformance from './UserPerformance';
 import PaymentInfo from './PaymentInfo';
-import SalesDepartmentUser from './SalesDepartmentUser';
-import MarketingLeads from './MarketingLeads';
+import MarketingDepartmentUser from './MarketingDepartmentUser';
+import CampaignLeads from './CampaignLeads';
 import TodayVisit from './TodayVisit';
 import StockUpdate from './StockUpdate';
 import MarketingSalespersonDashboard from '../SuperAdmin/MarketingSalespersonDashboard';
 import TeleSalesDashboard from '../SuperAdmin/TeleSalesDashboard';
 import OfficeSalesPersonDashboard from '../SuperAdmin/OfficeSalesPersonDashboard';
 
-const SalesDepartmentHeadDashboard = ({ activeView, setActiveView }) => {
+const MarketingDepartmentHeadDashboard = ({ activeView, setActiveView }) => {
+  // Set default view to marketing-dashboard if not set
+  React.useEffect(() => {
+    if (!activeView || activeView === 'dashboard') {
+      setActiveView('marketing-dashboard');
+    }
+  }, [activeView, setActiveView]);
 
   const renderContent = () => {
     switch (activeView) {
-      case 'sales-dashboard':
-        return <SalesHeadDashboard setActiveView={setActiveView} />;
-      case 'marketing-leads':
-        return <MarketingLeads />;
+      case 'marketing-dashboard':
+        return <MarketingHeadDashboard setActiveView={setActiveView} />;
+      case 'campaign-leads':
+        return <CampaignLeads />;
       case 'today-visit':
         return <TodayVisit />;
-      case 'leads':
-        return <Leads />;
+      case 'marketing-leads':
+        return <MarketingLeads />;
       case 'user-performance':
         return <UserPerformance />;
       case 'payment-info':
         return <PaymentInfo />;
-      case 'sales-department-users':
-        return <SalesDepartmentUser />;
+      case 'marketing-department-users':
+        return <MarketingDepartmentUser />;
       case 'stock-update':
         return <StockUpdate />;
       case 'marketing-salesperson':
@@ -38,7 +44,7 @@ const SalesDepartmentHeadDashboard = ({ activeView, setActiveView }) => {
       case 'office-sales-person-dashboard':
         return <OfficeSalesPersonDashboard />;
       default:
-        return <SalesHeadDashboard setActiveView={setActiveView} />;
+        return <MarketingHeadDashboard setActiveView={setActiveView} />;
     }
   };
 
@@ -50,4 +56,4 @@ const SalesDepartmentHeadDashboard = ({ activeView, setActiveView }) => {
   );
 };
 
-export default SalesDepartmentHeadDashboard;
+export default MarketingDepartmentHeadDashboard;

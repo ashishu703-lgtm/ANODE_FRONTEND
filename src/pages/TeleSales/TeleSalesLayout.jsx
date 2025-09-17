@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TeleSalesSidebar from './TeleSalesSidebar';
 import TeleSalesDashboard from './TeleSalesDashboard';
+import FixedHeader from '../../Header';
 
 const TeleSalesLayout = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -12,6 +13,7 @@ const TeleSalesLayout = () => {
         setActiveView={setActiveView}
       />
       <div className="flex-1 overflow-hidden">
+        <FixedHeader userType="tele-sales" currentPage={activeView} />
         <TeleSalesDashboard activeView={activeView} />
       </div>
     </div>

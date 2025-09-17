@@ -919,7 +919,7 @@ const PaymentsDashboard = () => {
       {/* Payment Overview Modal */}
       {showViewModal && viewingPayment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className={`absolute right-0 top-1/2 transform -translate-y-1/2 h-3/4 w-full max-w-lg bg-white shadow-xl transition-transform duration-300 ease-in-out overflow-y-auto ${
+          <div className={`absolute right-0 top-0 h-full w-80 max-w-sm bg-white shadow-xl transition-transform duration-300 ease-in-out overflow-y-auto ${
             isModalAnimating ? 'translate-x-0' : 'translate-x-full'
           }`}>
             <div className="p-4">

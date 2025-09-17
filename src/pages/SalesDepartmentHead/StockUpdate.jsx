@@ -358,16 +358,6 @@ const StockUpdate = () => {
 
   return (
     <div className="p-6 bg-white min-h-screen">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-            <Package className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">Stock Update</h1>
-        </div>
-        <p className="text-gray-600">Manage your inventory items</p>
-      </div>
 
       {/* Search and Filter Controls */}
       <div className="mb-6">
