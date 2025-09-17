@@ -8,7 +8,7 @@ function cx(...classes) {
 }
 
 function Card({ className, children }) {
-  return <div className={cx("rounded-lg border bg-white", className)}>{children}</div>
+  return <div className={cx("rounded-lg border bg-white transition-all duration-300 hover:shadow-lg hover:scale-105 hover:-translate-y-1", className)}>{children}</div>
 }
 
 function CardHeader({ className, children }) {
@@ -29,7 +29,7 @@ function CustomPieChart({ data, size = 200 }) {
   let cumulativePercentage = 0
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="relative transition-all duration-300 hover:scale-110" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90">
         {data.map((item, index) => {
           const percentage = (item.value / total) * 100
@@ -65,12 +65,14 @@ function CustomPieChart({ data, size = 200 }) {
               fill={item.color}
               stroke="white"
               strokeWidth="2"
+              className="transition-all duration-300 hover:opacity-80 hover:stroke-4"
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
             />
           )
         })}
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center transition-all duration-300 hover:scale-110">
           <div className="text-2xl font-bold text-gray-700">{total}</div>
           <div className="text-sm text-gray-500">Total</div>
         </div>
@@ -83,22 +85,24 @@ function CustomBarChart({ data, height = 200 }) {
   const maxValue = Math.max(...data.map(item => item.value))
   
   return (
-    <div className="w-full" style={{ height }}>
+    <div className="w-full transition-all duration-300 hover:scale-105" style={{ height }}>
       <div className="flex items-end justify-between h-full space-x-2">
         {data.map((item, index) => {
           const barHeight = (item.value / maxValue) * (height - 40)
           return (
-            <div key={index} className="flex flex-col items-center flex-1">
-              <div className="text-xs text-gray-500 mb-1">{item.value}</div>
+            <div key={index} className="flex flex-col items-center flex-1 group">
+              <div className="text-xs text-gray-500 mb-1 transition-all duration-300 group-hover:text-gray-700 group-hover:font-semibold">{item.value}</div>
               <div
-                className="w-full rounded-t transition-all duration-500 hover:opacity-80"
+                className="w-full rounded-t transition-all duration-500 hover:opacity-80 hover:shadow-lg hover:scale-110 cursor-pointer relative"
                 style={{
                   height: barHeight,
                   backgroundColor: item.color,
-                  minHeight: '4px'
+                  minHeight: '4px',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
                 }}
+                title={`${item.label}: ${item.value}`}
               />
-              <div className="text-xs text-gray-600 mt-2 text-center">{item.label}</div>
+              <div className="text-xs text-gray-600 mt-2 text-center transition-all duration-300 group-hover:text-gray-800 group-hover:font-medium">{item.label}</div>
             </div>
           )
         })}
@@ -111,18 +115,21 @@ function ProgressBar({ value, max, label, color = "bg-blue-500" }) {
   const percentage = Math.min((value / max) * 100, 100)
   
   return (
-    <div className="w-full">
+    <div className="w-full group cursor-pointer">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-sm text-gray-500">{value}/{max}</span>
+        <span className="text-sm font-medium text-gray-700 transition-all duration-300 group-hover:text-gray-900 group-hover:font-semibold">{label}</span>
+        <span className="text-sm text-gray-500 transition-all duration-300 group-hover:text-gray-700 group-hover:font-medium">{value}/{max}</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden transition-all duration-300 group-hover:shadow-inner">
         <div
-          className={`h-2 rounded-full transition-all duration-500 ${color}`}
-          style={{ width: `${percentage}%` }}
+          className={`h-2 rounded-full transition-all duration-500 hover:shadow-lg ${color}`}
+          style={{ 
+            width: `${percentage}%`,
+            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
+          }}
         />
       </div>
-      <div className="text-xs text-gray-500 mt-1">{percentage.toFixed(1)}%</div>
+      <div className="text-xs text-gray-500 mt-1 transition-all duration-300 group-hover:text-gray-700 group-hover:font-medium">{percentage.toFixed(1)}%</div>
     </div>
   )
 }
@@ -344,24 +351,24 @@ export default function DashboardContent() {
       <div className="flex gap-6 mb-6">
         <button 
           onClick={() => setActiveTab('overview')}
-          className={`gap-2 flex items-center pb-2 border-b-2 transition-colors ${
+          className={`gap-2 flex items-center pb-2 border-b-2 transition-all duration-300 hover:scale-105 ${
             activeTab === 'overview' 
               ? 'text-blue-600 border-blue-600' 
-              : 'text-gray-500 border-transparent hover:text-gray-700'
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
           }`}
         >
-          <TrendingUp className="h-4 w-4" />
+          <TrendingUp className="h-4 w-4 transition-all duration-300 hover:scale-110" />
           Overview
         </button>
         <button 
           onClick={() => setActiveTab('performance')}
-          className={`gap-2 flex items-center pb-2 border-b-2 transition-colors ${
+          className={`gap-2 flex items-center pb-2 border-b-2 transition-all duration-300 hover:scale-105 ${
             activeTab === 'performance' 
               ? 'text-blue-600 border-blue-600' 
-              : 'text-gray-500 border-transparent hover:text-gray-700'
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
           }`}
         >
-          <BarChart3 className="h-4 w-4" />
+          <BarChart3 className="h-4 w-4 transition-all duration-300 hover:scale-110" />
           Performance
         </button>
       </div>
@@ -374,27 +381,27 @@ export default function DashboardContent() {
         {metrics.map((metric, index) => {
           const Icon = metric.icon
           return (
-            <Card key={index} className={cx("border-2", metric.color)}>
+            <Card key={index} className={cx("border-2 group", metric.color)}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">{metric.title}</CardTitle>
-                <Icon className="h-5 w-5" />
+                <CardTitle className="text-sm font-medium text-gray-500 transition-all duration-300 group-hover:text-gray-700 group-hover:font-semibold">{metric.title}</CardTitle>
+                <Icon className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between mb-1">
-                  <div className="text-2xl font-bold">{metric.value}</div>
-                  <div className={`flex items-center text-xs font-medium ${
+                  <div className="text-2xl font-bold transition-all duration-300 group-hover:scale-110">{metric.value}</div>
+                  <div className={`flex items-center text-xs font-medium transition-all duration-300 group-hover:scale-105 ${
                     metric.trendUp ? 'text-green-600' : 'text-red-600'
                   }`}>
                     {metric.trendUp ? (
-                      <TrendingUp className="w-3 h-3 mr-1" />
+                      <TrendingUp className="w-3 h-3 mr-1 transition-all duration-300 group-hover:scale-110" />
                     ) : (
-                      <TrendingDown className="w-3 h-3 mr-1" />
+                      <TrendingDown className="w-3 h-3 mr-1 transition-all duration-300 group-hover:scale-110" />
                     )}
                     {metric.trend}
                   </div>
                 </div>
-                <p className="text-xs text-gray-500">{metric.subtitle}</p>
-                <div className="w-full bg-current opacity-20 h-1 rounded-full mt-3"></div>
+                <p className="text-xs text-gray-500 transition-all duration-300 group-hover:text-gray-700">{metric.subtitle}</p>
+                <div className="w-full bg-current opacity-20 h-1 rounded-full mt-3 transition-all duration-300 group-hover:opacity-30 group-hover:h-1.5"></div>
               </CardContent>
             </Card>
           )
@@ -413,14 +420,14 @@ export default function DashboardContent() {
           {leadStatuses.map((status, index) => {
             const Icon = status.icon
             return (
-              <Card key={index} className={cx("border-2", status.color)}>
+              <Card key={index} className={cx("border-2 group", status.color)}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{status.title}</CardTitle>
-                  <Icon className="h-5 w-5" />
+                  <CardTitle className="text-sm font-medium transition-all duration-300 group-hover:text-gray-800 group-hover:font-semibold">{status.title}</CardTitle>
+                  <Icon className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-1">{status.count}</div>
-                  <p className="text-xs text-gray-500">{status.subtitle}</p>
+                  <div className="text-2xl font-bold mb-1 transition-all duration-300 group-hover:scale-110">{status.count}</div>
+                  <p className="text-xs text-gray-500 transition-all duration-300 group-hover:text-gray-700">{status.subtitle}</p>
                 </CardContent>
               </Card>
             )
@@ -431,11 +438,11 @@ export default function DashboardContent() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Weekly Leads Bar Chart */}
-        <Card className="border-2">
+        <Card className="border-2 group">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-lg font-semibold">Weekly Leads Activity</CardTitle>
+              <BarChart3 className="h-5 w-5 text-blue-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+              <CardTitle className="text-lg font-semibold transition-all duration-300 group-hover:text-blue-700">Weekly Leads Activity</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -449,11 +456,11 @@ export default function DashboardContent() {
         </Card>
 
         {/* Lead Source Pie Chart */}
-        <Card className="border-2">
+        <Card className="border-2 group">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <PieChartIcon className="h-5 w-5 text-purple-600" />
-              <CardTitle className="text-lg font-semibold">Lead Sources</CardTitle>
+              <PieChartIcon className="h-5 w-5 text-purple-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+              <CardTitle className="text-lg font-semibold transition-all duration-300 group-hover:text-purple-700">Lead Sources</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -476,11 +483,11 @@ export default function DashboardContent() {
       </div>
 
       {/* Monthly Revenue Chart */}
-      <Card className="border-2 mb-8">
+      <Card className="border-2 mb-8 group">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            <CardTitle className="text-lg font-semibold">Monthly Revenue Trend</CardTitle>
+            <TrendingUp className="h-5 w-5 text-green-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+            <CardTitle className="text-lg font-semibold transition-all duration-300 group-hover:text-green-700">Monthly Revenue Trend</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -558,13 +565,13 @@ export default function DashboardContent() {
           {/* Target Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {Object.entries(performanceData.targets).map(([key, target]) => (
-              <Card key={key} className="border-2 border-blue-200">
+              <Card key={key} className="border-2 border-blue-200 group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-500">{target.label}</CardTitle>
-                  <Target className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-sm font-medium text-gray-500 transition-all duration-300 group-hover:text-gray-700 group-hover:font-semibold">{target.label}</CardTitle>
+                  <Target className="h-5 w-5 text-blue-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-3">
+                  <div className="text-2xl font-bold mb-3 transition-all duration-300 group-hover:scale-110">
                     {key === 'revenue' ? `₹${target.current.toLocaleString()}` : target.current}
                   </div>
                   <ProgressBar 
@@ -590,24 +597,24 @@ export default function DashboardContent() {
               {performanceData.kpis.map((kpi, index) => {
                 const Icon = kpi.icon
                 return (
-                  <Card key={index} className={`border-2 ${kpi.color}`}>
+                  <Card key={index} className={`border-2 group ${kpi.color}`}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-                      <Icon className="h-5 w-5" />
+                      <CardTitle className="text-sm font-medium transition-all duration-300 group-hover:text-gray-800 group-hover:font-semibold">{kpi.title}</CardTitle>
+                      <Icon className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold mb-1">{kpi.value}</div>
-                      <p className="text-xs text-gray-500 mb-2">Target: {kpi.target}</p>
+                      <div className="text-2xl font-bold mb-1 transition-all duration-300 group-hover:scale-110">{kpi.value}</div>
+                      <p className="text-xs text-gray-500 mb-2 transition-all duration-300 group-hover:text-gray-700">Target: {kpi.target}</p>
                       <div className="flex items-center gap-1">
                         {kpi.status === 'warning' ? (
                           <>
-                            <TrendingDown className="h-3 w-3 text-orange-500" />
-                            <span className="text-xs text-orange-600">Below Target</span>
+                            <TrendingDown className="h-3 w-3 text-orange-500 transition-all duration-300 group-hover:scale-110" />
+                            <span className="text-xs text-orange-600 transition-all duration-300 group-hover:font-medium">Below Target</span>
                           </>
                         ) : (
                           <>
-                            <TrendingUp className="h-3 w-3 text-green-500" />
-                            <span className="text-xs text-green-600">Above Target</span>
+                            <TrendingUp className="h-3 w-3 text-green-500 transition-all duration-300 group-hover:scale-110" />
+                            <span className="text-xs text-green-600 transition-all duration-300 group-hover:font-medium">Above Target</span>
                           </>
                         )}
                       </div>
@@ -621,11 +628,11 @@ export default function DashboardContent() {
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Lead Status Pie Chart */}
-            <Card className="border-2">
+            <Card className="border-2 group">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <PieChartIcon className="h-5 w-5 text-purple-600" />
-                  <CardTitle className="text-lg font-semibold">Lead Status Distribution</CardTitle>
+                  <PieChartIcon className="h-5 w-5 text-purple-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                  <CardTitle className="text-lg font-semibold transition-all duration-300 group-hover:text-purple-700">Lead Status Distribution</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -647,11 +654,11 @@ export default function DashboardContent() {
             </Card>
 
             {/* Monthly Performance Bar Chart */}
-            <Card className="border-2">
+            <Card className="border-2 group">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-green-600" />
-                  <CardTitle className="text-lg font-semibold">Monthly Performance</CardTitle>
+                  <BarChart3 className="h-5 w-5 text-green-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                  <CardTitle className="text-lg font-semibold transition-all duration-300 group-hover:text-green-700">Monthly Performance</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -667,26 +674,26 @@ export default function DashboardContent() {
 
 
           {/* Performance Summary */}
-          <Card className="border-2 border-gray-200">
+          <Card className="border-2 border-gray-200 group">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-yellow-600" />
-                <CardTitle className="text-lg font-semibold">Performance Summary</CardTitle>
+                <Award className="h-5 w-5 text-yellow-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                <CardTitle className="text-lg font-semibold transition-all duration-300 group-hover:text-yellow-700">Performance Summary</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">0%</div>
-                  <div className="text-sm text-gray-600">Overall Target Achievement</div>
+                <div className="text-center group/summary transition-all duration-300 hover:scale-105">
+                  <div className="text-3xl font-bold text-blue-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">0%</div>
+                  <div className="text-sm text-gray-600 transition-all duration-300 group-hover/summary:text-gray-800 group-hover/summary:font-medium">Overall Target Achievement</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
-                  <div className="text-sm text-gray-600">Areas Need Improvement</div>
+                <div className="text-center group/summary transition-all duration-300 hover:scale-105">
+                  <div className="text-3xl font-bold text-orange-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">0</div>
+                  <div className="text-sm text-gray-600 transition-all duration-300 group-hover/summary:text-gray-800 group-hover/summary:font-medium">Areas Need Improvement</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">0</div>
-                  <div className="text-sm text-gray-600">Area Exceeding Target</div>
+                <div className="text-center group/summary transition-all duration-300 hover:scale-105">
+                  <div className="text-3xl font-bold text-green-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">0</div>
+                  <div className="text-sm text-gray-600 transition-all duration-300 group-hover/summary:text-gray-800 group-hover/summary:font-medium">Area Exceeding Target</div>
                 </div>
               </div>
             </CardContent>

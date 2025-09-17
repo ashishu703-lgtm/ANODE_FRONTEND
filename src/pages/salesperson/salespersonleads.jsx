@@ -64,6 +64,7 @@ export default function CustomerListContent() {
     gstNo: '',
     address: '',
     state: '',
+    productName: '',
     productType: '',
     customerType: '',
     enquiryBy: '',
@@ -94,6 +95,7 @@ export default function CustomerListContent() {
       gstNo: '',
       address: '',
       state: '',
+      productName: '',
       productType: '',
       customerType: '',
       enquiryBy: '',
@@ -102,7 +104,368 @@ export default function CustomerListContent() {
       finalStatus: ''
     });
   };
-  const [customers, setCustomers] = React.useState([])
+  const [customers, setCustomers] = React.useState([
+    {
+      id: 1,
+      name: "Rajesh Kumar",
+      phone: "+91 98765 43210",
+      whatsapp: "+91 98765 43210",
+      email: "rajesh.kumar@email.com",
+      business: "Rajesh Electricals",
+      address: "123 MG Road, Near City Mall, Bangalore",
+      gstNo: "29ABCDE1234F1Z5",
+      productName: "XLPE Cable 1.5mm",
+      productType: "Cable",
+      state: "Karnataka",
+      enquiryBy: "Phone",
+      customerType: "Business",
+      date: "2024-01-15",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Customer was very interested in our cable products. Discussed pricing and delivery timeline.",
+      connectedStatusDate: "2024-01-15",
+      finalStatus: "open",
+      finalStatusRemark: "Waiting for customer's budget confirmation. Follow up scheduled for next week.",
+      finalStatusDate: "2024-01-15",
+      quotationsSent: 2,
+      latestQuotationUrl: "latest",
+      transferredLeads: 0,
+      transferredFrom: null,
+      transferredTo: null
+    },
+    {
+      id: 2,
+      name: "Priya Sharma",
+      phone: "+91 87654 32109",
+      whatsapp: "+91 87654 32109",
+      email: "priya.sharma@company.com",
+      business: "Sharma Industries",
+      address: "456 Industrial Area, Phase 2, Gurgaon",
+      gstNo: "06FGHIJ5678K2L6",
+      productName: "ACSR Conductor 50mm²",
+      productType: "Conductor",
+      state: "Haryana",
+      enquiryBy: "Marketing",
+      customerType: "Corporate",
+      date: "2024-01-16",
+      connectedStatus: "Follow Up",
+      connectedStatusRemark: "Initial call completed. Customer requested detailed product specifications.",
+      connectedStatusDate: "2024-01-16",
+      finalStatus: "next_meeting",
+      finalStatusRemark: "Meeting scheduled for next Tuesday to discuss project requirements.",
+      finalStatusDate: "2024-01-16",
+      quotationsSent: 1,
+      transferredLeads: 1,
+      transferredFrom: "Marketing Team",
+      transferredTo: "Sales Team"
+    },
+    {
+      id: 3,
+      name: "Amit Patel",
+      phone: "+91 76543 21098",
+      whatsapp: "+91 76543 21098",
+      email: "amit.patel@email.com",
+      business: "Patel Electrical Works",
+      address: "789 Commercial Street, Ahmedabad",
+      gstNo: "24KLMNO9012P3M7",
+      productName: "AAAC Conductor 70mm²",
+      productType: "AAAC",
+      state: "Gujarat",
+      enquiryBy: "Referral",
+      customerType: "Business",
+      date: "2024-01-17",
+      connectedStatus: "Not Connected",
+      connectedStatusRemark: "Customer did not answer the call. Left voicemail with contact details.",
+      connectedStatusDate: "2024-01-17",
+      finalStatus: "open",
+      finalStatusRemark: "Pending customer response. Will try calling again tomorrow.",
+      finalStatusDate: "2024-01-17",
+      quotationsSent: 0
+    },
+    {
+      id: 4,
+      name: "Sunita Reddy",
+      phone: "+91 65432 10987",
+      whatsapp: "+91 65432 10987",
+      email: "sunita.reddy@email.com",
+      business: "Reddy Power Solutions",
+      address: "321 Tech Park, Hyderabad",
+      gstNo: "36PQRST3456U4N8",
+      productName: "Aluminium Wire 2.5mm",
+      productType: "Aluminium",
+      state: "Telangana",
+      enquiryBy: "Google Ads",
+      customerType: "Corporate",
+      date: "2024-01-18",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Excellent conversation. Customer is ready to place order for aluminium conductors.",
+      connectedStatusDate: "2024-01-18",
+      finalStatus: "closed",
+      finalStatusRemark: "Deal closed successfully. Order placed for 500 units.",
+      finalStatusDate: "2024-01-18",
+      quotationsSent: 3,
+      latestQuotationUrl: "latest",
+      transferredLeads: 2,
+      transferredFrom: "Tele Sales",
+      transferredTo: "Field Sales"
+    },
+    {
+      id: 5,
+      name: "Vikram Singh",
+      phone: "+91 54321 09876",
+      whatsapp: "+91 54321 09876",
+      email: "vikram.singh@email.com",
+      business: "Singh Electricals",
+      address: "654 Main Road, Jaipur",
+      gstNo: "08UVWXY7890V5O9",
+      productName: "Copper Wire 4mm",
+      productType: "Copper",
+      state: "Rajasthan",
+      enquiryBy: "Website",
+      customerType: "Individual",
+      date: "2024-01-19",
+      connectedStatus: "Follow Up",
+      connectedStatusRemark: "Customer showed interest in copper products. Discussed pricing options.",
+      connectedStatusDate: "2024-01-19",
+      finalStatus: "open",
+      finalStatusRemark: "Customer is comparing prices with other suppliers. Follow up in 3 days.",
+      finalStatusDate: "2024-01-19",
+      quotationsSent: 1
+    },
+    {
+      id: 6,
+      name: "Meera Joshi",
+      phone: "+91 43210 98765",
+      whatsapp: "+91 43210 98765",
+      email: "meera.joshi@email.com",
+      business: "Joshi Industries",
+      address: "987 Business District, Pune",
+      gstNo: "27ZABCD1234W6P0",
+      productName: "PVC Insulated Wire 6mm",
+      productType: "PVC",
+      state: "Maharashtra",
+      enquiryBy: "FB Ads",
+      customerType: "Business",
+      date: "2024-01-20",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Good discussion about PVC products. Customer needs samples for testing.",
+      connectedStatusDate: "2024-01-20",
+      finalStatus: "next_meeting",
+      finalStatusRemark: "Meeting scheduled to provide product samples and discuss bulk pricing.",
+      finalStatusDate: "2024-01-20",
+      quotationsSent: 2,
+      transferredLeads: 1,
+      transferredFrom: "Online Team",
+      transferredTo: "Regional Sales"
+    },
+    {
+      id: 7,
+      name: "Arjun Gupta",
+      phone: "+91 32109 87654",
+      whatsapp: "+91 32109 87654",
+      email: "arjun.gupta@email.com",
+      business: "Gupta Power Systems",
+      address: "147 Industrial Estate, Chennai",
+      gstNo: "33EFGHI5678X7Q1",
+      productName: "Bare Copper Wire 10mm",
+      productType: "Wire",
+      state: "Tamil Nadu",
+      enquiryBy: "Email",
+      customerType: "Corporate",
+      date: "2024-01-21",
+      connectedStatus: "Not Connected",
+      connectedStatusRemark: "Email sent but no response yet. Will try calling tomorrow.",
+      connectedStatusDate: "2024-01-21",
+      finalStatus: "open",
+      finalStatusRemark: "Awaiting customer response to email inquiry.",
+      finalStatusDate: "2024-01-21",
+      quotationsSent: 0
+    },
+    {
+      id: 8,
+      name: "Kavita Nair",
+      phone: "+91 21098 76543",
+      whatsapp: "+91 21098 76543",
+      email: "kavita.nair@email.com",
+      business: "Nair Electricals",
+      address: "258 Commercial Complex, Kochi",
+      gstNo: "32JKLMN9012Y8R2",
+      productName: "Armored Cable 16mm",
+      productType: "Cable",
+      state: "Kerala",
+      enquiryBy: "Webinar",
+      customerType: "Reseller",
+      date: "2024-01-22",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Met through webinar. Customer is interested in becoming a reseller.",
+      connectedStatusDate: "2024-01-22",
+      finalStatus: "open",
+      finalStatusRemark: "Discussed reseller terms and conditions. Waiting for their decision.",
+      finalStatusDate: "2024-01-22",
+      quotationsSent: 1
+    },
+    {
+      id: 9,
+      name: "Rohit Agarwal",
+      phone: "+91 10987 65432",
+      whatsapp: "+91 10987 65432",
+      email: "rohit.agarwal@email.com",
+      business: "Agarwal Industries",
+      address: "369 Tech Hub, Noida",
+      gstNo: "09OPQRS3456Z9S3",
+      productName: "ACSR Conductor 95mm²",
+      productType: "Conductor",
+      state: "Uttar Pradesh",
+      enquiryBy: "Phone",
+      customerType: "Government",
+      date: "2024-01-23",
+      connectedStatus: "Follow Up",
+      connectedStatusRemark: "Government tender inquiry. Need to submit detailed proposal.",
+      connectedStatusDate: "2024-01-23",
+      finalStatus: "open",
+      finalStatusRemark: "Working on tender proposal. Deadline is next Friday.",
+      finalStatusDate: "2024-01-23",
+      quotationsSent: 1
+    },
+    {
+      id: 10,
+      name: "Deepika Iyer",
+      phone: "+91 98765 43210",
+      whatsapp: "+91 98765 43210",
+      email: "deepika.iyer@email.com",
+      business: "Iyer Power Solutions",
+      address: "741 Business Park, Mumbai",
+      gstNo: "27TUVWX7890A0T4",
+      productName: "AAAC Conductor 120mm²",
+      productType: "AAAC",
+      state: "Maharashtra",
+      enquiryBy: "Referral",
+      customerType: "Business",
+      date: "2024-01-24",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Referred by existing customer. Very interested in AAAC conductors.",
+      connectedStatusDate: "2024-01-24",
+      finalStatus: "closed",
+      finalStatusRemark: "Deal closed! Order placed for 1000 units of AAAC conductors.",
+      finalStatusDate: "2024-01-24",
+      quotationsSent: 4,
+      latestQuotationUrl: "latest"
+    },
+    {
+      id: 11,
+      name: "Suresh Kumar",
+      phone: "+91 87654 32109",
+      whatsapp: "+91 87654 32109",
+      email: "suresh.kumar@email.com",
+      business: "Kumar Electrical Works",
+      address: "852 Industrial Zone, Delhi",
+      gstNo: "07BCDEF1234B1U5",
+      productName: "Aluminium Wire 6mm",
+      productType: "Aluminium",
+      state: "Delhi",
+      enquiryBy: "Marketing",
+      customerType: "Individual",
+      date: "2024-01-25",
+      connectedStatus: "Not Connected",
+      connectedStatusRemark: "Customer's phone was switched off. Will try again in the evening.",
+      connectedStatusDate: "2024-01-25",
+      finalStatus: "open",
+      finalStatusRemark: "Pending contact. Will try different time slots.",
+      finalStatusDate: "2024-01-25",
+      quotationsSent: 0
+    },
+    {
+      id: 12,
+      name: "Anita Desai",
+      phone: "+91 76543 21098",
+      whatsapp: "+91 76543 21098",
+      email: "anita.desai@email.com",
+      business: "Desai Industries",
+      address: "963 Commercial Area, Kolkata",
+      gstNo: "19GHIJK5678C2V6",
+      productName: "Copper Wire 8mm",
+      productType: "Copper",
+      state: "West Bengal",
+      enquiryBy: "Google Ads",
+      customerType: "Corporate",
+      date: "2024-01-26",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Found us through Google Ads. Interested in copper wire for industrial use.",
+      connectedStatusDate: "2024-01-26",
+      finalStatus: "next_meeting",
+      finalStatusRemark: "Technical meeting scheduled to discuss specifications and pricing.",
+      finalStatusDate: "2024-01-26",
+      quotationsSent: 2
+    },
+    {
+      id: 13,
+      name: "Manoj Tiwari",
+      phone: "+91 65432 10987",
+      whatsapp: "+91 65432 10987",
+      email: "manoj.tiwari@email.com",
+      business: "Tiwari Power Systems",
+      address: "147 Business Center, Lucknow",
+      gstNo: "09LMNOP9012D3W7",
+      productName: "PVC Insulated Wire 10mm",
+      productType: "PVC",
+      state: "Uttar Pradesh",
+      enquiryBy: "Website",
+      customerType: "Business",
+      date: "2024-01-27",
+      connectedStatus: "Follow Up",
+      connectedStatusRemark: "Customer filled contact form on website. Initial call completed.",
+      connectedStatusDate: "2024-01-27",
+      finalStatus: "open",
+      finalStatusRemark: "Customer needs time to discuss with team. Follow up in 2 days.",
+      finalStatusDate: "2024-01-27",
+      quotationsSent: 1
+    },
+    {
+      id: 14,
+      name: "Pooja Mehta",
+      phone: "+91 54321 09876",
+      whatsapp: "+91 54321 09876",
+      email: "pooja.mehta@email.com",
+      business: "Mehta Electricals",
+      address: "258 Industrial Park, Chandigarh",
+      gstNo: "04QRSTU3456E4X8",
+      productName: "Bare Copper Wire 16mm",
+      productType: "Wire",
+      state: "Punjab",
+      enquiryBy: "FB Ads",
+      customerType: "Reseller",
+      date: "2024-01-28",
+      connectedStatus: "Connected",
+      connectedStatusRemark: "Saw our Facebook ad. Interested in wire products for reselling.",
+      connectedStatusDate: "2024-01-28",
+      finalStatus: "open",
+      finalStatusRemark: "Discussed reseller margins. Customer is evaluating our terms.",
+      finalStatusDate: "2024-01-28",
+      quotationsSent: 1
+    },
+    {
+      id: 15,
+      name: "Ravi Verma",
+      phone: "+91 43210 98765",
+      whatsapp: "+91 43210 98765",
+      email: "ravi.verma@email.com",
+      business: "Verma Industries",
+      address: "369 Tech City, Indore",
+      gstNo: "23VWXYZ7890F5Y9",
+      productName: "XLPE Cable 25mm",
+      productType: "Cable",
+      state: "Madhya Pradesh",
+      enquiryBy: "Email",
+      customerType: "Corporate",
+      date: "2024-01-29",
+      connectedStatus: "Not Connected",
+      connectedStatusRemark: "Email bounced back. Need to verify correct email address.",
+      connectedStatusDate: "2024-01-29",
+      finalStatus: "open",
+      finalStatusRemark: "Trying to get correct contact information from other sources.",
+      finalStatusDate: "2024-01-29",
+      quotationsSent: 0
+    }
+  ])
 
   const handleEdit = (customer) => {
     setEditingCustomer(customer)
@@ -211,16 +574,15 @@ export default function CustomerListContent() {
   const handleDownloadTemplate = () => {
     // Create CSV template with headers
     const headers = [
-      'Name', 'Phone', 'Email', 'Business', 'Address', 'GST No', 
-      'Product Type', 'State', 'Lead Source', 'Customer Type', 'Date', 
-      'Connected Status', 'Final Status', 'WhatsApp'
+      'Name', 'Phone', 'WhatsApp', 'Email', 'Address', 'State', 'GST No', 
+      'Product Name', 'Product Type', 'Lead Source', 'Customer Type', 'Date'
     ]
     
-    // Create sample data row with empty values
+    // Create sample data row with example values
     const sampleData = [
-      '', '', '', '', 
-      '', '', '', '', 
-      '', '', '', '', '', ''
+      'John Doe', '9876543210', '9876543210', 'john.doe@email.com', 
+      '123 Main Street, City', 'Karnataka', '29ABCDE1234F1Z5', 
+      'XLPE Cable 1.5mm', 'Cable', 'Phone', 'Business', '2024-01-15'
     ]
     
     const csvContent = [headers, sampleData].map(row => 
@@ -266,9 +628,8 @@ export default function CustomerListContent() {
         
         // Expected headers for validation
         const expectedHeaders = [
-          'Name', 'Phone', 'Email', 'Business', 'Address', 'GST No', 
-          'Product Type', 'State', 'Lead Source', 'Customer Type', 'Date', 
-          'Connected Status', 'Final Status', 'WhatsApp'
+          'Name', 'Phone', 'WhatsApp', 'Email', 'Address', 'State', 'GST No', 
+          'Product Name', 'Product Type', 'Lead Source', 'Customer Type', 'Date'
         ]
         
         // Validate headers
@@ -295,30 +656,28 @@ export default function CustomerListContent() {
                   name: validatedData.data.name,
                   phone: validatedData.data.phone,
                   email: validatedData.data.email,
-                  business: validatedData.data.business,
+                  business: validatedData.data.business || 'N/A',
                   address: validatedData.data.address,
                   gstNo: validatedData.data.gstNo,
+                  productName: validatedData.data.productName,
                   productType: validatedData.data.productType,
                   state: validatedData.data.state,
                   enquiryBy: validatedData.data.enquiryBy,
                   customerType: validatedData.data.customerType,
                   date: validatedData.data.date,
-                  connected: { 
-                    status: validatedData.data.connectedStatus, 
-                    remark: 'Imported from CSV', 
-                    datetime: new Date().toLocaleString() 
-                  },
-                  finalStatus: validatedData.data.finalStatus,
-                  finalInfo: { 
-                    status: 'next_meeting', 
-                    datetime: '', 
-                    remark: validatedData.data.finalStatus 
-                  },
+                  connectedStatus: 'Not Connected',
+                  connectedStatusRemark: 'Imported from CSV',
+                  connectedStatusDate: new Date().toISOString().split('T')[0],
+                  finalStatus: 'open',
+                  finalStatusRemark: 'Imported from CSV',
+                  finalStatusDate: new Date().toISOString().split('T')[0],
                   latestQuotationUrl: "#",
                   quotationsSent: 0,
                   followUpLink: "https://calendar.google.com/",
-                  whatsapp: validatedData.data.whatsapp ? `+91${validatedData.data.whatsapp}` : null,
+                  whatsapp: validatedData.data.whatsapp,
                   transferredLeads: 0,
+                  transferredFrom: null,
+                  transferredTo: null
                 }
                 importedCustomers.push(newCustomer)
               } else {
@@ -339,7 +698,10 @@ export default function CustomerListContent() {
           setShowImportModal(false)
           setImportFile(null)
         } else {
-          alert('No valid data found in CSV file. Please check the format and try again.')
+          const errorMessage = errors.length > 0 
+            ? `CSV validation failed:\n\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? `\n... and ${errors.length - 5} more errors` : ''}\n\nPlease check the format and try again.`
+            : 'No valid data found in CSV file. Please check the format and try again.'
+          alert(errorMessage)
         }
       } catch (error) {
         console.error('Error processing CSV:', error)
@@ -417,6 +779,14 @@ export default function CustomerListContent() {
           data.phone = value
           break
           
+        case 'WhatsApp':
+          const whatsappRegex = /^[6-9]\d{9}$/
+          if (value && !whatsappRegex.test(value)) {
+            errors.push('WhatsApp must be a valid 10-digit Indian mobile number')
+          }
+          data.whatsapp = value ? `+91${value}` : null
+          break
+          
         case 'Email':
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
           if (value && !emailRegex.test(value)) {
@@ -425,12 +795,15 @@ export default function CustomerListContent() {
           data.email = value || 'N/A'
           break
           
-        case 'Business':
-          data.business = value || 'N/A'
-          break
-          
         case 'Address':
           data.address = value || 'N/A'
+          break
+          
+        case 'State':
+          if (value && !states.includes(value)) {
+            errors.push(`State must be one of: ${states.join(', ')}`)
+          }
+          data.state = value || 'N/A'
           break
           
         case 'GST No':
@@ -441,18 +814,15 @@ export default function CustomerListContent() {
           data.gstNo = value || 'N/A'
           break
           
+        case 'Product Name':
+          data.productName = value || 'N/A'
+          break
+          
         case 'Product Type':
           if (value && !productTypes.includes(value)) {
             errors.push(`Product Type must be one of: ${productTypes.join(', ')}`)
           }
           data.productType = value || 'N/A'
-          break
-          
-        case 'State':
-          if (value && !states.includes(value)) {
-            errors.push(`State must be one of: ${states.join(', ')}`)
-          }
-          data.state = value || 'N/A'
           break
           
         case 'Lead Source':
@@ -475,30 +845,6 @@ export default function CustomerListContent() {
             errors.push('Date must be in YYYY-MM-DD format')
           }
           data.date = value || new Date().toISOString().split('T')[0]
-          break
-          
-        case 'Connected Status':
-          const validConnectedStatuses = ['Connected', 'Not Connected', 'Follow Up', 'Not Interested']
-          if (value && !validConnectedStatuses.includes(value)) {
-            errors.push(`Connected Status must be one of: ${validConnectedStatuses.join(', ')}`)
-          }
-          data.connectedStatus = value || 'Not Connected'
-          break
-          
-        case 'Final Status':
-          const validFinalStatuses = ['Hot', 'Warm', 'Cold', 'Lost', 'Won', 'New']
-          if (value && !validFinalStatuses.includes(value)) {
-            errors.push(`Final Status must be one of: ${validFinalStatuses.join(', ')}`)
-          }
-          data.finalStatus = value || 'New'
-          break
-          
-        case 'WhatsApp':
-          const whatsappRegex = /^[6-9]\d{9}$/
-          if (value && !whatsappRegex.test(value)) {
-            errors.push('WhatsApp must be a valid 10-digit Indian mobile number')
-          }
-          data.whatsapp = value
           break
           
         default:
@@ -782,21 +1128,18 @@ export default function CustomerListContent() {
         gstNo: newCustomerData.gstNumber || "N/A",
         address: newCustomerData.address,
         state: newCustomerData.state,
+        productName: newCustomerData.productName,
         productType: newCustomerData.productType,
         customerType: newCustomerData.customerType,
         enquiryBy: newCustomerData.leadSource,
         date: newCustomerData.date,
-        connected: { 
-          ...editingCustomer.connected,
-          status: newCustomerData.connectionStatus,
-          remark: "Customer information updated", 
-          datetime: new Date().toLocaleString() 
-        },
-        finalInfo: { 
-          ...editingCustomer.finalInfo,
-          status: newCustomerData.finalStatus === "Closed" ? "closed" : "next_meeting", 
-          remark: newCustomerData.finalStatus 
-        },
+        connectedStatus: newCustomerData.connectionStatus,
+        connectedStatusRemark: newCustomerData.connectionStatusRemark,
+        connectedStatusDate: new Date().toISOString().split('T')[0],
+        finalStatus: newCustomerData.finalStatus === "Closed" ? "closed" : 
+                   newCustomerData.finalStatus === "Next Scheduled Meeting" ? "next_meeting" : "open",
+        finalStatusRemark: newCustomerData.finalStatusRemark,
+        finalStatusDate: new Date().toISOString().split('T')[0],
         whatsapp: newCustomerData.whatsappNumber ? `+91${newCustomerData.whatsappNumber}` : editingCustomer.whatsapp,
       }
       
@@ -816,20 +1159,17 @@ export default function CustomerListContent() {
         address: newCustomerData.address,
         state: newCustomerData.state,
         enquiryBy: newCustomerData.leadSource,
+        productName: newCustomerData.productName,
         productType: newCustomerData.productType,
         customerType: newCustomerData.customerType,
         date: newCustomerData.date,
-        connected: { 
-          status: newCustomerData.connectionStatus, 
-          remark: "New customer added", 
-          datetime: new Date().toLocaleString() 
-        },
-        finalStatus: "New",
-        finalInfo: { 
-          status: newCustomerData.finalStatus === "Closed" ? "closed" : "next_meeting", 
-          datetime: "", 
-          remark: newCustomerData.finalStatus 
-        },
+        connectedStatus: newCustomerData.connectionStatus,
+        connectedStatusRemark: newCustomerData.connectionStatusRemark,
+        connectedStatusDate: new Date().toISOString().split('T')[0],
+        finalStatus: newCustomerData.finalStatus === "Closed" ? "closed" : 
+                   newCustomerData.finalStatus === "Next Scheduled Meeting" ? "next_meeting" : "open",
+        finalStatusRemark: newCustomerData.finalStatusRemark,
+        finalStatusDate: new Date().toISOString().split('T')[0],
         latestQuotationUrl: "#",
         quotationsSent: 0,
         followUpLink: "https://calendar.google.com/",
@@ -1075,7 +1415,22 @@ export default function CustomerListContent() {
                       />
                     )}
                   </th>
-                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-64">
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-48">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4 text-violet-500" />
+                      Product Name
+                    </div>
+                    {showFilters && (
+                      <input
+                        type="text"
+                        value={filters.productName}
+                        onChange={(e) => handleFilterChange('productName', e.target.value)}
+                        className="mt-1 w-full text-xs p-1 border rounded"
+                        placeholder="Filter product name..."
+                      />
+                    )}
+                  </th>
+                  <th className="text-left py-2 px-4 font-medium text-gray-600 text-sm w-48">
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-violet-500" />
                       Product Type
@@ -1269,6 +1624,9 @@ export default function CustomerListContent() {
                       <div className="font-medium">{customer.gstNo}</div>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700">
+                      <div className="font-medium">{customer.productName}</div>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="font-medium">{customer.productType}</div>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700">
@@ -1286,43 +1644,45 @@ export default function CustomerListContent() {
                     <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="flex flex-col">
                         <span className={
-                          customer.connected?.status === 'Connected'
+                          customer.connectedStatus === 'Connected'
                             ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-green-50 text-green-700 border-green-200'
-                            : customer.connected?.status === 'Not Connected'
+                            : customer.connectedStatus === 'Not Connected'
                             ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-red-50 text-red-700 border-red-200'
                             : 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-yellow-50 text-yellow-700 border-yellow-200'
                         }>
-                          {customer.connected?.status || '-'}
+                          {customer.connectedStatus || '-'}
                         </span>
-                        <span className="text-xs text-gray-500 mt-1">{customer.connected?.remark || '-'}</span>
-                        <span className="text-xs text-gray-400">{customer.connected?.datetime || ''}</span>
+                        {customer.connectedStatusRemark && (
+                          <span className="text-xs text-gray-500 mt-1">{customer.connectedStatusRemark}</span>
+                        )}
+                        {customer.connectedStatusDate && (
+                          <span className="text-xs text-gray-400">{customer.connectedStatusDate}</span>
+                        )}
                       </div>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="flex flex-col">
                         <span className={
-                          customer.finalInfo?.status === 'closed'
+                          customer.finalStatus === 'closed'
                             ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200'
-                            : 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200'
+                            : customer.finalStatus === 'next_meeting'
+                            ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200'
+                            : 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-yellow-50 text-yellow-700 border-yellow-200'
                         }>
-                          {customer.finalInfo?.status === 'closed' ? 'Closed' : 'Next Scheduled Meeting'}
+                          {customer.finalStatus === 'closed' ? 'Closed' : 
+                           customer.finalStatus === 'next_meeting' ? 'Next Meeting' : 
+                           customer.finalStatus === 'open' ? 'Open' : 'New'}
                         </span>
-                        {customer.finalInfo?.datetime && (
-                          <span className="text-xs text-gray-500 mt-1">{customer.finalInfo.datetime}</span>
+                        {customer.finalStatusRemark && (
+                          <span className="text-xs text-gray-500 mt-1">{customer.finalStatusRemark}</span>
                         )}
-                        {customer.finalInfo?.remark && (
-                          <span className={
-                            customer.finalInfo.remark.toLowerCase().includes('not')
-                              ? 'text-xs text-red-600'
-                              : 'text-xs text-green-600'
-                          }>
-                            {customer.finalInfo.remark}
-                          </span>
+                        {customer.finalStatusDate && (
+                          <span className="text-xs text-gray-400">{customer.finalStatusDate}</span>
                         )}
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           customer.transferredLeads > 0 
                             ? 'bg-indigo-100 text-indigo-800' 
@@ -1331,6 +1691,12 @@ export default function CustomerListContent() {
                           <ArrowRightLeft className="h-3 w-3 mr-1" />
                           {customer.transferredLeads || 0}
                         </span>
+                        {customer.transferredLeads > 0 && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            <div>From: {customer.transferredFrom}</div>
+                            <div>To: {customer.transferredTo}</div>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="py-4 px-4">

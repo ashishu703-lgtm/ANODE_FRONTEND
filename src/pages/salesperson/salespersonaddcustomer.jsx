@@ -55,8 +55,10 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     address: editingCustomer?.address || "",
     state: editingCustomer?.state || "",
     productType: editingCustomer?.productType || "",
-    connectionStatus: editingCustomer?.connected?.status || "",
-    finalStatus: editingCustomer?.finalInfo?.remark || "",
+    connectionStatus: editingCustomer?.connectedStatus || "",
+    connectionStatusRemark: editingCustomer?.connectedStatusRemark || "",
+    finalStatus: editingCustomer?.finalStatus || "",
+    finalStatusRemark: editingCustomer?.finalStatusRemark || "",
     customerType: editingCustomer?.customerType || "",
     leadSource: editingCustomer?.enquiryBy || "",
     date: new Date().toISOString().split('T')[0],
@@ -272,7 +274,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
             </div>
 
             {/* Status Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-blue-500" />
@@ -295,6 +297,20 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-blue-500" />
+                  Connection Status Remark
+                </label>
+                <textarea
+                  value={formData.connectionStatusRemark}
+                  onChange={(e) => handleInputChange("connectionStatusRemark", e.target.value)}
+                  placeholder="Add remark for connection status..."
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
                   Final Status *
                 </label>
@@ -311,6 +327,20 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-green-500" />
+                  Final Status Remark
+                </label>
+                <textarea
+                  value={formData.finalStatusRemark}
+                  onChange={(e) => handleInputChange("finalStatusRemark", e.target.value)}
+                  placeholder="Add remark for final status..."
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={3}
+                />
               </div>
             </div>
 
