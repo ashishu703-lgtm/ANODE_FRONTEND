@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Clock, Phone, CheckCircle, XCircle, UserX, Calendar, Edit, Trash2, ArrowRight, Search, RefreshCw, BarChart3, Users, DollarSign, Eye } from 'lucide-react';
 
 const SalesDashboard = () => {
@@ -201,6 +201,27 @@ const SalesDashboard = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate: ''
+  });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const datePickerRef = useRef(null);
+
+  // Close date picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleEditUser = (user) => {
     console.log('Edit user:', user);
@@ -294,6 +315,54 @@ const SalesDashboard = () => {
     }
   };
 
+  // Filter users based on search term and date range
+  const filterUsers = (users) => {
+    return users.filter(user => {
+      // Search filter
+      const matchesSearch = !searchTerm || 
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.department.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Date range filter
+      let matchesDateRange = true;
+      if (dateRange.startDate || dateRange.endDate) {
+        const userDate = new Date(user.date);
+        const startDate = dateRange.startDate ? new Date(dateRange.startDate) : null;
+        const endDate = dateRange.endDate ? new Date(dateRange.endDate) : null;
+
+        if (startDate && endDate) {
+          matchesDateRange = userDate >= startDate && userDate <= endDate;
+        } else if (startDate) {
+          matchesDateRange = userDate >= startDate;
+        } else if (endDate) {
+          matchesDateRange = userDate <= endDate;
+        }
+      }
+
+      return matchesSearch && matchesDateRange;
+    });
+  };
+
+  const handleDateRangeChange = (field, value) => {
+    setDateRange(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const clearDateRange = () => {
+    setDateRange({
+      startDate: '',
+      endDate: ''
+    });
+  };
+
+  const getFilteredUsers = () => {
+    const currentData = activeTab === 'sales' ? userData : teleSalesData;
+    return filterUsers(currentData);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -303,20 +372,103 @@ const SalesDashboard = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search by username or email..."
+                placeholder="Search by username, email, or department..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600">Select date range</span>
+            <div className="relative" ref={datePickerRef}>
+              <button 
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-600">
+                  {dateRange.startDate && dateRange.endDate 
+                    ? `${dateRange.startDate} - ${dateRange.endDate}`
+                    : dateRange.startDate 
+                    ? `From ${dateRange.startDate}`
+                    : dateRange.endDate
+                    ? `Until ${dateRange.endDate}`
+                    : 'Select date range'
+                  }
+                </span>
+              </button>
+              
+              {showDatePicker && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-10 min-w-80">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={dateRange.startDate}
+                        onChange={(e) => handleDateRangeChange('startDate', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={dateRange.endDate}
+                        onChange={(e) => handleDateRangeChange('endDate', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <button
+                        onClick={clearDateRange}
+                        className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        onClick={() => setShowDatePicker(false)}
+                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100">
-              <RefreshCw className="w-4 h-4 text-gray-500" />
-            </button>
           </div>
         </div>
+
+        {/* Filter Summary */}
+        {(searchTerm || dateRange.startDate || dateRange.endDate) && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-blue-700">
+                  Showing {getFilteredUsers().length} of {(activeTab === 'sales' ? userData : teleSalesData).length} users
+                </span>
+                {(searchTerm || dateRange.startDate || dateRange.endDate) && (
+                  <span className="text-xs text-blue-600">
+                    {searchTerm && `Search: "${searchTerm}"`}
+                    {searchTerm && (dateRange.startDate || dateRange.endDate) && ' • '}
+                    {dateRange.startDate && `From: ${dateRange.startDate}`}
+                    {dateRange.startDate && dateRange.endDate && ' • '}
+                    {dateRange.endDate && `To: ${dateRange.endDate}`}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  clearDateRange();
+                }}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="mb-6 flex">
@@ -413,7 +565,7 @@ const SalesDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {(activeTab === 'sales' ? userData : teleSalesData).map((user, index) => (
+                {getFilteredUsers().map((user, index) => (
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-3 py-2">
                       <span className="text-xs text-gray-500 font-medium">{index + 1}</span>

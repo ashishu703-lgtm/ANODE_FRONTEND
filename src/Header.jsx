@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, Users, X, Phone, Mail, MapPin, MessageCircle, TrendingUp, Award, Calendar, CheckCircle } from 'lucide-react';
+import { Bell, Users, X, Phone, Mail, MapPin, MessageCircle, TrendingUp, Award, Calendar, CheckCircle, DollarSign, Package } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 
 const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => {
@@ -182,6 +182,7 @@ const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => 
     designation: user.role === 'superadmin' ? 'Super Administrator' : 
                  user.role === 'salesperson' ? 'Sales Executive' :
                  user.role === 'sales_head' ? 'Sales Department Head' :
+                 user.role === 'marketing_department_head' ? 'Marketing Department Head' :
                  user.role === 'marketing_salesperson' ? 'Marketing Salesperson' :
                  user.role === 'office_salesperson' ? 'Office Sales Executive' : 'User',
     department: user.departmentType || user.role || 'N/A',
@@ -248,6 +249,7 @@ const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => 
   // Page-specific header content
   const getPageHeaderContent = () => {
     switch (currentPage) {
+      // Salesperson pages
       case 'customers':
         return {
           icon: <Users className="w-6 h-6 text-white" />,
@@ -269,24 +271,187 @@ const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => 
       case 'products':
         return {
           icon: <Users className="w-6 h-6 text-white" />,
-          title: "Products",
+          title: "Toolbar",
           subtitle: "Browse and manage product catalog"
         };
+      
+      // Follow-up pages with specific titles
       case 'followup-connected':
+        return {
+          icon: <CheckCircle className="w-6 h-6 text-white" />,
+          title: "Connected Follow-ups",
+          subtitle: "Manage successfully connected customer follow-ups"
+        };
       case 'followup-not-connected':
+        return {
+          icon: <X className="w-6 h-6 text-white" />,
+          title: "Not Connected Follow-ups",
+          subtitle: "Follow-ups that could not be connected"
+        };
       case 'followup-pending':
-      case 'followup-next-meeting':
-      case 'followup-closed':
         return {
           icon: <Calendar className="w-6 h-6 text-white" />,
-          title: "Follow Up",
-          subtitle: "Manage customer follow-ups and meetings"
+          title: "Pending Follow-ups",
+          subtitle: "Follow-ups awaiting response"
         };
-      default:
+      case 'followup-next-meeting':
+        return {
+          icon: <Calendar className="w-6 h-6 text-white" />,
+          title: "Next Meeting Follow-ups",
+          subtitle: "Schedule and manage upcoming meetings"
+        };
+      case 'followup-closed':
+        return {
+          icon: <CheckCircle className="w-6 h-6 text-white" />,
+          title: "Closed Follow-ups",
+          subtitle: "Completed and closed follow-up activities"
+        };
+      
+      // SuperAdmin pages
+      case 'customer-list':
         return {
           icon: <Users className="w-6 h-6 text-white" />,
-          title: "Sales Overview",
-          subtitle: "Monitor sales performance and metrics"
+          title: "Customer List",
+          subtitle: "View and manage all customers"
+        };
+      case 'department':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Department Management",
+          subtitle: "Manage departments and organizational structure"
+        };
+      case 'leads':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Leads Management",
+          subtitle: "View and manage all leads"
+        };
+      case 'all-leads':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "All Leads",
+          subtitle: "Comprehensive view of all leads across departments"
+        };
+      case 'configuration':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Configuration",
+          subtitle: "System settings and configuration options"
+        };
+      case 'performance':
+        return {
+          icon: <Award className="w-6 h-6 text-white" />,
+          title: "Performance Analytics",
+          subtitle: "View performance metrics and analytics"
+        };
+      case 'marketing-leads':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Marketing Leads",
+          subtitle: "Manage marketing department leads"
+        };
+      case 'today-visit':
+        return {
+          icon: <Calendar className="w-6 h-6 text-white" />,
+          title: "Today's Visits",
+          subtitle: "Schedule and track today's customer visits"
+        };
+      
+      // Marketing Salesperson pages
+      case 'visits':
+        return {
+          icon: <MapPin className="w-6 h-6 text-white" />,
+          title: "Customer Visits",
+          subtitle: "Plan and track customer visits"
+        };
+      case 'toolbox':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Toolbox",
+          subtitle: "Access tools and resources"
+        };
+      
+      // TeleSales pages
+      case 'tele-sales':
+        return {
+          icon: <Phone className="w-6 h-6 text-white" />,
+          title: "Tele Sales Dashboard",
+          subtitle: "Manage tele sales activities and leads"
+        };
+      
+      // Office Sales Person pages
+      case 'office-sales-person':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Office Sales Dashboard",
+          subtitle: "Manage office sales activities"
+        };
+      
+      // Marketing Salesperson dashboard
+      case 'marketing-salesperson':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Marketing Sales Dashboard",
+          subtitle: "Manage marketing sales activities"
+        };
+      
+      // Sales Department Head pages
+      case 'sales-dashboard':
+        return {
+          icon: <TrendingUp className="w-6 h-6 text-white" />,
+          title: "Sales Dashboard",
+          subtitle: "Sales department performance overview"
+        };
+      case 'user-performance':
+        return {
+          icon: <Award className="w-6 h-6 text-white" />,
+          title: "User Performance",
+          subtitle: "Monitor and analyze user performance metrics"
+        };
+      case 'payment-info':
+        return {
+          icon: <DollarSign className="w-6 h-6 text-white" />,
+          title: "Payment Info",
+          subtitle: "Manage payment information and transactions"
+        };
+      case 'sales-department-users':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Department Users",
+          subtitle: "Manage sales department users and permissions"
+        };
+      case 'stock-update':
+        return {
+          icon: <Package className="w-6 h-6 text-white" />,
+          title: "Stock Update",
+          subtitle: "Update and manage inventory stock levels"
+        };
+      
+      // Marketing Department Head pages
+      case 'marketing-dashboard':
+        return {
+          icon: <TrendingUp className="w-6 h-6 text-white" />,
+          title: "Marketing Dashboard",
+          subtitle: "Marketing department performance overview"
+        };
+      case 'campaign-leads':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Campaign Leads",
+          subtitle: "Manage and track campaign leads"
+        };
+      case 'marketing-department-users':
+        return {
+          icon: <Users className="w-6 h-6 text-white" />,
+          title: "Marketing Department Users",
+          subtitle: "Manage marketing department users and permissions"
+        };
+      
+      default:
+        return {
+          icon: <TrendingUp className="w-6 h-6 text-white" />,
+          title: "Dashboard",
+          subtitle: "Monitor performance and metrics"
         };
     }
   };

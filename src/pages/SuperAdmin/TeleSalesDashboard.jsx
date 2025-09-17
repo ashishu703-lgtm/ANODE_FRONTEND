@@ -29,7 +29,7 @@ const TeleSalesDashboard = () => {
   const teleSalesCards = [
     {
       title: 'Total Calls Made',
-      value: '1,245',
+      value: '0',
       description: 'Calls made this month',
       icon: <Phone className="w-5 h-5" />,
       color: 'blue',
@@ -39,7 +39,7 @@ const TeleSalesDashboard = () => {
     },
     {
       title: 'Connected Calls',
-      value: '892',
+      value: '0',
       description: 'Successfully connected calls',
       icon: <UserCheck className="w-5 h-5" />,
       color: 'green',
@@ -49,7 +49,7 @@ const TeleSalesDashboard = () => {
     },
     {
       title: 'Call Duration',
-      value: '2.5 hrs',
+      value: '0 hrs',
       description: 'Average call duration',
       icon: <Clock className="w-5 h-5" />,
       color: 'purple',
@@ -59,7 +59,7 @@ const TeleSalesDashboard = () => {
     },
     {
       title: 'Conversion Rate',
-      value: '18.7%',
+      value: '0%',
       description: 'Call to sale conversion',
       icon: <Percent className="w-5 h-5" />,
       color: 'orange',
@@ -69,7 +69,7 @@ const TeleSalesDashboard = () => {
     },
     {
       title: 'Revenue Generated',
-      value: '₹1,85,000',
+      value: '₹0',
       description: 'Revenue from tele sales',
       icon: <IndianRupee className="w-5 h-5" />,
       color: 'green',
@@ -79,7 +79,7 @@ const TeleSalesDashboard = () => {
     },
     {
       title: 'Follow-up Calls',
-      value: '156',
+      value: '0',
       description: 'Pending follow-up calls',
       icon: <AlertCircle className="w-5 h-5" />,
       color: 'red',
@@ -89,84 +89,9 @@ const TeleSalesDashboard = () => {
     }
   ];
 
-  const teleSalesTeam = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@anocab.com',
-      phone: '+1 (555) 111-2222',
-      role: 'Senior Tele Sales Executive',
-      status: 'Active',
-      calls: 245,
-      conversions: 18,
-      revenue: '₹45,000'
-    },
-    {
-      id: 2,
-      name: 'Emily Davis',
-      email: 'emily.davis@anocab.com',
-      phone: '+1 (555) 222-3333',
-      role: 'Tele Sales Specialist',
-      status: 'Active',
-      calls: 198,
-      conversions: 15,
-      revenue: '₹38,000'
-    },
-    {
-      id: 3,
-      name: 'Robert Brown',
-      email: 'robert.brown@anocab.com',
-      phone: '+1 (555) 333-4444',
-      role: 'Lead Tele Sales Agent',
-      status: 'Active',
-      calls: 267,
-      conversions: 22,
-      revenue: '₹52,000'
-    }
-  ];
+  const teleSalesTeam = [];
 
-  const callLogs = [
-    {
-      id: 1,
-      customer: 'ABC Corporation',
-      phone: '+1 (555) 123-4567',
-      duration: '12:45',
-      status: 'Completed',
-      outcome: 'Sale Made',
-      salesperson: 'John Smith',
-      time: '09:30 AM'
-    },
-    {
-      id: 2,
-      customer: 'XYZ Industries',
-      phone: '+1 (555) 234-5678',
-      duration: '08:20',
-      status: 'Completed',
-      outcome: 'Follow-up Required',
-      salesperson: 'Emily Davis',
-      time: '10:15 AM'
-    },
-    {
-      id: 3,
-      customer: 'Tech Solutions Ltd',
-      phone: '+1 (555) 345-6789',
-      duration: '15:30',
-      status: 'Completed',
-      outcome: 'Sale Made',
-      salesperson: 'Robert Brown',
-      time: '11:00 AM'
-    },
-    {
-      id: 4,
-      customer: 'Global Enterprises',
-      phone: '+1 (555) 456-7890',
-      duration: '06:15',
-      status: 'Completed',
-      outcome: 'Not Interested',
-      salesperson: 'John Smith',
-      time: '02:30 PM'
-    }
-  ];
+  const callLogs = [];
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">

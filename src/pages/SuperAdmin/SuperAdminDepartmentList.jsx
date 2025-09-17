@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, RefreshCw, Edit, Trash2, LogOut, Calendar, Users, Building, User, Mail, Filter, Eye, EyeOff, X } from 'lucide-react';
-import departmentUsersService, { uiToApiDepartment, apiToUiDepartment, uiToApiRole, apiToUiRole } from '../../api/admin_api/departmentUsersService';
+import departmentHeadService, { uiToApiDepartment, apiToUiDepartment } from '../../api/admin_api/departmentHeadService';
+import departmentUserService from '../../api/admin_api/departmentUserService';
 import { useAuth } from '../../context/AuthContext';
 
 const DepartmentManagement = () => {
-  const { register, login } = useAuth();
+  const { register, login, impersonate, user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All Departments');
   const [showFilters, setShowFilters] = useState(false);
   const [roleFilter, setRoleFilter] = useState('All Roles');
-  const [headUserFilter, setHeadUserFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
-  // Initialize with empty array - no dummy data
   const [departments, setDepartments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -25,8 +24,8 @@ const DepartmentManagement = () => {
     password: '',
     departmentType: 'office_sales',
     companyName: 'Anode Electric Pvt. Ltd.',
-    role: 'department_user',
-    headUser: ''
+    role: 'department_head',
+    monthlyTarget: ''
   });
   const [loginData, setLoginData] = useState({
     email: '',
@@ -44,6 +43,8 @@ const DepartmentManagement = () => {
   const [pages, setPages] = useState(0);
   const [stats, setStats] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const isSuperAdmin = (user?.role === 'superadmin');
+  const isDepartmentHead = (user?.role === 'department_head');
 
   const getDepartmentTypeColor = (type) => {
     switch (type) {
@@ -73,8 +74,8 @@ const DepartmentManagement = () => {
       password: '',
       departmentType: apiToUiDepartment(user.departmentType || user.department_type),
       companyName: user.companyName || user.company_name,
-      role: apiToUiRole(user.role),
-      headUser: user.headUser || user.head_user || '',
+      role: 'Department Head',
+      target: user.target ?? user.monthlyTarget ?? '',
       isActive: user.isActive ?? user.is_active,
       createdAt: createdAtRaw ? new Date(createdAtRaw).toDateString() : '',
     };
@@ -89,12 +90,16 @@ const DepartmentManagement = () => {
         limit,
       };
       if (selectedFilter !== 'All Departments') params.departmentType = uiToApiDepartment(selectedFilter);
-      if (roleFilter !== 'All Roles') params.role = uiToApiRole(roleFilter);
       if (searchTerm.trim()) params.search = searchTerm.trim();
-      const res = await departmentUsersService.listUsers(params);
-      const users = (res.users || res.data?.users || []).filter(u => u.role !== 'superadmin');
-      const pagination = res.pagination || res.data?.pagination || {};
-      setDepartments(users.map(mapUserFromApi));
+      
+      // Fetch only department heads (UI supports heads only)
+      const headsRes = await departmentHeadService.listHeads(params);
+      const heads = (headsRes.users || headsRes.data?.users || []).map(mapUserFromApi);
+      const sorted = heads.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setDepartments(sorted);
+      
+      // Use pagination from heads response (they should be the same)
+      const pagination = headsRes.pagination || headsRes.data?.pagination || {};
       if (pagination) {
         setTotal(pagination.total || 0);
         setPages(pagination.pages || 0);
@@ -108,7 +113,7 @@ const DepartmentManagement = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await departmentUsersService.getStats();
+      const res = await departmentUserService.getStats();
       setStats(res);
     } catch (err) {
       console.warn('Failed to load stats', err);
@@ -129,17 +134,21 @@ const DepartmentManagement = () => {
     fetchStats();
   }, []);
 
-  // Edit department function
+  useEffect(() => {
+    if (!isSuperAdmin && user?.departmentType) {
+      setSelectedFilter(apiToUiDepartment(user.departmentType));
+    }
+  }, [isSuperAdmin, user?.departmentType]);
+
   const handleEdit = (dept) => {
     setSelectedDept(dept);
     setShowEditModal(true);
   };
 
-  // Delete department function
   const handleDelete = async (deptId) => {
     if (!window.confirm('Are you sure you want to delete this department?')) return;
     try {
-      await departmentUsersService.deleteUser(deptId);
+      await departmentHeadService.deleteHead(deptId);
       await fetchUsers();
     } catch (err) {
       alert(err.message || 'Failed to delete user');
@@ -156,11 +165,11 @@ const DepartmentManagement = () => {
         email: selectedDept.email,
         departmentType: uiToApiDepartment(selectedDept.departmentType),
         companyName: selectedDept.companyName,
-        role: uiToApiRole(selectedDept.role),
-        headUser: selectedDept.headUser,
+        role: 'department_head',
+        monthlyTarget: selectedDept.monthlyTarget,
       };
       if (selectedDept.password) payload.password = selectedDept.password;
-      await departmentUsersService.updateUser(selectedDept.id, payload);
+      await departmentHeadService.updateHead(selectedDept.id, payload);
       await fetchUsers();
       setShowEditModal(false);
       setSelectedDept(null);
@@ -180,10 +189,8 @@ const DepartmentManagement = () => {
   };
 
   const filteredDepartments = departments.filter((dept) => {
-    const matchesHeadUser = headUserFilter.trim() === '' ||
-      (dept.headUser || '').toLowerCase().includes(headUserFilter.toLowerCase());
     const matchesDate = isWithinDateRange(dept.createdAt);
-    return matchesHeadUser && matchesDate;
+    return matchesDate;
   });
 
   return (
@@ -243,13 +250,15 @@ const DepartmentManagement = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              <button
-                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium"
-                onClick={() => setShowAddModal(true)}
-              >
-                <Plus className="w-4 h-4" />
-                Add Department
-              </button>
+              {isSuperAdmin && (
+                <button
+                  className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium"
+                  onClick={() => setShowAddModal(true)}
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Department
+                </button>
+              )}
 
               <button
                 className="p-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center transition-colors"
@@ -263,7 +272,8 @@ const DepartmentManagement = () => {
               <select 
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
-                className="h-9 px-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-sm"
+                disabled={!isSuperAdmin}
+                className={`h-9 px-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-sm ${!isSuperAdmin ? 'opacity-60 cursor-not-allowed' : ''}`}
                 title="Department Type"
                 aria-label="Department Type"
               >
@@ -287,6 +297,7 @@ const DepartmentManagement = () => {
           </div>
           {showFilters && (
             <div id="advanced-filters" className="mt-4 border-t border-gray-100 pt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+              {isSuperAdmin && (
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Role</label>
                 <select 
@@ -299,6 +310,7 @@ const DepartmentManagement = () => {
                   <option>Department User</option>
                 </select>
               </div>
+              )}
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Head User</label>
                 <input
@@ -417,8 +429,8 @@ const DepartmentManagement = () => {
                     </th>
                     <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-pink-600" />
-                        Head User
+                        <Users className="w-4 h-4 text-pink-600" />
+                        Target (Rs)
                       </div>
                     </th>
                     <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">
@@ -456,7 +468,7 @@ const DepartmentManagement = () => {
                           {dept.role}
                         </span>
                       </td>
-                      <td className="py-3 px-6 text-sm text-gray-700">{dept.headUser}</td>
+                      <td className="py-3 px-6 text-sm text-gray-700">{String(dept.target ?? '')}</td>
                       <td className="py-3 px-6 text-xs text-gray-500 whitespace-nowrap">{dept.createdAt}</td>
                       <td className="py-3 px-6">
                         <div className="flex items-center gap-2">
@@ -476,12 +488,30 @@ const DepartmentManagement = () => {
                           </button>
                           <button 
                             className="p-1 text-green-600 hover:text-green-800 hover:bg-green-50 rounded"
-                            onClick={() => {
-                              setLoginData({
-                                email: dept.email,
-                                password: ''
-                              });
-                              setShowLoginModal(true);
+                            onClick={async () => {
+                              // Check if current user is superadmin
+                              const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+                              if (currentUser && currentUser.role === 'superadmin') {
+                                // Superadmin can directly switch without password
+                                try {
+                                  const result = await impersonate(dept.email);
+                                  if (result.success) {
+                                    const token = result.token || result?.user?.token || '';
+                                    const url = `${window.location.origin}/?impersonateToken=${encodeURIComponent(token)}`;
+                                    window.open(url, '_blank');
+                                  } else {
+                                    alert('Failed to switch user');
+                                  }
+                                } catch (err) {
+                                  alert('Failed to switch user');
+                                }
+                              } else {
+                                setLoginData({
+                                  email: dept.email,
+                                  password: ''
+                                });
+                                setShowLoginModal(true);
+                              }
                             }}
                             title="Login as this user"
                           >
@@ -552,13 +582,13 @@ const DepartmentManagement = () => {
                       departmentType: newDept.departmentType,
                       companyName: newDept.companyName,
                       role: newDept.role,
-                      headUser: newDept.headUser,
+                      monthlyTarget: newDept.monthlyTarget,
                     };
                     const result = await register(payload);
                     if (result.success) {
                       await fetchUsers();
                       setShowAddModal(false);
-                      setNewDept({ username: '', email: '', password: '', departmentType: 'office_sales', companyName: 'Anode Electric Pvt. Ltd.', role: 'department_user', headUser: '' });
+                      setNewDept({ username: '', email: '', password: '', departmentType: 'office_sales', companyName: 'Anode Electric Pvt. Ltd.', role: 'department_head', monthlyTarget: '' });
                     } else {
                       alert(result.error || 'Failed to create user');
                     }
@@ -640,30 +670,21 @@ const DepartmentManagement = () => {
                     <label className="block text-xs text-gray-600 mb-1">Role</label>
                     <select
                       value={newDept.role}
-                      onChange={(e) => {
-                        const role = e.target.value;
-                        setNewDept({ 
-                          ...newDept, 
-                          role,
-                          headUser: role === 'department_head' ? 'superadmin' : ''
-                        });
-                      }}
+                      onChange={(e) => setNewDept({ ...newDept, role: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
                     >
                       <option value="department_head">Department Head</option>
-                      <option value="department_user">Department User</option>
                     </select>
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs text-gray-600 mb-1">Head User</label>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Monthly Target (Rs)</label>
                     <input
-                      type="text"
-                      required={newDept.role === 'department_user'}
-                      disabled={newDept.role === 'department_head'}
-                      value={newDept.headUser}
-                      onChange={(e) => setNewDept({ ...newDept, headUser: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:text-gray-500"
-                      placeholder={newDept.role === 'department_head' ? 'Auto-set to superadmin' : 'e.g. head@company.com'}
+                      type="number"
+                      required
+                      value={newDept.monthlyTarget}
+                      onChange={(e) => setNewDept({ ...newDept, monthlyTarget: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="Enter monthly target in Rs"
                     />
                   </div>
                 </div>
@@ -777,29 +798,20 @@ const DepartmentManagement = () => {
                     <label className="block text-xs text-gray-600 mb-1">Role</label>
                     <select
                       value={selectedDept.role}
-                      onChange={(e) => {
-                        const role = e.target.value;
-                        setSelectedDept({ 
-                          ...selectedDept, 
-                          role,
-                          headUser: role === 'Department Head' ? 'superadmin' : selectedDept.headUser
-                        });
-                      }}
+                      onChange={(e) => setSelectedDept({ ...selectedDept, role: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
                     >
                       <option>Department Head</option>
-                      <option>Department User</option>
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs text-gray-600 mb-1">Head User</label>
+                    <label className="block text-xs text-gray-600 mb-1">Monthly Target (Rs)</label>
                     <input
-                      type="text"
-                      disabled={selectedDept.role === 'Department Head'}
-                      value={selectedDept.headUser}
-                      onChange={(e) => setSelectedDept({ ...selectedDept, headUser: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:text-gray-500"
-                      placeholder={selectedDept.role === 'Department Head' ? 'Auto-set to superadmin' : 'Head user email or username'}
+                      type="number"
+                      value={selectedDept.monthlyTarget || selectedDept.target || ''}
+                      onChange={(e) => setSelectedDept({ ...selectedDept, monthlyTarget: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="Enter monthly target in Rs"
                     />
                   </div>
                 </div>
