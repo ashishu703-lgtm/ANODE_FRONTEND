@@ -130,7 +130,9 @@ const FollowUpBase = ({ status, customData = [] }) => {
       (item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (item.business && item.business.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (item.phone && item.phone.includes(searchQuery)) ||
-      (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase()));
+      (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.productName && item.productName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.state && item.state.toLowerCase().includes(searchQuery.toLowerCase()));
     
     // Individual field filters
     const matchesFilters = Object.entries(filters).every(([key, value]) => {
@@ -503,19 +505,19 @@ const FollowUpBase = ({ status, customData = [] }) => {
                       <div className="text-sm text-gray-500">{item.email || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.city || 'N/A'}, {item.state || 'N/A'}</div>
-                      <div className="text-sm text-gray-500">{item.country || 'N/A'}</div>
+                      <div className="text-sm text-gray-900">{item.state || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{item.address || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.product || 'N/A'}</div>
-                      <div className="text-sm text-gray-500">{item.quantity || 'N/A'} units</div>
+                      <div className="text-sm text-gray-900">{item.productName || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{item.productType || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {item.followUpDate ? new Date(item.followUpDate).toLocaleDateString() : 'N/A'}
+                        {item.connectedStatusDate ? new Date(item.connectedStatusDate).toLocaleDateString() : 'N/A'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {item.followUpTime || ''}
+                        {item.finalStatusDate ? new Date(item.finalStatusDate).toLocaleDateString() : ''}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

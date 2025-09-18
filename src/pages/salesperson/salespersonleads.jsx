@@ -6,6 +6,7 @@ import html2pdf from 'html2pdf.js'
 import Quotation from './salespersonquotation.jsx'
 import AddCustomerForm from './salespersonaddcustomer.jsx'
 import CreateQuotationForm from './salespersoncreatequotation.jsx'
+import { useSharedData } from './SharedDataContext'
 
 function cx(...classes) {
   return classes.filter(Boolean).join(" ")
@@ -20,6 +21,7 @@ function CardContent({ className, children }) {
 }
 
 export default function CustomerListContent() {
+  const { customers, setCustomers, updateCustomer, addCustomer, deleteCustomer } = useSharedData()
   const [viewingCustomer, setViewingCustomer] = React.useState(null)
   const [modalTab, setModalTab] = React.useState('details')
   const [showAddCustomer, setShowAddCustomer] = React.useState(false)
@@ -34,8 +36,97 @@ export default function CustomerListContent() {
   // Payment related state
   const [showPaymentDetails, setShowPaymentDetails] = React.useState(false)
   const [selectedCustomer, setSelectedCustomer] = React.useState(null)
-  const [paymentHistory, setPaymentHistory] = React.useState([])
-  const [totalAmount, setTotalAmount] = React.useState(0)
+  const [paymentHistory, setPaymentHistory] = React.useState([
+    {
+      id: 1,
+      amount: 50000,
+      date: '2024-01-15',
+      status: 'paid',
+      paymentMethod: 'Cash',
+      remarks: 'Initial advance payment',
+      reference: 'CASH001',
+      dueDate: '2024-01-15',
+      paidDate: '2024-01-15'
+    },
+    {
+      id: 2,
+      amount: 25000,
+      date: '2024-01-20',
+      status: 'paid',
+      paymentMethod: 'UPI',
+      remarks: 'Second installment',
+      reference: 'UPI123456',
+      dueDate: '2024-01-20',
+      paidDate: '2024-01-20'
+    },
+    {
+      id: 3,
+      amount: 15000,
+      date: '2024-01-25',
+      status: 'pending',
+      paymentMethod: 'Bank Transfer',
+      remarks: 'Final payment pending',
+      reference: 'BANK789',
+      dueDate: '2024-01-25',
+      paidDate: null
+    }
+  ])
+  const [totalAmount, setTotalAmount] = React.useState(90000)
+  const [selectedPayment, setSelectedPayment] = React.useState(null)
+  
+  // Company branch configuration
+  const [selectedBranch, setSelectedBranch] = React.useState('ANODE') // Default branch
+  const [showQuotationPopup, setShowQuotationPopup] = React.useState(false)
+  const [quotationPopupData, setQuotationPopupData] = React.useState(null)
+  
+  const companyBranches = {
+    ANODE: {
+      name: 'ANODE ELECTRIC PRIVATE LIMITED',
+      gstNumber: '(23AANCA7455R1ZX)',
+      description: 'MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES.',
+      address: 'KHASRA NO. 805/5, PLOT NO. 10, IT PARK, BARGI HILLS, JABALPUR - 482003, MADHYA PRADESH, INDIA.',
+      tel: '6262002116, 6262002113',
+      web: 'www.anocab.com',
+      email: 'info@anocab.com',
+      logo: 'Anocab - A Positive Connection.....'
+    },
+    SAMRIDDHI_CABLE: {
+      name: 'SAMRIDDHI CABLE INDUSTRIES PRIVATE LIMITED',
+      gstNumber: '(23ABPCS7684F1ZT)',
+      description: 'MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES.',
+      address: 'KHASRA NO. 805/5, PLOT NO. 10, IT PARK, BARGI HILLS, JABALPUR - 482003, MADHYA PRADESH, INDIA.',
+      tel: '6262002116, 6262002113',
+      web: 'www.samriddhicable.com',
+      email: 'info@samriddhicable.com',
+      logo: 'Samriddhi Cable - Quality & Excellence.....'
+    },
+    SAMRIDDHI_INDUSTRIES: {
+      name: 'SAMRIDDHI INDUSTRIES',
+      gstNumber: '(23ABWFS1117M1ZT)',
+      description: 'MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES.',
+      address: 'KHASRA NO. 805/5, PLOT NO. 10, IT PARK, BARGI HILLS, JABALPUR - 482003, MADHYA PRADESH, INDIA.',
+      tel: '6262002116, 6262002113',
+      web: 'www.samriddhiindustries.com',
+      email: 'info@samriddhiindustries.com',
+      logo: 'Samriddhi Industries - Innovation & Trust.....'
+    }
+  }
+  
+  // Set the last payment as default when payment modal opens
+  React.useEffect(() => {
+    if (showPaymentDetails && paymentHistory.length > 0) {
+      console.log('Setting last payment as default:', paymentHistory[paymentHistory.length - 1])
+      setSelectedPayment(paymentHistory[paymentHistory.length - 1])
+    }
+  }, [showPaymentDetails, paymentHistory])
+  
+  // Function to open payment modal for a specific customer
+  const handlePaymentDetails = (customer) => {
+    setSelectedCustomer(customer)
+    setShowPaymentDetails(true)
+    // Reset selected payment to null so useEffect can set the last payment
+    setSelectedPayment(null)
+  }
   const [showImportModal, setShowImportModal] = React.useState(false)
   const [importFile, setImportFile] = React.useState(null)
   
@@ -45,8 +136,23 @@ export default function CustomerListContent() {
   const [currentPdfUrl, setCurrentPdfUrl] = React.useState('')
   // Available options for dropdowns
   const productTypes = ['Conductor', 'Cable', 'AAAC', 'Aluminium', 'Copper', 'PVC', 'Wire'];
-  const customerTypes = ['Business', 'Corporate', 'Individual', 'Reseller', 'Government'];
-  const leadSources = ['Phone', 'Marketing', 'FB Ads', 'Google Ads', 'Referral', 'Webinar', 'Website', 'Email', 'Other'];
+  const customerTypes = ['Individual', 'Retailer', 'Distributer', 'Dealer', 'Contractor', 'Business'];
+  const leadSources = [
+    'Website Inquiry',
+    'Phone Call', 
+    'Walk-in / Direct Visit',
+    'Distributor / Dealer',
+    'Existing Customer Referral',
+    'Trade Show / Exhibition',
+    'Tender / Government Contract',
+    'Social Media (LinkedIn, Facebook, Instagram, etc.)',
+    'Email Campaign',
+    'Online Marketplace (IndiaMART, TradeIndia, etc.)',
+    'Advertisement (Newspaper / Hoarding / Online Ads)',
+    'Cold Call / Telemarketing',
+    'Salesperson Visit',
+    'Networking / Business Association'
+  ];
   const states = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
     'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
@@ -104,368 +210,6 @@ export default function CustomerListContent() {
       finalStatus: ''
     });
   };
-  const [customers, setCustomers] = React.useState([
-    {
-      id: 1,
-      name: "Rajesh Kumar",
-      phone: "+91 98765 43210",
-      whatsapp: "+91 98765 43210",
-      email: "rajesh.kumar@email.com",
-      business: "Rajesh Electricals",
-      address: "123 MG Road, Near City Mall, Bangalore",
-      gstNo: "29ABCDE1234F1Z5",
-      productName: "XLPE Cable 1.5mm",
-      productType: "Cable",
-      state: "Karnataka",
-      enquiryBy: "Phone",
-      customerType: "Business",
-      date: "2024-01-15",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Customer was very interested in our cable products. Discussed pricing and delivery timeline.",
-      connectedStatusDate: "2024-01-15",
-      finalStatus: "open",
-      finalStatusRemark: "Waiting for customer's budget confirmation. Follow up scheduled for next week.",
-      finalStatusDate: "2024-01-15",
-      quotationsSent: 2,
-      latestQuotationUrl: "latest",
-      transferredLeads: 0,
-      transferredFrom: null,
-      transferredTo: null
-    },
-    {
-      id: 2,
-      name: "Priya Sharma",
-      phone: "+91 87654 32109",
-      whatsapp: "+91 87654 32109",
-      email: "priya.sharma@company.com",
-      business: "Sharma Industries",
-      address: "456 Industrial Area, Phase 2, Gurgaon",
-      gstNo: "06FGHIJ5678K2L6",
-      productName: "ACSR Conductor 50mm²",
-      productType: "Conductor",
-      state: "Haryana",
-      enquiryBy: "Marketing",
-      customerType: "Corporate",
-      date: "2024-01-16",
-      connectedStatus: "Follow Up",
-      connectedStatusRemark: "Initial call completed. Customer requested detailed product specifications.",
-      connectedStatusDate: "2024-01-16",
-      finalStatus: "next_meeting",
-      finalStatusRemark: "Meeting scheduled for next Tuesday to discuss project requirements.",
-      finalStatusDate: "2024-01-16",
-      quotationsSent: 1,
-      transferredLeads: 1,
-      transferredFrom: "Marketing Team",
-      transferredTo: "Sales Team"
-    },
-    {
-      id: 3,
-      name: "Amit Patel",
-      phone: "+91 76543 21098",
-      whatsapp: "+91 76543 21098",
-      email: "amit.patel@email.com",
-      business: "Patel Electrical Works",
-      address: "789 Commercial Street, Ahmedabad",
-      gstNo: "24KLMNO9012P3M7",
-      productName: "AAAC Conductor 70mm²",
-      productType: "AAAC",
-      state: "Gujarat",
-      enquiryBy: "Referral",
-      customerType: "Business",
-      date: "2024-01-17",
-      connectedStatus: "Not Connected",
-      connectedStatusRemark: "Customer did not answer the call. Left voicemail with contact details.",
-      connectedStatusDate: "2024-01-17",
-      finalStatus: "open",
-      finalStatusRemark: "Pending customer response. Will try calling again tomorrow.",
-      finalStatusDate: "2024-01-17",
-      quotationsSent: 0
-    },
-    {
-      id: 4,
-      name: "Sunita Reddy",
-      phone: "+91 65432 10987",
-      whatsapp: "+91 65432 10987",
-      email: "sunita.reddy@email.com",
-      business: "Reddy Power Solutions",
-      address: "321 Tech Park, Hyderabad",
-      gstNo: "36PQRST3456U4N8",
-      productName: "Aluminium Wire 2.5mm",
-      productType: "Aluminium",
-      state: "Telangana",
-      enquiryBy: "Google Ads",
-      customerType: "Corporate",
-      date: "2024-01-18",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Excellent conversation. Customer is ready to place order for aluminium conductors.",
-      connectedStatusDate: "2024-01-18",
-      finalStatus: "closed",
-      finalStatusRemark: "Deal closed successfully. Order placed for 500 units.",
-      finalStatusDate: "2024-01-18",
-      quotationsSent: 3,
-      latestQuotationUrl: "latest",
-      transferredLeads: 2,
-      transferredFrom: "Tele Sales",
-      transferredTo: "Field Sales"
-    },
-    {
-      id: 5,
-      name: "Vikram Singh",
-      phone: "+91 54321 09876",
-      whatsapp: "+91 54321 09876",
-      email: "vikram.singh@email.com",
-      business: "Singh Electricals",
-      address: "654 Main Road, Jaipur",
-      gstNo: "08UVWXY7890V5O9",
-      productName: "Copper Wire 4mm",
-      productType: "Copper",
-      state: "Rajasthan",
-      enquiryBy: "Website",
-      customerType: "Individual",
-      date: "2024-01-19",
-      connectedStatus: "Follow Up",
-      connectedStatusRemark: "Customer showed interest in copper products. Discussed pricing options.",
-      connectedStatusDate: "2024-01-19",
-      finalStatus: "open",
-      finalStatusRemark: "Customer is comparing prices with other suppliers. Follow up in 3 days.",
-      finalStatusDate: "2024-01-19",
-      quotationsSent: 1
-    },
-    {
-      id: 6,
-      name: "Meera Joshi",
-      phone: "+91 43210 98765",
-      whatsapp: "+91 43210 98765",
-      email: "meera.joshi@email.com",
-      business: "Joshi Industries",
-      address: "987 Business District, Pune",
-      gstNo: "27ZABCD1234W6P0",
-      productName: "PVC Insulated Wire 6mm",
-      productType: "PVC",
-      state: "Maharashtra",
-      enquiryBy: "FB Ads",
-      customerType: "Business",
-      date: "2024-01-20",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Good discussion about PVC products. Customer needs samples for testing.",
-      connectedStatusDate: "2024-01-20",
-      finalStatus: "next_meeting",
-      finalStatusRemark: "Meeting scheduled to provide product samples and discuss bulk pricing.",
-      finalStatusDate: "2024-01-20",
-      quotationsSent: 2,
-      transferredLeads: 1,
-      transferredFrom: "Online Team",
-      transferredTo: "Regional Sales"
-    },
-    {
-      id: 7,
-      name: "Arjun Gupta",
-      phone: "+91 32109 87654",
-      whatsapp: "+91 32109 87654",
-      email: "arjun.gupta@email.com",
-      business: "Gupta Power Systems",
-      address: "147 Industrial Estate, Chennai",
-      gstNo: "33EFGHI5678X7Q1",
-      productName: "Bare Copper Wire 10mm",
-      productType: "Wire",
-      state: "Tamil Nadu",
-      enquiryBy: "Email",
-      customerType: "Corporate",
-      date: "2024-01-21",
-      connectedStatus: "Not Connected",
-      connectedStatusRemark: "Email sent but no response yet. Will try calling tomorrow.",
-      connectedStatusDate: "2024-01-21",
-      finalStatus: "open",
-      finalStatusRemark: "Awaiting customer response to email inquiry.",
-      finalStatusDate: "2024-01-21",
-      quotationsSent: 0
-    },
-    {
-      id: 8,
-      name: "Kavita Nair",
-      phone: "+91 21098 76543",
-      whatsapp: "+91 21098 76543",
-      email: "kavita.nair@email.com",
-      business: "Nair Electricals",
-      address: "258 Commercial Complex, Kochi",
-      gstNo: "32JKLMN9012Y8R2",
-      productName: "Armored Cable 16mm",
-      productType: "Cable",
-      state: "Kerala",
-      enquiryBy: "Webinar",
-      customerType: "Reseller",
-      date: "2024-01-22",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Met through webinar. Customer is interested in becoming a reseller.",
-      connectedStatusDate: "2024-01-22",
-      finalStatus: "open",
-      finalStatusRemark: "Discussed reseller terms and conditions. Waiting for their decision.",
-      finalStatusDate: "2024-01-22",
-      quotationsSent: 1
-    },
-    {
-      id: 9,
-      name: "Rohit Agarwal",
-      phone: "+91 10987 65432",
-      whatsapp: "+91 10987 65432",
-      email: "rohit.agarwal@email.com",
-      business: "Agarwal Industries",
-      address: "369 Tech Hub, Noida",
-      gstNo: "09OPQRS3456Z9S3",
-      productName: "ACSR Conductor 95mm²",
-      productType: "Conductor",
-      state: "Uttar Pradesh",
-      enquiryBy: "Phone",
-      customerType: "Government",
-      date: "2024-01-23",
-      connectedStatus: "Follow Up",
-      connectedStatusRemark: "Government tender inquiry. Need to submit detailed proposal.",
-      connectedStatusDate: "2024-01-23",
-      finalStatus: "open",
-      finalStatusRemark: "Working on tender proposal. Deadline is next Friday.",
-      finalStatusDate: "2024-01-23",
-      quotationsSent: 1
-    },
-    {
-      id: 10,
-      name: "Deepika Iyer",
-      phone: "+91 98765 43210",
-      whatsapp: "+91 98765 43210",
-      email: "deepika.iyer@email.com",
-      business: "Iyer Power Solutions",
-      address: "741 Business Park, Mumbai",
-      gstNo: "27TUVWX7890A0T4",
-      productName: "AAAC Conductor 120mm²",
-      productType: "AAAC",
-      state: "Maharashtra",
-      enquiryBy: "Referral",
-      customerType: "Business",
-      date: "2024-01-24",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Referred by existing customer. Very interested in AAAC conductors.",
-      connectedStatusDate: "2024-01-24",
-      finalStatus: "closed",
-      finalStatusRemark: "Deal closed! Order placed for 1000 units of AAAC conductors.",
-      finalStatusDate: "2024-01-24",
-      quotationsSent: 4,
-      latestQuotationUrl: "latest"
-    },
-    {
-      id: 11,
-      name: "Suresh Kumar",
-      phone: "+91 87654 32109",
-      whatsapp: "+91 87654 32109",
-      email: "suresh.kumar@email.com",
-      business: "Kumar Electrical Works",
-      address: "852 Industrial Zone, Delhi",
-      gstNo: "07BCDEF1234B1U5",
-      productName: "Aluminium Wire 6mm",
-      productType: "Aluminium",
-      state: "Delhi",
-      enquiryBy: "Marketing",
-      customerType: "Individual",
-      date: "2024-01-25",
-      connectedStatus: "Not Connected",
-      connectedStatusRemark: "Customer's phone was switched off. Will try again in the evening.",
-      connectedStatusDate: "2024-01-25",
-      finalStatus: "open",
-      finalStatusRemark: "Pending contact. Will try different time slots.",
-      finalStatusDate: "2024-01-25",
-      quotationsSent: 0
-    },
-    {
-      id: 12,
-      name: "Anita Desai",
-      phone: "+91 76543 21098",
-      whatsapp: "+91 76543 21098",
-      email: "anita.desai@email.com",
-      business: "Desai Industries",
-      address: "963 Commercial Area, Kolkata",
-      gstNo: "19GHIJK5678C2V6",
-      productName: "Copper Wire 8mm",
-      productType: "Copper",
-      state: "West Bengal",
-      enquiryBy: "Google Ads",
-      customerType: "Corporate",
-      date: "2024-01-26",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Found us through Google Ads. Interested in copper wire for industrial use.",
-      connectedStatusDate: "2024-01-26",
-      finalStatus: "next_meeting",
-      finalStatusRemark: "Technical meeting scheduled to discuss specifications and pricing.",
-      finalStatusDate: "2024-01-26",
-      quotationsSent: 2
-    },
-    {
-      id: 13,
-      name: "Manoj Tiwari",
-      phone: "+91 65432 10987",
-      whatsapp: "+91 65432 10987",
-      email: "manoj.tiwari@email.com",
-      business: "Tiwari Power Systems",
-      address: "147 Business Center, Lucknow",
-      gstNo: "09LMNOP9012D3W7",
-      productName: "PVC Insulated Wire 10mm",
-      productType: "PVC",
-      state: "Uttar Pradesh",
-      enquiryBy: "Website",
-      customerType: "Business",
-      date: "2024-01-27",
-      connectedStatus: "Follow Up",
-      connectedStatusRemark: "Customer filled contact form on website. Initial call completed.",
-      connectedStatusDate: "2024-01-27",
-      finalStatus: "open",
-      finalStatusRemark: "Customer needs time to discuss with team. Follow up in 2 days.",
-      finalStatusDate: "2024-01-27",
-      quotationsSent: 1
-    },
-    {
-      id: 14,
-      name: "Pooja Mehta",
-      phone: "+91 54321 09876",
-      whatsapp: "+91 54321 09876",
-      email: "pooja.mehta@email.com",
-      business: "Mehta Electricals",
-      address: "258 Industrial Park, Chandigarh",
-      gstNo: "04QRSTU3456E4X8",
-      productName: "Bare Copper Wire 16mm",
-      productType: "Wire",
-      state: "Punjab",
-      enquiryBy: "FB Ads",
-      customerType: "Reseller",
-      date: "2024-01-28",
-      connectedStatus: "Connected",
-      connectedStatusRemark: "Saw our Facebook ad. Interested in wire products for reselling.",
-      connectedStatusDate: "2024-01-28",
-      finalStatus: "open",
-      finalStatusRemark: "Discussed reseller margins. Customer is evaluating our terms.",
-      finalStatusDate: "2024-01-28",
-      quotationsSent: 1
-    },
-    {
-      id: 15,
-      name: "Ravi Verma",
-      phone: "+91 43210 98765",
-      whatsapp: "+91 43210 98765",
-      email: "ravi.verma@email.com",
-      business: "Verma Industries",
-      address: "369 Tech City, Indore",
-      gstNo: "23VWXYZ7890F5Y9",
-      productName: "XLPE Cable 25mm",
-      productType: "Cable",
-      state: "Madhya Pradesh",
-      enquiryBy: "Email",
-      customerType: "Corporate",
-      date: "2024-01-29",
-      connectedStatus: "Not Connected",
-      connectedStatusRemark: "Email bounced back. Need to verify correct email address.",
-      connectedStatusDate: "2024-01-29",
-      finalStatus: "open",
-      finalStatusRemark: "Trying to get correct contact information from other sources.",
-      finalStatusDate: "2024-01-29",
-      quotationsSent: 0
-    }
-  ])
 
   const handleEdit = (customer) => {
     setEditingCustomer(customer)
@@ -511,36 +255,78 @@ export default function CustomerListContent() {
   }
 
 
-  const handleViewLatestQuotation = async (customer) => {
-    try {
-      if (lastQuotationData && lastQuotationData.customer?.id === customer.id) {
-        // Generate PDF and show in modal
-        const pdfBlob = await generateQuotationPDF(lastQuotationData, customer, true)
-        const pdfUrl = URL.createObjectURL(pdfBlob)
-        setCurrentPdfUrl(pdfUrl)
-        setShowPdfViewer(true)
-      }
-    } catch (error) {
-      console.error('Error viewing quotation:', error)
-      // You might want to show an error message to the user here
-      alert('Failed to generate PDF. Please try again.')
+  const handleViewLatestQuotation = (customer) => {
+    // Create sample quotation data for demo purposes
+    const sampleQuotationData = {
+      quotationNumber: `ANO/25-26/${Math.floor(Math.random() * 9999)}`,
+      quotationDate: new Date().toISOString().split('T')[0],
+      validUpto: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      voucherNumber: `VOUCH-${Math.floor(Math.random() * 9999)}`,
+      customer: customer,
+      items: [
+        {
+          description: customer.productName || "XLPE Cable 1.5mm",
+          quantity: 100,
+          unitPrice: 150.00,
+          total: 15000.00
+        }
+      ],
+      subtotal: 15000.00,
+      tax: 2700.00,
+      total: 17700.00
     }
+    
+    setQuotationPopupData(sampleQuotationData)
+    setShowQuotationPopup(true)
   }
 
   const handleWalletClick = async (customer) => {
-    // Empty payment history - ready for real data
-    const sampleHistory = []
-    
-    // Default total amount
-    const customerTotal = 0.00
-    
-    setPaymentHistory(sampleHistory)
-    setTotalAmount(customerTotal)
+    console.log('Opening payment modal for customer:', customer)
+    // Use the demo payment history data
+    setPaymentHistory([
+      {
+        id: 1,
+        amount: 50000,
+        date: '2024-01-15',
+        status: 'paid',
+        paymentMethod: 'Cash',
+        remarks: 'Initial advance payment',
+        reference: 'CASH001',
+        dueDate: '2024-01-15',
+        paidDate: '2024-01-15'
+      },
+      {
+        id: 2,
+        amount: 25000,
+        date: '2024-01-20',
+        status: 'paid',
+        paymentMethod: 'UPI',
+        remarks: 'Second installment',
+        reference: 'UPI123456',
+        dueDate: '2024-01-20',
+        paidDate: '2024-01-20'
+      },
+      {
+        id: 3,
+        amount: 15000,
+        date: '2024-01-25',
+        status: 'pending',
+        paymentMethod: 'Bank Transfer',
+        remarks: 'Final payment pending',
+        reference: 'BANK789',
+        dueDate: '2024-01-25',
+        paidDate: null
+      }
+    ])
+    console.log('Payment history set with demo data')
+    setTotalAmount(90000)
     setSelectedCustomer({
       id: customer.id,
       name: customer.name,
       phone: customer.phone,
-      email: customer.email
+      email: customer.email,
+      business: customer.business,
+      address: customer.address
     })
     setShowPaymentDetails(true)
   }
@@ -578,11 +364,11 @@ export default function CustomerListContent() {
       'Product Name', 'Product Type', 'Lead Source', 'Customer Type', 'Date'
     ]
     
-    // Create sample data row with example values
+    // Create sample data row with example values using new options
     const sampleData = [
       'John Doe', '9876543210', '9876543210', 'john.doe@email.com', 
       '123 Main Street, City', 'Karnataka', '29ABCDE1234F1Z5', 
-      'XLPE Cable 1.5mm', 'Cable', 'Phone', 'Business', '2024-01-15'
+      'XLPE Cable 1.5mm', 'Cable', 'Website Inquiry', 'Individual', '2024-01-15'
     ]
     
     const csvContent = [headers, sampleData].map(row => 
@@ -691,12 +477,12 @@ export default function CustomerListContent() {
         
         if (importedCustomers.length > 0) {
           setCustomers(prev => [...prev, ...importedCustomers])
-          const successMessage = errors.length > 0 
+              const successMessage = errors.length > 0 
             ? `Successfully imported ${importedCustomers.length} leads. ${errors.length} rows had errors and were skipped.`
             : `Successfully imported ${importedCustomers.length} leads`
-          alert(successMessage)
-          setShowImportModal(false)
-          setImportFile(null)
+              alert(successMessage)
+              setShowImportModal(false)
+              setImportFile(null)
         } else {
           const errorMessage = errors.length > 0 
             ? `CSV validation failed:\n\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? `\n... and ${errors.length - 5} more errors` : ''}\n\nPlease check the format and try again.`
@@ -1133,14 +919,18 @@ export default function CustomerListContent() {
         customerType: newCustomerData.customerType,
         enquiryBy: newCustomerData.leadSource,
         date: newCustomerData.date,
-        connectedStatus: newCustomerData.connectionStatus,
-        connectedStatusRemark: newCustomerData.connectionStatusRemark,
-        connectedStatusDate: new Date().toISOString().split('T')[0],
-        finalStatus: newCustomerData.finalStatus === "Closed" ? "closed" : 
-                   newCustomerData.finalStatus === "Next Scheduled Meeting" ? "next_meeting" : "open",
-        finalStatusRemark: newCustomerData.finalStatusRemark,
-        finalStatusDate: new Date().toISOString().split('T')[0],
+        // Keep existing status values when editing
+        connectedStatus: editingCustomer.connectedStatus,
+        connectedStatusRemark: editingCustomer.connectedStatusRemark,
+        connectedStatusDate: editingCustomer.connectedStatusDate,
+        finalStatus: editingCustomer.finalStatus,
+        finalStatusRemark: editingCustomer.finalStatusRemark,
+        finalStatusDate: editingCustomer.finalStatusDate,
         whatsapp: newCustomerData.whatsappNumber ? `+91${newCustomerData.whatsappNumber}` : editingCustomer.whatsapp,
+        // Update transferred leads data
+        transferredLeads: newCustomerData.transferredLeads || 0,
+        transferredFrom: newCustomerData.transferredFrom || null,
+        transferredTo: newCustomerData.transferredTo || null,
       }
       
       setCustomers(prev => prev.map(customer => 
@@ -1163,17 +953,20 @@ export default function CustomerListContent() {
         productType: newCustomerData.productType,
         customerType: newCustomerData.customerType,
         date: newCustomerData.date,
-        connectedStatus: newCustomerData.connectionStatus,
-        connectedStatusRemark: newCustomerData.connectionStatusRemark,
+        // Set default status values for new customers
+        connectedStatus: "Not Connected",
+        connectedStatusRemark: "New customer added",
         connectedStatusDate: new Date().toISOString().split('T')[0],
-        finalStatus: newCustomerData.finalStatus === "Closed" ? "closed" : 
-                   newCustomerData.finalStatus === "Next Scheduled Meeting" ? "next_meeting" : "open",
-        finalStatusRemark: newCustomerData.finalStatusRemark,
+        finalStatus: "interested",
+        finalStatusRemark: "New customer added",
         finalStatusDate: new Date().toISOString().split('T')[0],
         latestQuotationUrl: "#",
         quotationsSent: 0,
         followUpLink: "https://calendar.google.com/",
         whatsapp: newCustomerData.whatsappNumber ? `+91${newCustomerData.whatsappNumber}` : null,
+        transferredLeads: newCustomerData.transferredLeads || 0,
+        transferredFrom: newCustomerData.transferredFrom || null,
+        transferredTo: newCustomerData.transferredTo || null,
       }
       
       setCustomers(prev => [...prev, newCustomer])
@@ -1547,11 +1340,10 @@ export default function CustomerListContent() {
                         className="mt-1 w-full text-xs p-1 border rounded bg-white"
                       >
                         <option value="">All Statuses</option>
-                        <option value="Hot">Hot</option>
-                        <option value="Warm">Warm</option>
-                        <option value="Cold">Cold</option>
-                        <option value="Lost">Lost</option>
-                        <option value="Won">Won</option>
+                        <option value="next scheduled meeting">Next Scheduled Meeting</option>
+                        <option value="closed">Closed</option>
+                        <option value="interested">Interested</option>
+                        <option value="not interested">Not Interested</option>
                       </select>
                     )}
                   </th>
@@ -1662,17 +1454,17 @@ export default function CustomerListContent() {
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700">
                       <div className="flex flex-col">
-                        <span className={
+                          <span className={
                           customer.finalStatus === 'closed'
-                            ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200'
+                              ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200'
                             : customer.finalStatus === 'next_meeting'
                             ? 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200'
                             : 'inline-flex items-center w-fit px-2 py-0.5 rounded-md text-xs font-medium border bg-yellow-50 text-yellow-700 border-yellow-200'
-                        }>
+                          }>
                           {customer.finalStatus === 'closed' ? 'Closed' : 
                            customer.finalStatus === 'next_meeting' ? 'Next Meeting' : 
                            customer.finalStatus === 'open' ? 'Open' : 'New'}
-                        </span>
+                          </span>
                         {customer.finalStatusRemark && (
                           <span className="text-xs text-gray-500 mt-1">{customer.finalStatusRemark}</span>
                         )}
@@ -1682,15 +1474,15 @@ export default function CustomerListContent() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="flex flex-col">
+                          <div className="flex flex-col">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           customer.transferredLeads > 0 
                             ? 'bg-indigo-100 text-indigo-800' 
                             : 'bg-gray-100 text-gray-600'
                         }`}>
-                          <ArrowRightLeft className="h-3 w-3 mr-1" />
+                              <ArrowRightLeft className="h-3 w-3 mr-1" />
                           {customer.transferredLeads || 0}
-                        </span>
+                            </span>
                         {customer.transferredLeads > 0 && (
                           <div className="text-xs text-gray-500 mt-1">
                             <div>From: {customer.transferredFrom}</div>
@@ -1720,7 +1512,7 @@ export default function CustomerListContent() {
                         >
                           <Wallet className="h-4 w-4" />
                           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                            Last Payment
+                            Payment
                           </span>
                         </button>
                         <button onClick={() => handleQuotation(customer)} className="p-1.5 rounded-md hover:bg-purple-50 text-purple-600 relative group" title="Quotation">
@@ -1999,6 +1791,23 @@ export default function CustomerListContent() {
                         <span className="text-gray-700">Quotations Sent</span>
                         <span className="text-xs text-gray-500">{viewingCustomer.quotationsSent ?? 0}</span>
                       </div>
+                      <div className="p-3 flex items-center justify-between">
+                        <span className="text-gray-700">Verification Status</span>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          viewingCustomer.quotationVerified === true 
+                            ? 'bg-green-100 text-green-800' 
+                            : viewingCustomer.quotationVerified === false
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {viewingCustomer.quotationVerified === true 
+                            ? 'Verified' 
+                            : viewingCustomer.quotationVerified === false
+                            ? 'Non-Verified'
+                            : 'Not Set'
+                          }
+                        </span>
+                      </div>
                       <div className="p-3">
                         <button 
                           onClick={handleCreateQuotation}
@@ -2010,9 +1819,23 @@ export default function CustomerListContent() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2">Quotation Preview</h3>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-sm font-semibold text-gray-900">Quotation Preview</h3>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-gray-600">Company Branch:</label>
+                        <select 
+                          value={selectedBranch} 
+                          onChange={(e) => setSelectedBranch(e.target.value)}
+                          className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                        >
+                          <option value="ANODE">ANODE ELECTRIC</option>
+                          <option value="SAMRIDDHI_CABLE">SAMRIDDHI CABLE</option>
+                          <option value="SAMRIDDHI_INDUSTRIES">SAMRIDDHI INDUSTRIES</option>
+                        </select>
+                      </div>
+                    </div>
                     <div className="rounded-md border border-gray-200 max-h-[320px] overflow-auto bg-white">
-                      <Quotation quotationData={quotationData} customer={viewingCustomer} />
+                      <Quotation quotationData={quotationData} customer={viewingCustomer} selectedBranch={selectedBranch} />
                     </div>
                   </div>
                   <div>
@@ -2064,9 +1887,9 @@ export default function CustomerListContent() {
       {/* Payment Details Modal */}
       {showPaymentDetails && selectedCustomer && (
         <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <div className="p-6 flex-1 overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[80vh] flex flex-col">
+            <div className="p-4 flex-1 overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Payment Details</h3>
                 <button 
                   onClick={() => setShowPaymentDetails(false)}
@@ -2077,76 +1900,161 @@ export default function CustomerListContent() {
                 </button>
               </div>
               
-              {/* Customer Info */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-1">{selectedCustomer.name}</h4>
-                <p className="text-sm text-gray-600">{selectedCustomer.phone} • {selectedCustomer.email}</p>
-              </div>
-              
-              {/* Payment Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500">Total Amount</p>
-                  <p className="text-lg font-semibold text-gray-900">₹{totalAmount.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500">Paid Amount</p>
-                  <p className="text-lg font-semibold text-green-600">
-                    ₹{paymentHistory.reduce((sum, p) => sum + p.amount, 0).toLocaleString('en-IN')}
-                  </p>
-                </div>
-                <div className="bg-amber-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-500">Remaining</p>
-                  <p className="text-lg font-semibold text-amber-600">
-                    ₹{(totalAmount - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toLocaleString('en-IN')}
-                  </p>
-                </div>
-              </div>
-              
-              {/* Payment History */}
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Payment History</h4>
-                {paymentHistory.length > 0 ? (
-                  <div className="space-y-4">
-                    {paymentHistory.map((payment) => (
-                      <div key={payment.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium text-gray-900">₹{payment.amount.toLocaleString('en-IN')}</p>
-                            <p className="text-sm text-gray-500">{payment.description}</p>
-                            <p className="text-xs text-gray-400 mt-1">{payment.date} • {payment.paymentMethod}</p>
+              {/* Main Content Layout */}
+              <div className="flex gap-4 mb-4">
+                {/* Customer Details Box (Left - Main Area) */}
+                <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                  <div className="mb-4">
+                    <h4 className="font-bold text-gray-900 text-xl mb-2">{selectedCustomer.name}</h4>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-700 flex items-center">
+                        <span className="w-16 text-gray-500">Phone:</span> 
+                        <span className="font-medium">{selectedCustomer.phone}</span>
+                      </p>
+                      <p className="text-sm text-gray-700 flex items-center">
+                        <span className="w-16 text-gray-500">Email:</span> 
+                        <span className="font-medium">{selectedCustomer.email}</span>
+                      </p>
+                      <p className="text-sm text-gray-700 flex items-center">
+                        <span className="w-16 text-gray-500">Business:</span> 
+                        <span className="font-medium">{selectedCustomer.business || 'N/A'}</span>
+                      </p>
+                      <p className="text-sm text-gray-700 flex items-center">
+                        <span className="w-16 text-gray-500">Address:</span> 
+                        <span className="font-medium">{selectedCustomer.address || 'N/A'}</span>
+                      </p>
+                            </div>
                           </div>
-                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                            {payment.status}
+                          
+                  {/* Selected Payment Details */}
+                  <div className="bg-white rounded-lg border-2 border-blue-200 p-4 shadow-sm">
+                    <h5 className="font-semibold text-gray-800 mb-3 text-sm">Selected Payment Details</h5>
+                    {selectedPayment ? (
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Method:</span> 
+                          <span className="font-semibold text-blue-600">{selectedPayment.paymentMethod}</span>
+                              </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Amount:</span> 
+                          <span className="font-semibold text-green-600">₹{selectedPayment.amount.toLocaleString('en-IN')}</span>
+                              </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Due Date:</span> 
+                          <span className="font-medium">{selectedPayment.dueDate}</span>
+                              </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Paid Date:</span> 
+                          <span className="font-medium">{selectedPayment.paidDate || 'Not Paid'}</span>
+                              </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Status:</span> 
+                          <span className={`font-semibold ${selectedPayment.status === 'paid' ? 'text-green-600' : 'text-orange-600'}`}>
+                            {selectedPayment.status === 'paid' ? 'Paid' : 'Pending'}
                           </span>
+                            </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Reference:</span> 
+                          <span className="font-medium text-xs">{selectedPayment.reference}</span>
+                          </div>
                         </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">Click on a payment to view details</p>
+                    )}
+                      </div>
+                    </div>
+                    
+                {/* Payment Methods (Right - Vertical) */}
+                <div className="w-32 space-y-2">
+                  <div className="bg-blue-100 border-2 border-blue-300 p-2 rounded-lg text-center text-sm font-semibold cursor-pointer hover:bg-blue-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    Cash
+                      </div>
+                  <div className="bg-gray-100 border-2 border-gray-300 p-2 rounded-lg text-center text-sm font-semibold cursor-pointer hover:bg-gray-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    Card
+                      </div>
+                  <div className="bg-gray-100 border-2 border-gray-300 p-2 rounded-lg text-center text-sm font-semibold cursor-pointer hover:bg-gray-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    UPI
+                      </div>
+                  <div className="bg-gray-100 border-2 border-gray-300 p-2 rounded-lg text-center text-sm font-semibold cursor-pointer hover:bg-gray-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    Bank
+                      </div>
+                  <div className="bg-gray-100 border-2 border-gray-300 p-2 rounded-lg text-center text-sm font-semibold cursor-pointer hover:bg-gray-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    Cheque
+                    </div>
+                  <div className="bg-gray-100 border-2 border-gray-300 p-2 rounded-lg text-center text-sm font-semibold cursor-pointer hover:bg-gray-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    Other
+                  </div>
+                </div>
+              </div>
+              
+              {/* Payment History - Interactive */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 text-sm">Payment History</h4>
+                {paymentHistory.length > 0 ? (
+                  <div className="space-y-2">
+                    {paymentHistory.map((payment) => (
+                      <div 
+                        key={payment.id} 
+                        className={`rounded-lg p-3 text-sm cursor-pointer transition-all duration-200 hover:scale-105 shadow-sm border-2 ${
+                          selectedPayment?.id === payment.id 
+                            ? 'bg-blue-100 border-blue-300 shadow-md' 
+                            : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                        }`}
+                        onClick={() => setSelectedPayment(payment)}
+                        title="Click to view payment details"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center space-x-3">
+                            <span className="font-bold text-lg">₹{payment.amount.toLocaleString('en-IN')}</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              payment.status === 'paid' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-orange-100 text-orange-800'
+                            }`}>
+                              {payment.status === 'paid' ? 'Paid' : 'Pending'}
+                                </span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium text-gray-700">{payment.paymentMethod}</div>
+                            <div className="text-gray-500 text-xs">{payment.date}</div>
+                          </div>
+                        </div>
+                        {selectedPayment?.id === payment.id && (
+                          <div className="mt-2 pt-2 border-t border-gray-300">
+                            <p className="text-xs text-gray-600">
+                              <span className="font-medium">Reference:</span> {payment.reference}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              <span className="font-medium">Remarks:</span> {payment.remarks}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-gray-500 py-4">No payment history found</p>
+                  <p className="text-center text-gray-500 py-4 text-sm">No payment history found</p>
                 )}
               </div>
             </div>
             
-            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setShowPaymentDetails(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentDetails(false)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded shadow-sm hover:bg-blue-700"
                 onClick={() => {
-                  // In a real app, this would open a form to add a new payment
                   alert('Add new payment functionality would open here');
                 }}
-              >
+                >
                 Add Payment
-              </button>
+                </button>
             </div>
           </div>
         </div>
@@ -2224,6 +2132,160 @@ export default function CustomerListContent() {
                   Import Leads
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quotation Popup Modal */}
+      {showQuotationPopup && quotationPopupData && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div className="p-4 flex-1 overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Latest Quotation - {quotationPopupData.customer.name}</h3>
+                <button 
+                  onClick={() => setShowQuotationPopup(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label="Close quotation"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              {/* Quotation Content - Same as Preview */}
+              <div className="border-2 border-black p-6 bg-white">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h1 className="text-xl font-bold">{companyBranches[selectedBranch].name}</h1>
+                    <p className="text-sm font-semibold text-gray-700">{companyBranches[selectedBranch].gstNumber}</p>
+                    <p className="text-xs">{companyBranches[selectedBranch].description}</p>
+                  </div>
+                  <div className="text-right">
+                    <img
+                      src="https://res.cloudinary.com/drpbrn2ax/image/upload/v1757416761/logo2_kpbkwm-removebg-preview_jteu6d.png"
+                      alt="Company Logo"
+                      className="h-12 w-auto bg-white p-1 rounded"
+                    />
+                  </div>
+                </div>
+                
+                {/* Company Details */}
+                <div className="border-2 border-black p-4 mb-4">
+                  <h3 className="font-bold mb-2">Company Details</h3>
+                  <p className="text-sm">{companyBranches[selectedBranch].address}</p>
+                  <p className="text-sm">Tel: {companyBranches[selectedBranch].tel}</p>
+                  <p className="text-sm">Web: {companyBranches[selectedBranch].web}</p>
+                  <p className="text-sm">Email: {companyBranches[selectedBranch].email}</p>
+              </div>
+              
+                {/* Quotation Details Table */}
+                <div className="border border-black p-4 mb-4">
+                  <h3 className="font-bold mb-2">Quotation Details</h3>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-black">
+                        <th className="text-left p-2 border-r border-black">Quotation Date</th>
+                        <th className="text-left p-2 border-r border-black">Quotation Number</th>
+                        <th className="text-left p-2 border-r border-black">Valid Upto</th>
+                        <th className="text-left p-2">Voucher Number</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="p-2 border-r border-black">{quotationPopupData.quotationDate}</td>
+                        <td className="p-2 border-r border-black">{quotationPopupData.quotationNumber}</td>
+                        <td className="p-2 border-r border-black">{quotationPopupData.validUpto}</td>
+                        <td className="p-2">{quotationPopupData.voucherNumber}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Customer Details */}
+                <div className="border border-black p-4 mb-4">
+                  <h3 className="font-bold mb-2">Bill To:</h3>
+                  <p className="font-semibold">{quotationPopupData.customer.name}</p>
+                  <p>{quotationPopupData.customer.business}</p>
+                  <p>{quotationPopupData.customer.address}</p>
+                  <p>Phone: {quotationPopupData.customer.phone}</p>
+                  <p>Email: {quotationPopupData.customer.email}</p>
+                </div>
+                
+                {/* Items Table */}
+                <div className="border border-black p-4 mb-4">
+                  <h3 className="font-bold mb-2">Items</h3>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-black">
+                        <th className="text-left p-2 border-r border-black">Description</th>
+                        <th className="text-center p-2 border-r border-black">Quantity</th>
+                        <th className="text-right p-2 border-r border-black">Unit Price</th>
+                        <th className="text-right p-2">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {quotationPopupData.items.map((item, index) => (
+                        <tr key={index}>
+                          <td className="p-2 border-r border-black">{item.description}</td>
+                          <td className="p-2 text-center border-r border-black">{item.quantity}</td>
+                          <td className="p-2 text-right border-r border-black">₹{item.unitPrice.toFixed(2)}</td>
+                          <td className="p-2 text-right">₹{item.total.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Totals */}
+                <div className="border border-black p-4">
+                  <div className="flex justify-end">
+                    <div className="w-64">
+                      <div className="flex justify-between p-2 border-b">
+                        <span>Subtotal:</span>
+                        <span>₹{quotationPopupData.subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between p-2 border-b">
+                        <span>Tax (18%):</span>
+                        <span>₹{quotationPopupData.tax.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between p-2 font-bold">
+                        <span>Total:</span>
+                        <span>₹{quotationPopupData.total.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Footer */}
+                <div className="text-right text-xs mt-4">
+                  <p className="mb-4">
+                    For <strong>{companyBranches[selectedBranch].name}</strong>
+                  </p>
+                  <p className="mb-8">This is computer generated quotation no signature required.</p>
+                  <p className="font-bold">Authorized Signatory</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-end space-x-3">
+                      <button
+                type="button"
+                onClick={() => setShowQuotationPopup(false)}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50"
+                      >
+                Close
+                      </button>
+                      <button
+                type="button"
+                className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded shadow-sm hover:bg-blue-700"
+                onClick={() => {
+                  alert('Print functionality would open here');
+                }}
+              >
+                Print
+                      </button>
             </div>
           </div>
         </div>
