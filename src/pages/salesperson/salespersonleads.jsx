@@ -1,6 +1,8 @@
 "use client"
 
 import React from "react"
+import apiClient from '../../utils/apiClient'
+import { API_ENDPOINTS } from '../../api/admin_api/api'
 import { Search, RefreshCw, User, Mail, Building2, Pencil, Eye, Plus, Download, Filter, Wallet, MessageCircle, Package, MapPin, Map, BadgeCheck, XCircle, FileText, Globe, X, Clock, Check, Clock as ClockIcon, ArrowRightLeft, Upload } from "lucide-react"
 import html2pdf from 'html2pdf.js'
 import Quotation from './salespersonquotation.jsx'
@@ -103,6 +105,43 @@ export default function CustomerListContent() {
     });
   };
   const [customers, setCustomers] = React.useState([])
+
+  // Load assigned leads for the logged-in salesperson/telecaller
+  React.useEffect(() => {
+    const fetchAssigned = async () => {
+      try {
+        const res = await apiClient.get(API_ENDPOINTS.SALESPERSON_ASSIGNED_LEADS_ME());
+        const rows = res?.data || [];
+        // Map API rows into existing UI customer shape
+        const mapped = rows.map((r) => ({
+          id: r.id,
+          name: r.name,
+          phone: r.phone,
+          email: r.email || 'N/A',
+          business: r.business || 'N/A',
+          address: r.address || 'N/A',
+          gstNo: r.gst_no || 'N/A',
+          productType: r.product_type || 'N/A',
+          state: r.state || 'N/A',
+          enquiryBy: r.lead_source || 'N/A',
+          customerType: r.customer_type || 'N/A',
+          date: r.date ? new Date(r.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          connected: { status: r.connected_status || 'Not Connected', remark: 'Imported from DH', datetime: new Date(r.updated_at || r.created_at || Date.now()).toLocaleString() },
+          finalStatus: r.final_status || 'New',
+          finalInfo: { status: r.final_status === 'closed' ? 'closed' : 'next_meeting', datetime: '', remark: r.final_status || 'New' },
+          latestQuotationUrl: '#',
+          quotationsSent: 0,
+          followUpLink: 'https://calendar.google.com/',
+          whatsapp: r.whatsapp ? `+91${String(r.whatsapp).replace(/\D/g, '').slice(-10)}` : null,
+          transferredLeads: 0,
+        }));
+        setCustomers(mapped);
+      } catch (err) {
+        console.error('Failed to load assigned leads:', err);
+      }
+    };
+    fetchAssigned();
+  }, []);
 
   const handleEdit = (customer) => {
     setEditingCustomer(customer)
@@ -844,40 +883,44 @@ export default function CustomerListContent() {
   }
 
   const handleRefresh = async () => {
-    setIsRefreshing(true)
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // In a real application, you would fetch fresh data from your API
-    // For now, we'll simulate refreshing by updating timestamps and connection status
-    setCustomers(prevCustomers => 
-      prevCustomers.map(customer => ({
-        ...customer,
-        connected: {
-          ...customer.connected,
-          datetime: new Date().toLocaleString()
-        },
-        // Randomly update some connection statuses to simulate real-time changes
-        ...(Math.random() > 0.7 && {
-          connected: {
-            ...customer.connected,
-            status: ['Connected', 'Follow Up', 'Not Connected'][Math.floor(Math.random() * 3)],
-            datetime: new Date().toLocaleString()
-          }
-        })
-      }))
-    )
-    
-    setIsRefreshing(false)
-    
-    // Show success feedback
-    const refreshButton = document.querySelector('[data-refresh-btn]')
-    if (refreshButton) {
-      refreshButton.style.transform = 'scale(1.1)'
-      setTimeout(() => {
-        refreshButton.style.transform = 'scale(1)'
-      }, 200)
+    try {
+      setIsRefreshing(true)
+      const res = await apiClient.get(API_ENDPOINTS.SALESPERSON_ASSIGNED_LEADS_ME());
+      const rows = res?.data || [];
+      const mapped = rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        phone: r.phone,
+        email: r.email || 'N/A',
+        business: r.business || 'N/A',
+        address: r.address || 'N/A',
+        gstNo: r.gst_no || 'N/A',
+        productType: r.product_type || 'N/A',
+        state: r.state || 'N/A',
+        enquiryBy: r.lead_source || 'N/A',
+        customerType: r.customer_type || 'N/A',
+        date: r.date ? new Date(r.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        connected: { status: r.connected_status || 'Not Connected', remark: 'Imported from DH', datetime: new Date(r.updated_at || r.created_at || Date.now()).toLocaleString() },
+        finalStatus: r.final_status || 'New',
+        finalInfo: { status: r.final_status === 'closed' ? 'closed' : 'next_meeting', datetime: '', remark: r.final_status || 'New' },
+        latestQuotationUrl: '#',
+        quotationsSent: 0,
+        followUpLink: 'https://calendar.google.com/',
+        whatsapp: r.whatsapp ? `+91${String(r.whatsapp).replace(/\D/g, '').slice(-10)}` : null,
+        transferredLeads: 0,
+      }));
+      setCustomers(mapped)
+    } catch (err) {
+      console.error('Failed to refresh assigned leads:', err)
+    } finally {
+      setIsRefreshing(false)
+      const refreshButton = document.querySelector('[data-refresh-btn]')
+      if (refreshButton) {
+        refreshButton.style.transform = 'scale(1.1)'
+        setTimeout(() => {
+          refreshButton.style.transform = 'scale(1)'
+        }, 200)
+      }
     }
   }
 
