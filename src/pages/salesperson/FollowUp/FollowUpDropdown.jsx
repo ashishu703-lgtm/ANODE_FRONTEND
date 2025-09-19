@@ -7,7 +7,6 @@ const FollowUpDropdown = ({ currentPage, onNavigate, sidebarOpen }) => {
   const statuses = [
     { id: 'connected', label: 'Connected', color: 'text-green-500' },
     { id: 'not-connected', label: 'Not Connected', color: 'text-red-500' },
-    { id: 'pending', label: 'Pending', color: 'text-yellow-500' },
     { id: 'next-meeting', label: 'Next Meeting', color: 'text-blue-500' },
     { id: 'closed', label: 'Closed', color: 'text-gray-500' },
   ];

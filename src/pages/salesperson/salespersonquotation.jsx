@@ -1,6 +1,41 @@
 import { Printer } from "lucide-react"
 
-const Quotation = ({ quotationData, customer }) => {
+const Quotation = ({ quotationData, customer, selectedBranch = 'ANODE' }) => {
+  // Company branch configuration
+  const companyBranches = {
+    ANODE: {
+      name: 'ANODE ELECTRIC PRIVATE LIMITED',
+      gstNumber: '(23AANCA7455R1ZX)',
+      description: 'MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES.',
+      address: 'KHASRA NO. 805/5, PLOT NO. 10, IT PARK, BARGI HILLS, JABALPUR - 482003, MADHYA PRADESH, INDIA.',
+      tel: '6262002116, 6262002113',
+      web: 'www.anocab.com',
+      email: 'info@anocab.com',
+      logo: 'Anocab - A Positive Connection.....'
+    },
+    SAMRIDDHI_CABLE: {
+      name: 'SAMRIDDHI CABLE INDUSTRIES PRIVATE LIMITED',
+      gstNumber: '(23ABPCS7684F1ZT)',
+      description: 'MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES.',
+      address: 'KHASRA NO. 805/5, PLOT NO. 10, IT PARK, BARGI HILLS, JABALPUR - 482003, MADHYA PRADESH, INDIA.',
+      tel: '6262002116, 6262002113',
+      web: 'www.samriddhicable.com',
+      email: 'info@samriddhicable.com',
+      logo: 'Samriddhi Cable - Quality & Excellence.....'
+    },
+    SAMRIDDHI_INDUSTRIES: {
+      name: 'SAMRIDDHI INDUSTRIES',
+      gstNumber: '(23ABWFS1117M1ZT)',
+      description: 'MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES.',
+      address: 'KHASRA NO. 805/5, PLOT NO. 10, IT PARK, BARGI HILLS, JABALPUR - 482003, MADHYA PRADESH, INDIA.',
+      tel: '6262002116, 6262002113',
+      web: 'www.samriddhiindustries.com',
+      email: 'info@samriddhiindustries.com',
+      logo: 'Samriddhi Industries - Innovation & Trust.....'
+    }
+  }
+  
+  const currentCompany = companyBranches[selectedBranch] || companyBranches.ANODE
   const handlePrint = async () => {
     // Create a new window for printing
     const printWindow = window.open('', '_blank')
@@ -121,8 +156,9 @@ const Quotation = ({ quotationData, customer }) => {
           {/* Removed header background color and updated company name and tagline */}
           <div className="p-2 flex justify-between items-center">
             <div>
-              <h1 className="text-xl font-bold">ANODE ELECTRIC PVT. LTD.</h1>
-              <p className="text-xs">MANUFACTURING & SUPPLY OF ELECTRICAL CABLES & WIRES</p>
+              <h1 className="text-xl font-bold">{currentCompany.name}</h1>
+              <p className="text-sm font-semibold text-gray-700">{currentCompany.gstNumber}</p>
+              <p className="text-xs">{currentCompany.description}</p>
             </div>
             <div className="text-right">
               <img
@@ -377,7 +413,7 @@ const Quotation = ({ quotationData, customer }) => {
         {/* Footer */}
         <div className="text-right text-xs">
           <p className="mb-4">
-            For <strong>ANODE ELECTRIC PRIVATE LIMITED</strong>
+            For <strong>{currentCompany.name}</strong>
           </p>
           <p className="mb-8">This is computer generated invoice no signature required.</p>
           <p className="font-bold">Authorized Signatory</p>

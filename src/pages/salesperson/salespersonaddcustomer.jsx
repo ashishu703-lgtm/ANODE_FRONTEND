@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { X, User, Phone, MessageCircle, Mail, Building2, FileText, MapPin, Globe, Zap, CheckCircle, Package } from "lucide-react"
+import { X, User, Phone, MessageCircle, Mail, Building2, FileText, MapPin, Globe, Package } from "lucide-react"
 
 function Card({ className, children }) {
   return <div className={`rounded-lg border bg-white shadow-sm ${className || ''}`}>{children}</div>
@@ -55,10 +55,9 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     address: editingCustomer?.address || "",
     state: editingCustomer?.state || "",
     productType: editingCustomer?.productType || "",
-    connectionStatus: editingCustomer?.connected?.status || "",
-    finalStatus: editingCustomer?.finalInfo?.remark || "",
     customerType: editingCustomer?.customerType || "",
     leadSource: editingCustomer?.enquiryBy || "",
+    assignedSalesperson: editingCustomer?.assignedSalesperson || "",
     date: new Date().toISOString().split('T')[0],
   })
 
@@ -75,15 +74,26 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     onClose()
   }
 
-  const connectionStatusOptions = ["Connected", "Follow Up", "Not Connected", "Meeting Scheduled"]
-
-  const finalStatusOptions = ["Next Scheduled Meeting", "Closed", "Interested", "Not Interested"]
-
   const productTypeOptions = ["Conductor", "Cable", "AAAC", "Aluminium"]
 
-  const customerTypeOptions = ["Individual", "Business", "Corporate", "Government", "Distributor", "Retailer"]
+  const customerTypeOptions = ["Individual", "Retailer", "Distributer", "Dealer", "Contractor", "Business"]
 
-  const leadSourceOptions = ["Phone", "Marketing", "FB Ads", "Referral", "Google Ads", "Webinar", "Facebook", "Website", "Walk-in"]
+  const leadSourceOptions = [
+    "Website Inquiry",
+    "Phone Call", 
+    "Walk-in / Direct Visit",
+    "Distributor / Dealer",
+    "Existing Customer Referral",
+    "Trade Show / Exhibition",
+    "Tender / Government Contract",
+    "Social Media (LinkedIn, Facebook, Instagram, etc.)",
+    "Email Campaign",
+    "Online Marketplace (IndiaMART, TradeIndia, etc.)",
+    "Advertisement (Newspaper / Hoarding / Online Ads)",
+    "Cold Call / Telemarketing",
+    "Salesperson Visit",
+    "Networking / Business Association"
+  ]
 
   const stateOptions = [
     "Madhya Pradesh",
@@ -236,7 +246,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-yellow-500" />
+                  <Package className="h-4 w-4 text-yellow-500" />
                   Product Type *
                 </label>
                 <select
@@ -271,48 +281,6 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
               />
             </div>
 
-            {/* Status Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-blue-500" />
-                  Connection Status *
-                </label>
-                <select
-                  required
-                  value={formData.connectionStatus}
-                  onChange={(e) => handleInputChange("connectionStatus", e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select connection status</option>
-                  {connectionStatusOptions.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  Final Status *
-                </label>
-                <select
-                  required
-                  value={formData.finalStatus}
-                  onChange={(e) => handleInputChange("finalStatus", e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select final status</option>
-                  {finalStatusOptions.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
 
             {/* Additional Information */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -358,6 +326,26 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <User className="h-4 w-4 text-purple-500" />
+                  Assigned Salesperson *
+                </label>
+                <select
+                  required
+                  value={formData.assignedSalesperson}
+                  onChange={(e) => handleInputChange("assignedSalesperson", e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select salesperson</option>
+                  <option value="John Smith">John Smith</option>
+                  <option value="Sarah Johnson">Sarah Johnson</option>
+                  <option value="Mike Wilson">Mike Wilson</option>
+                  <option value="Emily Davis">Emily Davis</option>
+                  <option value="David Brown">David Brown</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <FileText className="h-4 w-4 text-indigo-500" />
                   Date *
                 </label>
@@ -372,6 +360,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
                 <p className="text-xs text-gray-500">Date is auto-detected</p>
               </div>
             </div>
+
 
             {/* Form Actions */}
             <div className="flex items-center justify-end gap-3 pt-6 border-t">
