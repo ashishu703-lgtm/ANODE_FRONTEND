@@ -206,7 +206,7 @@ const FollowUpBase = ({ status, customData = [] }) => {
               <div className="flex-1 overflow-y-auto">
                 <div className="px-4 py-6 sm:px-6 bg-indigo-700 text-white">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-medium">Payment Timeline</h2>
+                    <h2 className="text-lg font-medium">Performa Invoice</h2>
                     <button
                       type="button"
                       className="text-white hover:text-gray-200 focus:outline-none"
@@ -316,15 +316,6 @@ const FollowUpBase = ({ status, customData = [] }) => {
     <div className="p-4 sm:p-6">
       {/* Payment Timeline Slide */}
       {showTimeline && <PaymentTimelineSlide />}
-      
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          {statusLabels[status] || 'Follow Ups'}
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Manage your {statusLabels[status]?.toLowerCase() || 'follow up'} activities
-        </p>
-      </div>
 
       {/* Filter and Refresh Controls */}
       <div className="mb-6 flex justify-end">
@@ -530,7 +521,7 @@ const FollowUpBase = ({ status, customData = [] }) => {
                         <button
                           type="button"
                           className="text-blue-600 hover:text-blue-900"
-                          title="View Payment Timeline"
+                          title="View Performa Invoice"
                           onClick={() => openTimeline(item)}
                         >
                           <Clock className="h-5 w-5" />

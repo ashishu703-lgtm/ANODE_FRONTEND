@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { X, User, Phone, MessageCircle, Mail, Building2, FileText, MapPin, Globe, Zap, CheckCircle, Package, ArrowRightLeft } from "lucide-react"
+import { X, User, Phone, MessageCircle, Mail, Building2, FileText, MapPin, Globe, Package } from "lucide-react"
 
 function Card({ className, children }) {
   return <div className={`rounded-lg border bg-white shadow-sm ${className || ''}`}>{children}</div>
@@ -58,9 +58,6 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     customerType: editingCustomer?.customerType || "",
     leadSource: editingCustomer?.enquiryBy || "",
     date: new Date().toISOString().split('T')[0],
-    transferredLeads: editingCustomer?.transferredLeads || 0,
-    transferredFrom: editingCustomer?.transferredFrom || "",
-    transferredTo: editingCustomer?.transferredTo || "",
   })
 
   const handleInputChange = (field, value) => {
@@ -249,7 +246,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-yellow-500" />
+                  <Package className="h-4 w-4 text-yellow-500" />
                   Product Type *
                 </label>
                 <select
@@ -344,62 +341,6 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
               </div>
             </div>
 
-            {/* Transferred Leads Section */}
-            <div className="space-y-4 pt-6 border-t">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <ArrowRightLeft className="h-5 w-5 text-indigo-500" />
-                Transferred Leads Information
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-indigo-500" />
-                    Number of Transfers
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.transferredLeads}
-                    onChange={(e) => handleInputChange("transferredLeads", parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <User className="h-4 w-4 text-green-500" />
-                    Transferred From
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.transferredFrom}
-                    onChange={(e) => handleInputChange("transferredFrom", e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="e.g., Marketing Team"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-blue-500" />
-                    Transferred To
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.transferredTo}
-                    onChange={(e) => handleInputChange("transferredTo", e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="e.g., Sales Team"
-                  />
-                </div>
-              </div>
-              
-              <p className="text-xs text-gray-500">
-                Enter the number of times this lead has been transferred and specify the source and destination teams.
-              </p>
-            </div>
 
             {/* Form Actions */}
             <div className="flex items-center justify-end gap-3 pt-6 border-t">
