@@ -10,7 +10,8 @@ import {
   X,
   LogOut,
   UserCheck,
-  MapPin
+  MapPin,
+  ShoppingCart
 } from 'lucide-react';
 
 const MarketingSalespersonSidebar = ({ activeView, setActiveView }) => {
@@ -37,6 +38,12 @@ const MarketingSalespersonSidebar = ({ activeView, setActiveView }) => {
       id: 'visits',
       label: 'Visits',
       icon: <MapPin className="w-5 h-5" />,
+      hasDropdown: false
+    },
+    {
+      id: 'orders',
+      label: 'Orders',
+      icon: <ShoppingCart className="w-5 h-5" />,
       hasDropdown: false
     },
     {
@@ -103,7 +110,7 @@ const MarketingSalespersonSidebar = ({ activeView, setActiveView }) => {
             // Handle logout logic here
             window.close();
           }}
-          className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 rounded-lg transition-colors"
         >
           <LogOut className="w-5 h-5" />
           {isExpanded && <span className="text-sm font-medium">Logout</span>}

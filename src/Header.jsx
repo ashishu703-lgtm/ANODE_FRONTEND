@@ -365,6 +365,12 @@ const FixedHeader = ({ userType = "superadmin", currentPage = "dashboard" }) => 
           title: "Customer Visits",
           subtitle: "Plan and track customer visits"
         };
+      case 'orders':
+        return {
+          icon: <TrendingUp className="w-6 h-6 text-white" />,
+          title: "Orders",
+          subtitle: "Monitor performance and metrics"
+        };
       case 'toolbox':
         return {
           icon: <Users className="w-6 h-6 text-white" />,

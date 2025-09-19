@@ -57,6 +57,7 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     productType: editingCustomer?.productType || "",
     customerType: editingCustomer?.customerType || "",
     leadSource: editingCustomer?.enquiryBy || "",
+    assignedSalesperson: editingCustomer?.assignedSalesperson || "",
     date: new Date().toISOString().split('T')[0],
   })
 
@@ -72,7 +73,6 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
     onSave(formData)
     onClose()
   }
-
 
   const productTypeOptions = ["Conductor", "Cable", "AAAC", "Aluminium"]
 
@@ -321,6 +321,26 @@ export default function AddCustomerForm({ onClose, onSave, editingCustomer }) {
                       {source}
                     </option>
                   ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <User className="h-4 w-4 text-purple-500" />
+                  Assigned Salesperson *
+                </label>
+                <select
+                  required
+                  value={formData.assignedSalesperson}
+                  onChange={(e) => handleInputChange("assignedSalesperson", e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select salesperson</option>
+                  <option value="John Smith">John Smith</option>
+                  <option value="Sarah Johnson">Sarah Johnson</option>
+                  <option value="Mike Wilson">Mike Wilson</option>
+                  <option value="Emily Davis">Emily Davis</option>
+                  <option value="David Brown">David Brown</option>
                 </select>
               </div>
 
