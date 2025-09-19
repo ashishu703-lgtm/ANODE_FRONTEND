@@ -1,42 +1,23 @@
 import React from 'react';
 import FollowUpBase from './FollowUpBase';
+import { useFollowUpData } from './FollowUpDataContext';
 
 const NextMeetingFollowUps = () => {
-  // Sample data for next meeting follow-ups
-  const nextMeetingData = [
-    {
-      id: 7,
-      name: 'Robert Kim',
-      customerId: 'CUST007',
-      business: 'Kim Technologies',
-      address: '888 Innovation Way, Tech City',
-      state: 'California',
-      productType: 'Fiber Optic Cables',
-      customerType: 'Enterprise',
-      leadSource: 'Referral',
-      date: '2023-09-16',
-      status: 'Next Meeting',
-      meetingTime: '2023-09-16 14:00',
-      meetingType: 'Video Call',
-      duration: '1 hour'
-    },
-    {
-      id: 8,
-      name: 'Lisa Wong',
-      customerId: 'CUST008',
-      business: 'Wong Solutions',
-      address: '999 Business Center, Downtown',
-      state: 'New York',
-      productType: 'Ethernet Cables',
-      customerType: 'Corporate',
-      leadSource: 'Cold Call',
-      date: '2023-09-17',
-      status: 'Next Meeting',
-      meetingTime: '2023-09-17 11:00',
-      meetingType: 'In-Person',
-      duration: '2 hours'
-    }
-  ];
+  const { getLeadsByStatus, loading } = useFollowUpData();
+  
+  // Get next meeting leads from the shared data context
+  const nextMeetingData = getLeadsByStatus('next-meeting');
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading next meeting leads...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <FollowUpBase status="next-meeting" customData={nextMeetingData} />;
 };

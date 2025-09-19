@@ -1,42 +1,23 @@
 import React from 'react';
 import FollowUpBase from './FollowUpBase';
+import { useFollowUpData } from './FollowUpDataContext';
 
 const ClosedFollowUps = () => {
-  // Sample data for closed follow-ups
-  const closedData = [
-    {
-      id: 9,
-      name: 'Taylor Swift',
-      customerId: 'CUST009',
-      business: 'Swift Enterprises',
-      address: '123 Music Row, Nashville',
-      state: 'Tennessee',
-      productType: 'Audio Cables',
-      customerType: 'Retailer',
-      leadSource: 'Referral',
-      date: '2023-09-10',
-      status: 'Closed',
-      closeDate: '2023-09-10',
-      closeReason: 'Deal Won',
-      amount: '$2,500.00'
-    },
-    {
-      id: 10,
-      name: 'David Miller',
-      customerId: 'CUST010',
-      business: 'Miller Electronics',
-      address: '456 Tech Park, Silicon Valley',
-      state: 'California',
-      productType: 'Networking Equipment',
-      customerType: 'Reseller',
-      leadSource: 'Website',
-      date: '2023-09-05',
-      status: 'Closed',
-      closeDate: '2023-09-08',
-      closeReason: 'Deal Lost',
-      reasonDetails: 'Went with competitor'
-    }
-  ];
+  const { getLeadsByStatus, loading } = useFollowUpData();
+  
+  // Get closed leads from the shared data context
+  const closedData = getLeadsByStatus('closed');
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading closed leads...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <FollowUpBase status="closed" customData={closedData} />;
 };

@@ -146,64 +146,64 @@ export default function DashboardContent() {
 
   // Generate performance data based on selected date
   const getPerformanceData = (selectedDate) => {
-    // Base performance data - empty structure ready for real data
+    // Base performance data - Demo data for realistic dashboard
     const baseData = {
       targets: {
-        monthlyLeads: { current: 0, target: 100, label: "Monthly Leads" },
-        conversionRate: { current: 0, target: 25, label: "Conversion Rate (%)" },
-        revenue: { current: 0, target: 300000, label: "Monthly Revenue (₹)" },
-        calls: { current: 0, target: 300, label: "Daily Calls" }
+        monthlyLeads: { current: 127, target: 100, label: "Monthly Leads" },
+        conversionRate: { current: 23.6, target: 25, label: "Conversion Rate (%)" },
+        revenue: { current: 2400000, target: 3000000, label: "Monthly Revenue (₹)" },
+        calls: { current: 285, target: 300, label: "Daily Calls" }
       },
       leadStatusData: [
-        { label: "Hot", value: 0, color: "#ef4444" },
-        { label: "Warm", value: 0, color: "#f97316" },
-        { label: "Cold", value: 0, color: "#6b7280" },
-        { label: "Converted", value: 0, color: "#22c55e" }
+        { label: "Hot", value: 35, color: "#ef4444" },
+        { label: "Warm", value: 42, color: "#f97316" },
+        { label: "Cold", value: 28, color: "#6b7280" },
+        { label: "Converted", value: 22, color: "#22c55e" }
       ],
       monthlyPerformance: [
-        { label: "Jan", value: 0, color: "#3b82f6" },
-        { label: "Feb", value: 0, color: "#3b82f6" },
-        { label: "Mar", value: 0, color: "#3b82f6" },
-        { label: "Apr", value: 0, color: "#3b82f6" },
-        { label: "May", value: 0, color: "#3b82f6" },
-        { label: "Jun", value: 0, color: "#3b82f6" }
+        { label: "Jan", value: 78, color: "#3b82f6" },
+        { label: "Feb", value: 82, color: "#3b82f6" },
+        { label: "Mar", value: 85, color: "#3b82f6" },
+        { label: "Apr", value: 88, color: "#3b82f6" },
+        { label: "May", value: 91, color: "#3b82f6" },
+        { label: "Jun", value: 94, color: "#3b82f6" }
       ],
       kpis: [
         {
           title: "Lead Response Time",
-          value: "0 hrs",
+          value: "0.8 hrs",
           target: "< 1 hr",
-          status: "warning",
+          status: "success",
           icon: Clock,
-          color: "bg-orange-50 text-orange-600 border-orange-200"
+          color: "bg-green-50 text-green-600 border-green-200"
         },
         {
           title: "Follow-up Rate",
-          value: "0%",
+          value: "89%",
           target: "> 85%",
-          status: "warning",
+          status: "success",
           icon: ArrowUp,
-          color: "bg-orange-50 text-orange-600 border-orange-200"
+          color: "bg-green-50 text-green-600 border-green-200"
         },
         {
           title: "Customer Satisfaction",
-          value: "0/5",
+          value: "4.7/5",
           target: "> 4.5",
-          status: "warning",
+          status: "success",
           icon: Award,
-          color: "bg-orange-50 text-orange-600 border-orange-200"
+          color: "bg-green-50 text-green-600 border-green-200"
         },
         {
           title: "Quotation Success",
-          value: "0%",
+          value: "73%",
           target: "> 70%",
-          status: "warning",
+          status: "success",
           icon: CheckCircle,
-          color: "bg-orange-50 text-orange-600 border-orange-200"
+          color: "bg-green-50 text-green-600 border-green-200"
         },
         {
           title: "Transfer Leads",
-          value: "0",
+          value: "5",
           target: "< 20",
           status: "success",
           icon: ArrowRightLeft,
@@ -224,70 +224,70 @@ export default function DashboardContent() {
   // Get filtered performance data
   const performanceData = getPerformanceData(dateFilter)
 
-  // Overview Data - empty structure ready for real data
+  // Overview Data - Demo data for realistic dashboard
   const overviewData = {
     metrics: [
       {
         title: "Total Leads",
-        value: "0",
-        subtitle: "No leads assigned yet",
+        value: "127",
+        subtitle: "Active leads this month",
         icon: UserPlus,
         color: "bg-blue-50 text-blue-600 border-blue-200",
-        trend: "0%",
+        trend: "+12%",
         trendUp: true
       },
       {
         title: "Conversion Rate",
-        value: "0%",
-        subtitle: "No conversions yet",
+        value: "23.6%",
+        subtitle: "Above target of 20%",
         icon: CheckCircle,
         color: "bg-green-50 text-green-600 border-green-200",
-        trend: "0%",
+        trend: "+3.2%",
         trendUp: true
       },
       {
         title: "Pending Rate",
-        value: "0%",
-        subtitle: "No pending leads",
+        value: "18.5%",
+        subtitle: "Leads requiring follow-up",
         icon: Clock,
         color: "bg-orange-50 text-orange-600 border-orange-200",
-        trend: "0%",
+        trend: "-2.1%",
         trendUp: false
       },
       {
         title: "Total Revenue",
-        value: "₹0",
-        subtitle: "No revenue generated yet",
+        value: "₹2.4M",
+        subtitle: "Revenue generated this month",
         icon: CreditCard,
         color: "bg-purple-50 text-purple-600 border-purple-200",
-        trend: "0%",
+        trend: "+15.3%",
         trendUp: true
       },
     ],
     weeklyLeads: [
-      { label: "Mon", value: 0, color: "#3b82f6" },
-      { label: "Tue", value: 0, color: "#3b82f6" },
-      { label: "Wed", value: 0, color: "#3b82f6" },
-      { label: "Thu", value: 0, color: "#3b82f6" },
-      { label: "Fri", value: 0, color: "#3b82f6" },
-      { label: "Sat", value: 0, color: "#3b82f6" },
-      { label: "Sun", value: 0, color: "#3b82f6" }
+      { label: "Mon", value: 18, color: "#3b82f6" },
+      { label: "Tue", value: 22, color: "#3b82f6" },
+      { label: "Wed", value: 15, color: "#3b82f6" },
+      { label: "Thu", value: 28, color: "#3b82f6" },
+      { label: "Fri", value: 24, color: "#3b82f6" },
+      { label: "Sat", value: 12, color: "#3b82f6" },
+      { label: "Sun", value: 8, color: "#3b82f6" }
     ],
     leadSourceData: [
-      { label: "Website", value: 0, color: "#3b82f6" },
-      { label: "Referrals", value: 0, color: "#10b981" },
-      { label: "Social Media", value: 0, color: "#f59e0b" },
-      { label: "Cold Calls", value: 0, color: "#ef4444" },
-      { label: "Email Campaign", value: 0, color: "#8b5cf6" },
-      { label: "Other", value: 0, color: "#6b7280" }
+      { label: "Website", value: 35, color: "#3b82f6" },
+      { label: "Referrals", value: 28, color: "#10b981" },
+      { label: "Social Media", value: 22, color: "#f59e0b" },
+      { label: "Cold Calls", value: 18, color: "#ef4444" },
+      { label: "Email Campaign", value: 15, color: "#8b5cf6" },
+      { label: "Other", value: 9, color: "#6b7280" }
     ],
     monthlyRevenue: [
-      { label: "Jan", value: 0, color: "#3b82f6" },
-      { label: "Feb", value: 0, color: "#3b82f6" },
-      { label: "Mar", value: 0, color: "#3b82f6" },
-      { label: "Apr", value: 0, color: "#3b82f6" },
-      { label: "May", value: 0, color: "#3b82f6" },
-      { label: "Jun", value: 0, color: "#3b82f6" }
+      { label: "Jan", value: 1800, color: "#3b82f6" },
+      { label: "Feb", value: 2100, color: "#3b82f6" },
+      { label: "Mar", value: 1950, color: "#3b82f6" },
+      { label: "Apr", value: 2400, color: "#3b82f6" },
+      { label: "May", value: 2200, color: "#3b82f6" },
+      { label: "Jun", value: 2800, color: "#3b82f6" }
     ]
   }
 
@@ -296,50 +296,50 @@ export default function DashboardContent() {
   const leadStatuses = [
     {
       title: "Pending",
-      count: "0",
-      subtitle: "No pending leads",
+      count: "23",
+      subtitle: "Leads awaiting response",
       icon: Clock,
       color: "bg-orange-50 text-orange-600 border-orange-200",
     },
     {
       title: "Meeting scheduled",
-      count: "0",
-      subtitle: "No meetings scheduled",
+      count: "18",
+      subtitle: "Upcoming meetings",
       icon: CalendarCheck,
       color: "bg-purple-50 text-purple-600 border-purple-200",
     },
     {
       title: "Follow Up",
-      count: "0",
-      subtitle: "No follow-ups required",
+      count: "31",
+      subtitle: "Requires follow-up",
       icon: ArrowUp,
       color: "bg-blue-50 text-blue-600 border-blue-200",
     },
     {
       title: "Win Leads",
-      count: "0",
-      subtitle: "No successful conversions",
+      count: "30",
+      subtitle: "Successful conversions",
       icon: CheckCircle,
       color: "bg-green-50 text-green-600 border-green-200",
     },
     {
       title: "Not Interested",
-      count: "0",
-      subtitle: "No declined leads",
+      count: "12",
+      subtitle: "Declined leads",
       icon: XCircle,
       color: "bg-red-50 text-red-600 border-red-200",
     },
     {
       title: "Loose Leads",
-      count: "0",
-      subtitle: "No unreachable leads",
+      count: "8",
+      subtitle: "Unreachable leads",
       icon: PhoneOff,
       color: "bg-gray-50 text-gray-600 border-gray-200",
     },
     {
       title: "Transfer Leads",
-      count: "0",
-      subtitle: "No transferred leads",
+      count: "5",
+      subtitle: "Transferred to other teams",
       icon: ArrowRightLeft,
       color: "bg-indigo-50 text-indigo-600 border-indigo-200",
     },
@@ -376,39 +376,7 @@ export default function DashboardContent() {
       {activeTab === 'overview' && (
         <>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {metrics.map((metric, index) => {
-          const Icon = metric.icon
-          return (
-            <Card key={index} className={cx("border-2 group", metric.color)}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 transition-all duration-300 group-hover:text-gray-700 group-hover:font-semibold">{metric.title}</CardTitle>
-                <Icon className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-2xl font-bold transition-all duration-300 group-hover:scale-110">{metric.value}</div>
-                  <div className={`flex items-center text-xs font-medium transition-all duration-300 group-hover:scale-105 ${
-                    metric.trendUp ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {metric.trendUp ? (
-                      <TrendingUp className="w-3 h-3 mr-1 transition-all duration-300 group-hover:scale-110" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3 mr-1 transition-all duration-300 group-hover:scale-110" />
-                    )}
-                    {metric.trend}
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 transition-all duration-300 group-hover:text-gray-700">{metric.subtitle}</p>
-                <div className="w-full bg-current opacity-20 h-1 rounded-full mt-3 transition-all duration-300 group-hover:opacity-30 group-hover:h-1.5"></div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Lead Status Summary */}
+      {/* Lead Status Summary - Moved to top */}
       <div className="space-y-4 mb-8">
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-gray-500" />
@@ -428,6 +396,48 @@ export default function DashboardContent() {
                 <CardContent>
                   <div className="text-2xl font-bold mb-1 transition-all duration-300 group-hover:scale-110">{status.count}</div>
                   <p className="text-xs text-gray-500 transition-all duration-300 group-hover:text-gray-700">{status.subtitle}</p>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Key Performance Metrics - Enhanced styling */}
+      <div className="space-y-4 mb-8">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold">Key Performance Metrics</h2>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Critical business indicators and trends</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {metrics.map((metric, index) => {
+            const Icon = metric.icon
+            return (
+              <Card key={index} className={cx("border-2 group shadow-lg hover:shadow-xl bg-gradient-to-br from-white to-gray-50", metric.color)}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600 transition-all duration-300 group-hover:text-gray-800 group-hover:font-semibold">{metric.title}</CardTitle>
+                  <div className="p-2 rounded-full bg-white shadow-md">
+                    <Icon className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="text-3xl font-bold transition-all duration-300 group-hover:scale-110">{metric.value}</div>
+                    <div className={`flex items-center text-sm font-semibold px-2 py-1 rounded-full transition-all duration-300 group-hover:scale-105 ${
+                      metric.trendUp ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'
+                    }`}>
+                      {metric.trendUp ? (
+                        <TrendingUp className="w-4 h-4 mr-1 transition-all duration-300 group-hover:scale-110" />
+                      ) : (
+                        <TrendingDown className="w-4 h-4 mr-1 transition-all duration-300 group-hover:scale-110" />
+                      )}
+                      {metric.trend}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 transition-all duration-300 group-hover:text-gray-800 mb-3">{metric.subtitle}</p>
+                  <div className="w-full bg-gradient-to-r from-current to-transparent opacity-30 h-2 rounded-full transition-all duration-300 group-hover:opacity-50 group-hover:h-2.5"></div>
                 </CardContent>
               </Card>
             )
@@ -684,15 +694,15 @@ export default function DashboardContent() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center group/summary transition-all duration-300 hover:scale-105">
-                  <div className="text-3xl font-bold text-blue-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">0%</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">87%</div>
                   <div className="text-sm text-gray-600 transition-all duration-300 group-hover/summary:text-gray-800 group-hover/summary:font-medium">Overall Target Achievement</div>
                 </div>
                 <div className="text-center group/summary transition-all duration-300 hover:scale-105">
-                  <div className="text-3xl font-bold text-orange-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">0</div>
+                  <div className="text-3xl font-bold text-orange-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">2</div>
                   <div className="text-sm text-gray-600 transition-all duration-300 group-hover/summary:text-gray-800 group-hover/summary:font-medium">Areas Need Improvement</div>
                 </div>
                 <div className="text-center group/summary transition-all duration-300 hover:scale-105">
-                  <div className="text-3xl font-bold text-green-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">0</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2 transition-all duration-300 group-hover/summary:scale-110">3</div>
                   <div className="text-sm text-gray-600 transition-all duration-300 group-hover/summary:text-gray-800 group-hover/summary:font-medium">Area Exceeding Target</div>
                 </div>
               </div>

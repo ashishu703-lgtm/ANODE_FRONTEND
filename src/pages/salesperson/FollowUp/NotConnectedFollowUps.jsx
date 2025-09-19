@@ -1,40 +1,23 @@
 import React from 'react';
 import FollowUpBase from './FollowUpBase';
+import { useFollowUpData } from './FollowUpDataContext';
 
 const NotConnectedFollowUps = () => {
-  // Sample data for not connected follow-ups
-  const notConnectedData = [
-    {
-      id: 3,
-      name: 'Alex Smith',
-      customerId: 'CUST003',
-      business: 'Smith & Co',
-      address: '789 Market St, Village',
-      state: 'New York',
-      productType: 'Coaxial Cables',
-      customerType: 'Retailer',
-      leadSource: 'Cold Call',
-      date: '2023-09-10',
-      status: 'Not Connected',
-      lastAttempt: '2023-09-13 15:45',
-      nextAttempt: '2023-09-15 10:00'
-    },
-    {
-      id: 4,
-      name: 'Sarah Johnson',
-      customerId: 'CUST004',
-      business: 'Tech Solutions Inc',
-      address: '321 Tech Park, Metro',
-      state: 'Illinois',
-      productType: 'Networking Cables',
-      customerType: 'Reseller',
-      leadSource: 'Trade Show',
-      date: '2023-09-12',
-      status: 'Not Connected',
-      lastAttempt: '2023-09-14 11:30',
-      nextAttempt: '2023-09-16 14:00'
-    }
-  ];
+  const { getLeadsByStatus, loading } = useFollowUpData();
+  
+  // Get not connected leads from the shared data context
+  const notConnectedData = getLeadsByStatus('not-connected');
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading not connected leads...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <FollowUpBase status="not-connected" customData={notConnectedData} />;
 };
